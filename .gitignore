@@ -1,0 +1,12 @@
+*/build
+CMakeFiles/
+*.o
+*.tmp
+*swp
+CMakeCache.txt
+*.so
+*.dll
+Makefile
+*.sh
+*.cmake
+.gdb_history
