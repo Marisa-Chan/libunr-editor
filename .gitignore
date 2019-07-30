@@ -10,3 +10,4 @@ Makefile
 *.sh
 *.cmake
 .gdb_history
+Makefile

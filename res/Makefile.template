@@ -1,0 +1,8 @@
+#################################################
+# Begin Makefile template
+#################################################
+
+install: $(OUTPUT)
+	-@sudo cp -v $(OUTPUT) $(INSTALL_PREFIX)/bin/$(OUTPUT)
+	-@sudo cp -v res/DefaultLibunr-Editor.ini $(INSTALL_PREFIX)/share/DefaultLibunr-Editor.ini
+
