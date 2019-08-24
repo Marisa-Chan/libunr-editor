@@ -34,45 +34,46 @@
 
 #include "Components.h"
 
+enum EBrowserFlags
+{
+    BRWFLG_Package = 0x000000FF, //Everything, render all objects.
+    BRWFLG_Class = 0x00000002,
+    BRWFLG_Audio = 0x00000004,
+    BRWFLG_Music = 0x00000008,
+    BRWFLG_Graphics = 0x00000010,
+    BRWFLG_Mesh = 0x00000020
+};
+
+enum EBrowserViewMode
+{
+    VIEW_Raw = 0, //UTPT-Style mode, analyze all objects in package.
+    VIEW_Thumbnail = 1, //UE4-Content browser-style mode, preview assets in tiles.
+    VIEW_List = 2 //Legacy UE2-style list mode. Still uses tree for Classes.
+};
+
+enum
+{
+    ID_BrowserNew,
+    ID_BrowserOpen,
+    ID_BrowserSave,
+    ID_BrowserImport,
+    ID_BrowserExport,
+    ID_BrowserViewMode_Raw,
+    ID_BrowserViewMode_Thumbnail,
+    ID_BrowserViewMode_List,
+    ID_BrowserViewMode_Preview,
+    ID_BrowserViewMode_Class,
+    ID_BrowserViewMode_Audio,
+    ID_BrowserViewMode_Music,
+    ID_BrowserViewMode_Graphics,
+    ID_BrowserViewMode_Mesh,
+    ID_BrowserDock
+};
+
 class EdBrowser : public EdToolFrame
 {
 public:
     //Browser mode flags.
-    enum EBrowserFlags
-    {
-        BRWFLG_Package = 0x000000FF, //Everything, render all objects.
-        BRWFLG_Class = 0x00000002,
-        BRWFLG_Audio = 0x00000004,
-        BRWFLG_Music = 0x00000008,
-        BRWFLG_Graphics = 0x00000010,
-        BRWFLG_Mesh = 0x00000020
-    };
-    
-    enum EBrowserViewMode
-    {
-        VIEW_Raw = 0, //UTPT-Style mode, analyze all objects in package.
-        VIEW_Thumbnail = 1, //UE4-Content browser-style mode, preview assets in tiles.
-        VIEW_List = 2 //Legacy UE2-style list mode. Still uses tree for Classes.
-    };
-    
-    enum
-    {
-        ID_BrowserNew,
-        ID_BrowserOpen,
-        ID_BrowserSave,
-        ID_BrowserImport,
-        ID_BrowserExport,
-        ID_BrowserViewMode_Raw,
-        ID_BrowserViewMode_Thumbnail,
-        ID_BrowserViewMode_List,
-        ID_BrowserViewMode_Preview,
-        ID_BrowserViewMode_Class,
-        ID_BrowserViewMode_Audio,
-        ID_BrowserViewMode_Music,
-        ID_BrowserViewMode_Graphics,
-        ID_BrowserViewMode_Mesh,
-        ID_BrowserDock
-    };
     
 	EdBrowser( EBrowserFlags BrowserFlags, const wxString& Title, const wxPoint& Pos, const 
 wxSize& Size );

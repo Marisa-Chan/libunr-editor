@@ -31,12 +31,12 @@
 EdToolFrame::EdToolFrame( bool bStartDocked ) 
       : wxFrame( g_EditorFrame, -1, m_DefaultName, wxDefaultPosition )
 {
-       
+    g_funcRegTool(this);
 }
 
 EdToolFrame::~EdToolFrame()
 {
-    
+    g_funcUnRegTool(this);
 }
 
 EdAbout::EdAbout( wxWindow* parent, wxFrame** ptr )

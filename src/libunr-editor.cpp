@@ -37,6 +37,8 @@
 
 #include "Components.h"
 wxFrame* g_EditorFrame;
+bool (*g_funcRegTool)( const EdToolFrame* Tool );
+bool (*g_funcUnRegTool)( const EdToolFrame* Tool );
 
 #include "Browsers.h"
 
@@ -62,14 +64,19 @@ enum
 	ID_Manual
 };
 
+bool GRegTool( const EdToolFrame* Tool );
+bool GUnRegTool( const EdToolFrame* Tool );
+
 //Editor frame, where the real magic happens.
-class EdEditor: public wxFrame
+class EdEditor : public wxFrame
 {
 	public:
 		EdEditor( const wxString& Title, const wxPoint& Pos, const wxSize& Size ) 
 			: wxFrame( NULL, wxID_ANY, Title, Pos, Size )
 		{
             g_EditorFrame = this;
+            g_funcRegTool = GRegTool;
+            g_funcUnRegTool = GUnRegTool;
             
 			//Init interface
 			wxMenu* menuFile = new wxMenu();
@@ -239,7 +246,7 @@ bitmap_MusicBrowser, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
                 }
             }
             
-            editor_Log( "Error: libunr-editor::UnRegTool() : Unregistered tool that does not exist in m_ToolArray!") ;
+            editor_Log( "Error: EdEditor::UnRegTool() : Unregistered tool that does not exist in m_ToolArray!") ;
             return false;
         }
 		
@@ -275,7 +282,10 @@ bitmap_MusicBrowser, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
 		void EVT_Import( wxCommandEvent& event ){}
 		void EVT_Export( wxCommandEvent& event ){}
 		void EVT_Preferences( wxCommandEvent& event ){}
-		void EVT_BrowserPackage( wxCommandEvent& event ){}
+		void EVT_BrowserPackage( wxCommandEvent& event )
+        {
+            new EdBrowser( BRWFLG_Package, "Package Browser", wxPoint( -1, -1 ), wxSize( -1, -1 ) );
+        }
 		void EVT_BrowserClass( wxCommandEvent& event ){}
 		void EVT_BrowserAudio( wxCommandEvent& event ){}
 		void EVT_BrowserMusic( wxCommandEvent& event ){}
@@ -292,6 +302,16 @@ bitmap_MusicBrowser, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
         TArray<EdToolFrame*> m_ToolArray;
         bool m_bSlotEmptied = false;
 };
+
+bool GRegTool( const EdToolFrame* Tool )
+{
+    return static_cast<EdEditor*>(g_EditorFrame)->RegTool(Tool);
+}
+
+bool GUnRegTool( const EdToolFrame* Tool )
+{
+    return static_cast<EdEditor*>(g_EditorFrame)->UnRegTool(Tool);
+}
 
 // ID bind
 wxBEGIN_EVENT_TABLE(EdEditor, wxFrame)

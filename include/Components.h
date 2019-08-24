@@ -35,8 +35,6 @@
 
 #include <wx/wrapsizer.h>
 
-extern wxFrame* g_EditorFrame;
-
 class EdToolFrame : public wxFrame
 {
 public:
@@ -48,6 +46,11 @@ public:
       const wxString m_DefaultName = "Editor Tool";
 
 };
+
+ //Editor Interface, Do not alter!
+extern wxFrame* g_EditorFrame;
+extern bool (*g_funcRegTool)( const EdToolFrame* Tool );
+extern bool (*g_funcUnRegTool)( const EdToolFrame* Tool );
 
 class EdAbout : public wxFrame
 {
