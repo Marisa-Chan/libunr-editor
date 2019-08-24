@@ -9,6 +9,7 @@ BUILD_32BIT=0
 BUILD_VERBOSE=0
 BUILD_COMPILER="g++"
 BUILD_LIBUNR_PATH="/usr/lib/libunr.so" #-> /usr/lib/libunr.so
+BUILD_LIBUNR_HEADER_PATH="/usr/include/libunr"
 BUILD_LIBUNR_EDITOR_INSTALL_PATH="/usr"
 
 if [ $(command -v wx-config) = "" ]; then
@@ -36,6 +37,7 @@ print_help()
   echo "   -m  Configure makefile with 32-bit"
   echo "   -c  Configure makefile to use a specified compiler"
   echo "   -l  Configure makefile to find libunr library"
+  echo "   -H  Configure makefile to find libunr library"
   echo "   -i  Configure makefile to install to specified directory"
   echo "   -v  Configure makefile with verbose output"
   echo
@@ -53,6 +55,7 @@ while getopts "hdsc:vim" opt; do
   m) BUILD_32BIT=1 ;;
   c) BUILD_COMPILER="$OPTARG" ;;
   l) BUILD_LIBUNR_PATH="$OPTARG" ;;
+  h) BUILD_LIBUNR_HEADER_PATH="$OPTARG" ;;
   i) BUILD_LIBUNR_EDITOR_INSTALL_PATH="$OPTARG" ;;
   v) BUILD_VERBOSE=1 ;;
   esac
@@ -69,13 +72,16 @@ echo "BUILD_VERBOSE="$BUILD_VERBOSE
 echo "BUILD_COMPILER="$BUILD_COMPILER
 echo "BUILD_LIBUNR_PATH="$BUILD_LIBUNR_PATH
 echo "BUILD_LIBUNR_EDITOR_INSTALL_PATH="$BUILD_LIBUNR_EDITOR_INSTALL_PATH
+echo "BUILD_LIBUNR_HEADER_PATH="$BUILD_LIBUNR_HEADER_PATH
 
 CONFIG_CFLAGS=""
 
 # Compiler specific options
 if [ "$BUILD_COMPILER" = "g++" ] || [ "$BUILD_COMPILER" = "clang++" ] 
 then
-  CONFIG_CFLAGS="-fPIC $BUILD_LIBUNR_PATH -I/usr/include -I./include -fmax-errors=10 -std=c++11 -Wno-attributes $BUILD_WXLIB -L$BUILD_WXLIB_PREFIX $BUILD_WXLIB_LIBRARIES -DINSTALL_PREFIX=\\\"$BUILD_LIBUNR_EDITOR_INSTALL_PATH\\\""
+  CONFIG_CFLAGS="-fPIC $BUILD_LIBUNR_PATH -I/usr/include -I$BUILD_LIBUNR_HEADER_PATH -I./include 
+-fmax-errors=10 -std=c++11 -Wno-attributes $BUILD_WXLIB -L$BUILD_WXLIB_PREFIX 
+$BUILD_WXLIB_LIBRARIES -DINSTALL_PREFIX=\\\"$BUILD_LIBUNR_EDITOR_INSTALL_PATH\\\""
   if [ "$BUILD_DEBUG" -eq 1 ]
   then
     CONFIG_CFLAGS="$CONFIG_CFLAGS -g -O0"

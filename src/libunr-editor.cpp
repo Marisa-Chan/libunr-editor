@@ -31,20 +31,28 @@
     #include <wx/wx.h>
 #endif
 
-#include "Components.inc"
+#include <wx/statline.h>
+
+#include <libunr/Util/TArray.h>
+
+#include "Components.h"
+wxFrame* g_EditorFrame;
+
+#include "Browsers.h"
 
 // ID Table
 enum
 {
-	ID_NewMap,
-	ID_OpenMap,
-	ID_NewPackage,
-	ID_OpenPackage,
-	ID_ImportAsset,
+	ID_New,
+	ID_Open,
+    ID_Save,
+	ID_Import,
+    ID_Export,
 	ID_Preferences,
 	ID_BrowserPackage,
-	ID_BrowserActor,
+	ID_BrowserClass,
 	ID_BrowserAudio,
+    ID_BrowserMusic,
 	ID_BrowserGraphics,
 	ID_BrowserMesh,
 	ID_ViewLog,
@@ -55,31 +63,31 @@ enum
 };
 
 //Editor frame, where the real magic happens.
-class libunr_editor: public wxFrame
+class EdEditor: public wxFrame
 {
 	public:
-		libunr_editor( const wxString& Title, const wxPoint& Pos, const wxSize& Size ) 
+		EdEditor( const wxString& Title, const wxPoint& Pos, const wxSize& Size ) 
 			: wxFrame( NULL, wxID_ANY, Title, Pos, Size )
 		{
+            g_EditorFrame = this;
+            
 			//Init interface
 			wxMenu* menuFile = new wxMenu();
 			
-				menuFile->Append(ID_NewMap, "&New Map... \tCTRL+N",
-					"Start a new map in the map tool");
-				menuFile->Append(ID_OpenMap, "&Open Map... \tCTRL+O",
-					"Open an existing map using the map tool");
+				menuFile->Append(ID_New, "&New... \tCTRL+N",
+					"Start a new map/Package");
+				menuFile->Append(ID_Open, "&Open... \tCTRL+O",
+					"Open an existing map or package");
+				menuFile->Append(ID_Save, "&Save All... \tCTRL+O",
+					"Save all modified maps/packages");
 				
 				menuFile->AppendSeparator();
 				
-				menuFile->Append(ID_NewPackage, "&New Package... \tCTRL+N+P",
-					"Create a new package in the editor");
-				menuFile->Append(ID_OpenPackage, "&Open Package... \tCTRL+O+P",
-					"Load a package into the editor");
-				
-				menuFile->AppendSeparator();
-				
-				menuFile->Append(ID_ImportAsset, "&Import Asset... \tCTRL+O+I",
+				menuFile->Append(ID_Import, "&Import... \tCTRL+O+I",
 					"Import an asset into a package");
+                    
+                menuFile->Append(ID_Export, "&Export... \tCTRL+O+E",
+			    "Export Contents of Package/Map");
 				
 				menuFile->AppendSeparator();
 				
@@ -93,8 +101,11 @@ class libunr_editor: public wxFrame
 				menuView->AppendSeparator();
 				
 				menuView->Append(ID_BrowserPackage, "&Package Browser...", "Open a Package browser instance");
-				menuView->Append(ID_BrowserActor, "&Actor Browser...", "Open an Actor browser instance");
-				menuView->Append(ID_BrowserAudio, "&Audio Browser...", "Open an Audio browser instance");
+				menuView->Append(ID_BrowserClass, "&Class Browser...", "Open an Class browser instance");
+				menuView->Append(ID_BrowserAudio, "&Audio Browser...", "Open an Audio browser\
+instance");
+                menuView->Append(ID_BrowserMusic, "&Music Browser...", "Open a Music browser\
+instance");
 				menuView->Append(ID_BrowserGraphics, "&Graphics Browser...", "Open a Graphics browser instance");
 				menuView->Append(ID_BrowserMesh, "&Mesh Browser...", "Open a mesh browser instance");
 				
@@ -104,8 +115,8 @@ class libunr_editor: public wxFrame
 				menuView->Append(ID_ActiveTools, "&Show Tools...", "Show all running tools");
 			
 			wxMenu* menuTools = new wxMenu();
-			
-				menuTools->Append(ID_MapEditor, "&Map Editor...", "Open a map editor instance");
+            
+                menuTools->Append(ID_MapEditor, "&Map Editor...", "New editor tab.");
 				menuTools->Append(ID_MeshEditor, "&Mesh Editor...", "Used for advanced brush-building, quick-prefabs, 2d-shape editor, etc.");
 			
 			wxMenu* menuHelp = new wxMenu();
@@ -119,49 +130,118 @@ class libunr_editor: public wxFrame
 				menuBar->Append( menuView, "&View" );
 				menuBar->Append( menuTools, "&Tools" );
 				menuBar->Append( menuHelp, "&Help" );
-				
+            
 			SetMenuBar( menuBar );
             
-            wxToolBar *toolbar = CreateToolBar();
+            wxBoxSizer* contentSizer = new wxBoxSizer( wxVERTICAL );
+            
+            wxPanel* toolBar = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( -1, 40 ), wxBORDER_RAISED );
+            
+            contentSizer->Add( toolBar, 0, wxALIGN_TOP | wxALIGN_LEFT | wxEXPAND );
+            
+            wxBoxSizer* buttonSizer = new wxBoxSizer( wxHORIZONTAL );
+            
+            #define C_BUTTONSIZE 34
+            #define C_BUTTONCOLOUR wxColour( 130, 130, 130 )
             
             wxBitmap bitmap_NewMap( "res/bitmap/New.png", wxBITMAP_TYPE_PNG );
-            toolbar->AddTool( ID_NewMap, wxT("New Map"), bitmap_NewMap );
-            toolbar->Realize();
+            wxBitmapButton* button_NewMap = new wxBitmapButton( toolBar, ID_New, bitmap_NewMap, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
+            buttonSizer->Add( button_NewMap, 0, wxALIGN_CENTRE_VERTICAL );
             
             wxBitmap bitmap_OpenMap( "res/bitmap/Open.png", wxBITMAP_TYPE_PNG );
-            toolbar->AddTool( ID_NewMap, wxT("New Map"), bitmap_OpenMap );
-            toolbar->Realize();
+            wxBitmapButton* button_OpenMap = new wxBitmapButton( toolBar, ID_Open, bitmap_OpenMap, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
+            buttonSizer->Add( button_OpenMap, 0, wxALIGN_CENTRE_VERTICAL );
             
-            wxBitmap bitmap_SaveMap( "res/bitmap/Save.png", wxBITMAP_TYPE_PNG );
-            toolbar->AddTool( ID_NewMap, wxT("New Map"), bitmap_SaveMap );
-            toolbar->Realize();
+            wxBitmap bitmap_Save( "res/bitmap/Save.png", wxBITMAP_TYPE_PNG );
+            wxBitmapButton* button_Save = new wxBitmapButton( toolBar, ID_Save, bitmap_Save, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
+            buttonSizer->Add( button_Save, 0, wxALIGN_CENTRE_VERTICAL );
+            
+            buttonSizer->AddSpacer( C_BUTTONSIZE );
             
             wxBitmap bitmap_PackageBrowser( "res/bitmap/PackageBrowser.png", wxBITMAP_TYPE_PNG );
-            toolbar->AddTool( ID_NewMap, wxT("New Map"), bitmap_PackageBrowser );
-            toolbar->Realize();
+            wxBitmapButton* button_PackageBrowser = new wxBitmapButton( toolBar, ID_BrowserPackage, bitmap_PackageBrowser, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
+            buttonSizer->Add( button_PackageBrowser, 0, wxALIGN_CENTRE_VERTICAL );
             
-            wxBitmap bitmap_ActorBrowser( "res/bitmap/ActorBrowser.png", wxBITMAP_TYPE_PNG );
-            toolbar->AddTool( ID_NewMap, wxT("New Map"), bitmap_ActorBrowser );
-            toolbar->Realize();
+            wxBitmap bitmap_ClassBrowser( "res/bitmap/ClassBrowser.png", wxBITMAP_TYPE_PNG );
+            wxBitmapButton* button_ClassBrowser = new wxBitmapButton( toolBar, ID_BrowserClass, bitmap_ClassBrowser, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
+            buttonSizer->Add( button_ClassBrowser, 0, wxALIGN_CENTRE_VERTICAL );
             
             wxBitmap bitmap_AudioBrowser( "res/bitmap/AudioBrowser.png", wxBITMAP_TYPE_PNG );
-            toolbar->AddTool( ID_NewMap, wxT("New Map"), bitmap_AudioBrowser );
-            toolbar->Realize();
+            wxBitmapButton* button_AudioBrowser = new wxBitmapButton( toolBar, ID_BrowserAudio, bitmap_AudioBrowser, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
+            buttonSizer->Add( button_AudioBrowser, 0, wxALIGN_CENTRE_VERTICAL );
+            
+            wxBitmap bitmap_MusicBrowser( "res/bitmap/MusicBrowser.png", wxBITMAP_TYPE_PNG );
+            wxBitmapButton* button_MusicBrowser = new wxBitmapButton( toolBar, ID_BrowserMusic, 
+bitmap_MusicBrowser, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
+            buttonSizer->Add( button_MusicBrowser, 0, wxALIGN_CENTRE_VERTICAL );
             
             wxBitmap bitmap_GraphicsBrowser( "res/bitmap/GraphicsBrowser.png", wxBITMAP_TYPE_PNG );
-            toolbar->AddTool( ID_NewMap, wxT("New Map"), bitmap_GraphicsBrowser );
-            toolbar->Realize();
+            wxBitmapButton* button_GraphicsBrowser = new wxBitmapButton( toolBar, ID_BrowserGraphics, bitmap_GraphicsBrowser, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
+            buttonSizer->Add( button_GraphicsBrowser, 0, wxALIGN_CENTRE_VERTICAL );
             
             wxBitmap bitmap_MeshBrowser( "res/bitmap/MeshBrowser.png", wxBITMAP_TYPE_PNG );
-            toolbar->AddTool( ID_NewMap, wxT("New Map"), bitmap_MeshBrowser );
-            toolbar->Realize();
+            wxBitmapButton* button_MeshBrowser = new wxBitmapButton( toolBar, ID_BrowserMesh, bitmap_MeshBrowser, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
+            buttonSizer->Add( button_MeshBrowser, 0, wxALIGN_CENTRE_VERTICAL );
             
-            Connect( ID_NewMap, wxEVT_COMMAND_TOOL_CLICKED, 
-            wxCommandEventHandler(libunr_editor::EVT_NewMap) );
+            toolBar->SetSizer(buttonSizer);
+            
+            wxPanel* tabBar = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( -1, 24 ), wxBORDER_NONE );
+            contentSizer->Add( tabBar, 0, wxALIGN_TOP | wxEXPAND );
+            
+            wxBoxSizer* contentSizer2 = new wxBoxSizer( wxHORIZONTAL );
+            contentSizer->Add( contentSizer2, 1, wxEXPAND );
+            
+            wxPanel* toolBar2 = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( 80, -1 ), wxBORDER_RAISED );
+            contentSizer2->Add( toolBar2, 0, wxALIGN_LEFT | wxEXPAND );
+            
+            wxPanel* backGround = new wxPanel( this );
+            backGround->SetBackgroundColour( wxColour( 80, 80, 80 ) );
+            contentSizer2->Add( backGround, 1, wxEXPAND );
+            
+            this->SetSizer(contentSizer);
 			
 			CreateStatusBar();
 			SetStatusText( "Welcome to libunr!" );
 		}
+        
+        //Tool Management
+        
+        //Register a new tool instance.
+        bool RegTool( const EdToolFrame* Tool )
+        {
+            if( m_bSlotEmptied ) //Slot emptied earlier, try to find and use that slot.
+            {
+                for( size_t i = 0; i++; i<m_ToolArray.Size() )
+                {
+                    if( m_ToolArray[i]==NULL ) //Found it, use it.
+                    {
+                        m_ToolArray[i] = (EdToolFrame*)Tool; //manually casted cuz wxWidgets
+                        return true;
+                    }
+                }
+                //We couldn't find a slot, Turn m_bSlotEmptied off. Proceed to push back a new one.
+                m_bSlotEmptied = false;
+            }
+            
+            m_ToolArray.PushBack( (EdToolFrame*)Tool );
+            return true;
+        }
+        //Unregister a tool instance.
+        bool UnRegTool( const EdToolFrame* Tool )
+        {
+            for( size_t i = 0; i++; i<m_ToolArray.Size() )
+            {
+                if( m_ToolArray[i]==Tool )
+                {
+                    m_ToolArray[i] = NULL;
+                    m_bSlotEmptied = true;
+                    return true;
+                }
+            }
+            
+            editor_Log( "Error: libunr-editor::UnRegTool() : Unregistered tool that does not exist in m_ToolArray!") ;
+            return false;
+        }
 		
 	private:
 	
@@ -180,22 +260,25 @@ class libunr_editor: public wxFrame
             
             if( aboutFrame == NULL ) //Is there already an about window open?
             {
-                aboutFrame = new editor_about( this, &aboutFrame );
+                aboutFrame = new EdAbout( this, &aboutFrame );
             }
             else
             {
                 aboutFrame->SetFocus();
             }
         }
-		void EVT_NewMap( wxCommandEvent& event ){}
-		void EVT_OpenMap( wxCommandEvent& event ){}
-		void EVT_NewPackage( wxCommandEvent& event ){}
-		void EVT_OpenPackage( wxCommandEvent& event ){}
-		void EVT_ImportAsset( wxCommandEvent& event ){}
+        
+        //Events
+		void EVT_New( wxCommandEvent& event ){}
+		void EVT_Open( wxCommandEvent& event ){}
+        void EVT_Save( wxCommandEvent& event ){}
+		void EVT_Import( wxCommandEvent& event ){}
+		void EVT_Export( wxCommandEvent& event ){}
 		void EVT_Preferences( wxCommandEvent& event ){}
 		void EVT_BrowserPackage( wxCommandEvent& event ){}
-		void EVT_BrowserActor( wxCommandEvent& event ){}
+		void EVT_BrowserClass( wxCommandEvent& event ){}
 		void EVT_BrowserAudio( wxCommandEvent& event ){}
+		void EVT_BrowserMusic( wxCommandEvent& event ){}
 		void EVT_BrowserGraphics( wxCommandEvent& event ){}
 		void EVT_BrowserMesh( wxCommandEvent& event ){}
 		void EVT_ViewLog( wxCommandEvent& event ){}
@@ -205,42 +288,46 @@ class libunr_editor: public wxFrame
 		void EVT_Manual( wxCommandEvent& event ){}
 		
 		wxDECLARE_EVENT_TABLE();
+        
+        TArray<EdToolFrame*> m_ToolArray;
+        bool m_bSlotEmptied = false;
 };
 
 // ID bind
-wxBEGIN_EVENT_TABLE(libunr_editor, wxFrame)
-    EVT_MENU(wxID_EXIT,   libunr_editor::OnExit)
-	EVT_MENU(wxID_ABOUT,   libunr_editor::OnAbout)
-	EVT_MENU(ID_NewMap,   libunr_editor::EVT_NewMap)
-	EVT_MENU(ID_OpenMap,   libunr_editor::EVT_OpenMap)
-	EVT_MENU(ID_NewPackage,   libunr_editor::EVT_NewPackage)
-	EVT_MENU(ID_OpenPackage,   libunr_editor::EVT_OpenPackage)
-	EVT_MENU(ID_ImportAsset,   libunr_editor::EVT_ImportAsset)
-	EVT_MENU(ID_Preferences,   libunr_editor::EVT_Preferences)
-	EVT_MENU(ID_BrowserPackage,   libunr_editor::EVT_BrowserPackage)
-	EVT_MENU(ID_BrowserActor,   libunr_editor::EVT_BrowserActor)
-	EVT_MENU(ID_BrowserAudio,   libunr_editor::EVT_BrowserAudio)
-	EVT_MENU(ID_BrowserGraphics,   libunr_editor::EVT_BrowserGraphics)
-	EVT_MENU(ID_BrowserMesh,   libunr_editor::EVT_BrowserMesh)
-	EVT_MENU(ID_ViewLog,   libunr_editor::EVT_ViewLog)
-	EVT_MENU(ID_ActiveTools,   libunr_editor::EVT_ActiveTools)
-	EVT_MENU(ID_MapEditor,   libunr_editor::EVT_MapEditor)
-	EVT_MENU(ID_MeshEditor,   libunr_editor::EVT_MeshEditor)
-	EVT_MENU(ID_Manual,   libunr_editor::EVT_Manual)
+wxBEGIN_EVENT_TABLE(EdEditor, wxFrame)
+    EVT_MENU(wxID_EXIT,   EdEditor::OnExit)
+	EVT_MENU(wxID_ABOUT,   EdEditor::OnAbout)
+	EVT_MENU(ID_New,   EdEditor::EVT_New)
+	EVT_MENU(ID_Open,   EdEditor::EVT_Open)
+    EVT_MENU(ID_Save,   EdEditor::EVT_Save)
+	EVT_MENU(ID_Import,   EdEditor::EVT_Import)
+	EVT_MENU(ID_Export,   EdEditor::EVT_Export)
+	EVT_MENU(ID_Preferences,   EdEditor::EVT_Preferences)
+	EVT_MENU(ID_BrowserPackage,   EdEditor::EVT_BrowserPackage)
+	EVT_MENU(ID_BrowserClass,   EdEditor::EVT_BrowserClass)
+	EVT_MENU(ID_BrowserAudio,   EdEditor::EVT_BrowserAudio)
+    EVT_MENU(ID_BrowserMusic,   EdEditor::EVT_BrowserMusic)
+	EVT_MENU(ID_BrowserGraphics,   EdEditor::EVT_BrowserGraphics)
+	EVT_MENU(ID_BrowserMesh,   EdEditor::EVT_BrowserMesh)
+	EVT_MENU(ID_ViewLog,   EdEditor::EVT_ViewLog)
+	EVT_MENU(ID_ActiveTools,   EdEditor::EVT_ActiveTools)
+	EVT_MENU(ID_MapEditor,   EdEditor::EVT_MapEditor)
+	EVT_MENU(ID_MeshEditor,   EdEditor::EVT_MeshEditor)
+	EVT_MENU(ID_Manual,   EdEditor::EVT_Manual)
 wxEND_EVENT_TABLE()
 
 //Executable start
-class WXAPP_libunr_editor: public wxApp
+class WXAPP_EdEditor: public wxApp
 {
 public:
 	virtual bool OnInit()
 	{
-		libunr_editor* frame = new libunr_editor( "libunr-editor", wxPoint(-1,-1), wxSize(-1,-1) );
+		EdEditor* frame = new EdEditor( "libunr-editor", wxPoint(-1,-1), wxSize( wxSystemSettings::GetMetric ( wxSYS_SCREEN_X ), wxSystemSettings::GetMetric ( wxSYS_SCREEN_Y ) ) );
 		frame->Show(true);
 		return true;
 	}
 };
 
-wxIMPLEMENT_APP(WXAPP_libunr_editor);
+wxIMPLEMENT_APP(WXAPP_EdEditor);
 
 
