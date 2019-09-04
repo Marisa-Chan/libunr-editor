@@ -22,21 +22,41 @@
 /*========================================================================
  * Components.cpp
  * 
+ * 
+ * 
+ * j
  * written by Jesse 'Hyzoran' Kowalik
  *========================================================================
 */
 
+
+#include "private/libunr-editor.h"
 #include "Components.h"
 
-EdToolFrame::EdToolFrame( bool bStartDocked ) 
-      : wxFrame( g_EditorFrame, -1, m_DefaultName, wxDefaultPosition )
+void* EdEditor::GetFrame()
 {
-    g_funcRegTool(this);
+    return EdEditorFrame::GetFrame();
+}
+
+bool EdEditor::NewTool( const EdToolFrame* Tool )
+{
+    return EdEditorFrame::NewTool( Tool );
+}
+
+bool EdEditor::KillTool( const EdToolFrame* Tool )
+{
+    return EdEditorFrame::KillTool( Tool );
+}
+
+EdToolFrame::EdToolFrame( bool bStartDocked ) 
+      : wxFrame( (EdEditorFrame*)EdEditor::GetFrame(), -1, "Editor Tool", wxDefaultPosition )
+{
+    EdEditor::NewTool(this);
 }
 
 EdToolFrame::~EdToolFrame()
 {
-    g_funcUnRegTool(this);
+    EdEditor::KillTool(this);
 }
 
 EdAbout::EdAbout( wxWindow* parent, wxFrame** ptr )

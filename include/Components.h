@@ -25,7 +25,6 @@
  * written by Jesse 'Hyzoran' Kowalik
  *========================================================================
 */
-
 #pragma once
 
 #include <wx/wxprec.h>
@@ -35,6 +34,14 @@
 
 #include <wx/wrapsizer.h>
 
+namespace EdEditor //Editor interface
+{
+    void* GetFrame();
+    bool NewTool( const EdToolFrame* Tool );
+    bool KillTool( const EdToolFrame* Tool );
+    void Editor_Log( const wxString& Msg );
+}
+
 class EdToolFrame : public wxFrame
 {
 public:
@@ -43,14 +50,7 @@ public:
       ~EdToolFrame();
       
       bool m_bDocked = false;
-      const wxString m_DefaultName = "Editor Tool";
-
 };
-
- //Editor Interface, Do not alter!
-extern wxFrame* g_EditorFrame;
-extern bool (*g_funcRegTool)( const EdToolFrame* Tool );
-extern bool (*g_funcUnRegTool)( const EdToolFrame* Tool );
 
 class EdAbout : public wxFrame
 {

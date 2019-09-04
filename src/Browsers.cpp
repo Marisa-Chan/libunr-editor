@@ -3,6 +3,7 @@
 EdBrowser::EdBrowser( EBrowserFlags BrowserFlags, const wxString& Title, const wxPoint& 
 Pos, const wxSize& Size ) : EdToolFrame(false), m_BrowserFlags(BrowserFlags)
 {
+    /*
     if( m_BrowserFlags == BRWFLG_Package ) //If using classes, prefer list mode..
         m_ViewMode = VIEW_Raw;
     else if( m_BrowserFlags == BRWFLG_Class ) //If using classes, prefer list mode..
@@ -118,8 +119,13 @@ Pos, const wxSize& Size ) : EdToolFrame(false), m_BrowserFlags(BrowserFlags)
     //TODO: Package Bar 
     //TODO: Group Bar
     
-    this->Show(true);
+    Centre();
+    
+    SetMinSize( wxSize(420,400) );
+    
+    */
 }
+
 
 void EdBrowser::renderMenu() //Update Browser Menu
 {
