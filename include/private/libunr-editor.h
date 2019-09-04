@@ -37,6 +37,7 @@
 #include <libunr/Util/TArray.h>
 
 #include "Components.h"
+#include "Browsers.h"
 
 enum
 {
@@ -64,6 +65,7 @@ class EdEditorFrame : public wxFrame
 {
 public:
     EdEditorFrame( const wxString& Title, const wxPoint& Pos, const wxSize& Size );
+    ~EdEditorFrame();
     
     static bool NewTool( const EdToolFrame* Tool );
     static bool KillTool( const EdToolFrame* Tool );

@@ -170,6 +170,17 @@ bitmap_MusicBrowser, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
     SetStatusText( "Welcome to libunr!" );
 }
 
+EdEditorFrame::~EdEditorFrame()
+{
+    for( size_t i = 0; i++; i<sm_ToolArray.Size() )
+    {
+        if( sm_ToolArray[i] != NULL )
+        {
+            delete sm_ToolArray[i];
+        }
+    }
+}
+
 bool EdEditorFrame::NewTool( const EdToolFrame* Tool )
 {
     if( sm_EmptySlots > 0 ) //A slot was freed earlier, find and use that slot.
@@ -184,7 +195,8 @@ bool EdEditorFrame::NewTool( const EdToolFrame* Tool )
             }
         }
         //None found? Something went wrong.
-        Editor_Log( "Warning: EdEditorFrame::NewTool : sm_EmptySlots > 0, but none found in sm_ToolArray! Possible memory corruption and/or leak.\nPushing new tool to end of array...") ;
+        Editor_Log( "Warning: EdEditorFrame::NewTool : sm_EmptySlots > 0, but none found in sm_ToolArray!\
+         Possible memory corruption and/or leak.\nPushing new tool to end of array...") ;
     }
     sm_ToolArray.PushBack( (EdToolFrame*)Tool );
     return true;
@@ -245,6 +257,7 @@ void EdEditorFrame::EVT_Preferences( wxCommandEvent& event ){}
 
 void EdEditorFrame::EVT_BrowserPackage( wxCommandEvent& event )
 {
+    new EdBrowser( BRWFLG_Package, false );
 }
 
 void EdEditorFrame::EVT_BrowserClass( wxCommandEvent& event ){}
@@ -269,7 +282,8 @@ void EdEditorFrame::EVT_Manual( wxCommandEvent& event ){}
 
 bool WXAPP_EdEditor::OnInit()
 {
-    EdEditorFrame* frame = new EdEditorFrame( "libunr-editor", wxPoint(-1,-1), wxSize( wxSystemSettings::GetMetric ( wxSYS_SCREEN_X ), wxSystemSettings::GetMetric ( wxSYS_SCREEN_Y ) ) );
+    EdEditorFrame* frame = new EdEditorFrame( "libunr-editor", wxPoint(-1,-1), 
+        wxSize( wxSystemSettings::GetMetric ( wxSYS_SCREEN_X ), wxSystemSettings::GetMetric ( wxSYS_SCREEN_Y ) ) );
     frame->Show(true);
     return true;
 }
@@ -284,11 +298,17 @@ wxBEGIN_EVENT_TABLE(EdEditorFrame, wxFrame)
     EVT_MENU(ID_Export, EdEditorFrame::EVT_Export)
     EVT_MENU(ID_Preferences, EdEditorFrame::EVT_Preferences)
     EVT_MENU(ID_BrowserPackage, EdEditorFrame::EVT_BrowserPackage)
+    EVT_BUTTON(ID_BrowserPackage, EdEditorFrame::EVT_BrowserPackage)
     EVT_MENU(ID_BrowserClass, EdEditorFrame::EVT_BrowserClass)
+    EVT_BUTTON(ID_BrowserClass, EdEditorFrame::EVT_BrowserClass)
     EVT_MENU(ID_BrowserAudio, EdEditorFrame::EVT_BrowserAudio)
+    EVT_BUTTON(ID_BrowserAudio, EdEditorFrame::EVT_BrowserAudio)
     EVT_MENU(ID_BrowserMusic, EdEditorFrame::EVT_BrowserMusic)
+    EVT_BUTTON(ID_BrowserMusic, EdEditorFrame::EVT_BrowserMusic)
     EVT_MENU(ID_BrowserGraphics, EdEditorFrame::EVT_BrowserGraphics)
+    EVT_BUTTON(ID_BrowserGraphics, EdEditorFrame::EVT_BrowserGraphics)
     EVT_MENU(ID_BrowserMesh, EdEditorFrame::EVT_BrowserMesh)
+    EVT_BUTTON(ID_BrowserMesh, EdEditorFrame::EVT_BrowserMesh)
     EVT_MENU(ID_ViewLog, EdEditorFrame::EVT_ViewLog)
     EVT_MENU(ID_ActiveTools, EdEditorFrame::EVT_ActiveTools)
     EVT_MENU(ID_MapEditor, EdEditorFrame::EVT_MapEditor)

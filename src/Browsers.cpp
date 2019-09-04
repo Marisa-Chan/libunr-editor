@@ -1,23 +1,22 @@
 #include "Browsers.h"
 
-EdBrowser::EdBrowser( EBrowserFlags BrowserFlags, const wxString& Title, const wxPoint& 
-Pos, const wxSize& Size ) : EdToolFrame(false), m_BrowserFlags(BrowserFlags)
+EdBrowser::EdBrowser( int BrowserFlags, bool bDock ) : EdToolFrame(bDock), m_BrowserFlags(BrowserFlags)
 {
-    /*
-    if( m_BrowserFlags == BRWFLG_Package ) //If using classes, prefer list mode..
-        m_ViewMode = VIEW_Raw;
-    else if( m_BrowserFlags == BRWFLG_Class ) //If using classes, prefer list mode..
+    //Default Viewmode per browser mode.
+    if( m_BrowserFlags == BRWFLG_Class )
         m_ViewMode = VIEW_List;
-    else
+    else if( m_BrowserFlags == BRWFLG_Audio )
+        m_ViewMode = VIEW_List;
+    else if( m_BrowserFlags == BRWFLG_Music )
+        m_ViewMode = VIEW_List;
+    else if( m_BrowserFlags == BRWFLG_Graphics )
         m_ViewMode = VIEW_Thumbnail;
+    else if( m_BrowserFlags == BRWFLG_Mesh )
+        m_ViewMode = VIEW_Thumbnail;
+    else
+        m_ViewMode = VIEW_Raw;
     
     wxMenu* menuFile = new wxMenu();
-    
-    if( m_MenuBar != NULL )
-        delete m_MenuBar;
-    
-    if( m_MenuFile != NULL)
-        delete m_MenuFile;
     
     m_MenuFile = new wxMenu();
     
@@ -34,9 +33,6 @@ Pos, const wxSize& Size ) : EdToolFrame(false), m_BrowserFlags(BrowserFlags)
 					"Import Assets into Package");
         m_MenuFile->Append(ID_BrowserExport, "&Export... ",
 					"Export Objects from package");
-        
-    if( m_MenuView != NULL)
-        delete m_MenuView;
     
     m_MenuViewMode = new wxMenu();
     
@@ -44,29 +40,15 @@ Pos, const wxSize& Size ) : EdToolFrame(false), m_BrowserFlags(BrowserFlags)
         m_MenuViewMode->AppendCheckItem(ID_BrowserViewMode_Thumbnail, "Tile View", "");
         m_MenuViewMode->AppendCheckItem(ID_BrowserViewMode_List, "List View", "");
         
-        if( m_ViewMode == VIEW_Raw )
-            m_MenuViewMode->Check( ID_BrowserViewMode_Raw, true );
-        else
-            m_MenuViewMode->Check( ID_BrowserViewMode_Raw, false );
-        
-        if( m_ViewMode == VIEW_Thumbnail )
-            m_MenuViewMode->Check( ID_BrowserViewMode_Thumbnail, true );
-        else
-            m_MenuViewMode->Check( ID_BrowserViewMode_Thumbnail, false );
-        
-        if( m_ViewMode == VIEW_List )
-            m_MenuViewMode->Check( ID_BrowserViewMode_List, true );
-        else
-            m_MenuViewMode->Check( ID_BrowserViewMode_List, false );
+        m_MenuViewMode->Check( ID_BrowserViewMode_Raw, m_ViewMode == VIEW_Raw );
+        m_MenuViewMode->Check( ID_BrowserViewMode_Thumbnail, m_ViewMode == VIEW_Thumbnail );
+        m_MenuViewMode->Check( ID_BrowserViewMode_List, m_ViewMode == VIEW_List );
         
         m_MenuViewMode->AppendSeparator();
         
         m_MenuViewMode->AppendCheckItem( ID_BrowserViewMode_Preview, "Display Preview", "" );
         
-        if( m_bPreview )
-            m_MenuViewMode->Check( ID_BrowserViewMode_Preview, true );
-        else
-            m_MenuViewMode->Check( ID_BrowserViewMode_Preview, false );
+        m_MenuViewMode->Check( ID_BrowserViewMode_Preview, m_bPreview );
         
         m_MenuViewMode->AppendSeparator();
         
@@ -76,34 +58,10 @@ Pos, const wxSize& Size ) : EdToolFrame(false), m_BrowserFlags(BrowserFlags)
         m_MenuViewMode->AppendCheckItem( ID_BrowserViewMode_Graphics, "Graphics", "" );
         m_MenuViewMode->AppendCheckItem( ID_BrowserViewMode_Mesh, "Meshes", "" );
         
-        if( m_BrowserFlags & BRWFLG_Class )
-            m_MenuViewMode->Check( ID_BrowserViewMode_Class, true );
-        else
-            m_MenuViewMode->Check( ID_BrowserViewMode_Class, false );
-        
-        if( m_BrowserFlags & BRWFLG_Audio )
-            m_MenuViewMode->Check( ID_BrowserViewMode_Audio, true );
-        else
-            m_MenuViewMode->Check( ID_BrowserViewMode_Audio, false );
-        
-        if( m_BrowserFlags & BRWFLG_Music )
-            m_MenuViewMode->Check( ID_BrowserViewMode_Music, true );
-        else
-            m_MenuViewMode->Check( ID_BrowserViewMode_Music, false );
-        
-        if( m_BrowserFlags & BRWFLG_Graphics )
-            m_MenuViewMode->Check( ID_BrowserViewMode_Graphics, true );
-        else
-            m_MenuViewMode->Check( ID_BrowserViewMode_Graphics, false );
-        
-        if( m_BrowserFlags & BRWFLG_Mesh)
-            m_MenuViewMode->Check( ID_BrowserViewMode_Mesh, true );
-        else
-            m_MenuViewMode->Check( ID_BrowserViewMode_Mesh, false );
-    
     m_MenuView = new wxMenu();
     
         m_MenuView->AppendCheckItem( ID_BrowserDock, "Dock", "" );
+        m_MenuView->Check( ID_BrowserDock, true ); //TODO: Dock Not yet implemented
         
         m_MenuView->AppendSeparator();
         
@@ -115,29 +73,124 @@ Pos, const wxSize& Size ) : EdToolFrame(false), m_BrowserFlags(BrowserFlags)
         m_MenuBar->Append( m_MenuView, "&View" );
     
     SetMenuBar( m_MenuBar );
+
+    wxBoxSizer* contentSizer = new wxBoxSizer( wxVERTICAL );
     
     //TODO: Package Bar 
     //TODO: Group Bar
     
     Centre();
     
-    SetMinSize( wxSize(420,400) );
+    SetMinSize( wxSize(512,384) );
     
-    */
-}
-
-
-void EdBrowser::renderMenu() //Update Browser Menu
-{
+    m_VSizer = new wxBoxSizer( wxVERTICAL );
     
+    m_OptionsBar = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( -1, 32 ), wxBORDER_NONE );
+    m_VSizer->Add( m_OptionsBar, 0, wxALIGN_TOP | wxEXPAND );
+    
+    update();
+
+    Show(true);
 }
 
-void EdBrowser::renderView()
+void EdBrowser::EVT_BrowserViewMode_Raw( wxCommandEvent& event )
+{
+    m_ViewMode = VIEW_Raw;
+    
+    update();
+}
+
+void EdBrowser::EVT_BrowserViewMode_Thumbnail( wxCommandEvent& event )
+{
+    m_ViewMode = VIEW_Thumbnail;
+    
+    update();
+}
+
+void EdBrowser::EVT_BrowserViewMode_List( wxCommandEvent& event )
+{
+    m_ViewMode = VIEW_List;
+    
+    update();
+}
+
+void EdBrowser::EVT_BrowserViewMode_Preview( wxCommandEvent& event )
+{
+    m_bPreview = !m_bPreview;
+    
+    update();
+}
+
+void EdBrowser::EVT_BrowserViewMode_Class( wxCommandEvent& event )
+{
+    m_BrowserFlags ^= BRWFLG_Class;
+    
+    update();
+}
+
+void EdBrowser::EVT_BrowserViewMode_Audio( wxCommandEvent& event )
+{
+    m_BrowserFlags ^= BRWFLG_Audio;
+    
+    update();
+}
+
+void EdBrowser::EVT_BrowserViewMode_Music( wxCommandEvent& event )
+{
+    m_BrowserFlags ^= BRWFLG_Music;
+    
+    update();
+}
+
+void EdBrowser::EVT_BrowserViewMode_Graphics( wxCommandEvent& event )
+{
+    m_BrowserFlags ^= BRWFLG_Graphics;
+    
+    update();
+}
+
+void EdBrowser::EVT_BrowserViewMode_Mesh( wxCommandEvent& event )
+{
+    m_BrowserFlags ^= BRWFLG_Mesh;
+    
+    update();
+}
+
+void EdBrowser::EVT_BrowserDock( wxCommandEvent& event )
 {
 }
 
-// ID bind
-wxBEGIN_EVENT_TABLE(EdBrowser, EdBrowser)
+void EdBrowser::update()
+{
+    //ViewMode Checkboxes
+    m_MenuViewMode->Check( ID_BrowserViewMode_Raw, m_ViewMode == VIEW_Raw );
+    m_MenuViewMode->Check( ID_BrowserViewMode_Thumbnail, m_ViewMode == VIEW_Thumbnail );
+    m_MenuViewMode->Check( ID_BrowserViewMode_List, m_ViewMode == VIEW_List );
+    
+    m_MenuViewMode->Check( ID_BrowserViewMode_Class, m_BrowserFlags & BRWFLG_Class );
+    m_MenuViewMode->Check( ID_BrowserViewMode_Audio, m_BrowserFlags & BRWFLG_Audio );
+    m_MenuViewMode->Check( ID_BrowserViewMode_Music, m_BrowserFlags & BRWFLG_Music );
+    m_MenuViewMode->Check( ID_BrowserViewMode_Graphics, m_BrowserFlags & BRWFLG_Graphics );
+    m_MenuViewMode->Check( ID_BrowserViewMode_Mesh, m_BrowserFlags & BRWFLG_Mesh );
+    
+    m_MenuViewMode->Check( ID_BrowserViewMode_Preview, m_bPreview );
+    
+    //Window Label
+    if( m_BrowserFlags == BRWFLG_Class )
+        SetLabel(wxString("Class Browser"));
+    else if( m_BrowserFlags == BRWFLG_Audio )
+        SetLabel(wxString("Audio Browser"));    
+    else if( m_BrowserFlags == BRWFLG_Music )
+        SetLabel(wxString("Music Browser"));    
+    else if( m_BrowserFlags == BRWFLG_Graphics )
+        SetLabel(wxString("Graphics Browser"));    
+    else if( m_BrowserFlags == BRWFLG_Mesh )
+        SetLabel(wxString("Mesh Browser"));
+    else
+        SetLabel(wxString("Package Browser"));
+}
+
+wxBEGIN_EVENT_TABLE(EdBrowser, wxFrame)
     EVT_MENU(ID_BrowserNew,   EdBrowser::EVT_BrowserNew)
     EVT_MENU(ID_BrowserOpen,   EdBrowser::EVT_BrowserOpen)
     EVT_MENU(ID_BrowserSave,   EdBrowser::EVT_BrowserSave)

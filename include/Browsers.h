@@ -34,14 +34,14 @@
 
 #include "Components.h"
 
-enum EBrowserFlags
+enum
 {
-    BRWFLG_Package = 0x000000FF, //Everything, render all objects.
-    BRWFLG_Class = 0x00000002,
-    BRWFLG_Audio = 0x00000004,
-    BRWFLG_Music = 0x00000008,
-    BRWFLG_Graphics = 0x00000010,
-    BRWFLG_Mesh = 0x00000020
+    BRWFLG_Class = 1<<0,
+    BRWFLG_Audio = 1<<1,
+    BRWFLG_Music = 1<<2,
+    BRWFLG_Graphics = 1<<3,
+    BRWFLG_Mesh = 1<<4,
+    BRWFLG_Package = ( BRWFLG_Class | BRWFLG_Audio | BRWFLG_Music | BRWFLG_Graphics | BRWFLG_Mesh )
 };
 
 enum EBrowserViewMode
@@ -50,6 +50,7 @@ enum EBrowserViewMode
     VIEW_Thumbnail = 1, //UE4-Content browser-style mode, preview assets in tiles.
     VIEW_List = 2 //Legacy UE2-style list mode. Still uses tree for Classes.
 };
+
 
 enum
 {
@@ -70,42 +71,43 @@ enum
     ID_BrowserDock
 };
 
+
 class EdBrowser : public EdToolFrame
 {
 public:
     //Browser mode flags.
     
-	EdBrowser( EBrowserFlags BrowserFlags, const wxString& Title, const wxPoint& Pos, const 
-wxSize& Size );
+	EdBrowser( int BrowserFlags, bool bDock = false );
     
-    EBrowserFlags m_BrowserFlags;
+    int m_BrowserFlags;
     EBrowserViewMode m_ViewMode;
     bool m_bPreview = true; //Preview the contents of a file in List and Raw mode.
     
 private:
-    void renderView(); //Update browser pane
-    void renderMenu();
-    
     void EVT_BrowserNew( wxCommandEvent& event ){};
     void EVT_BrowserOpen( wxCommandEvent& event ){};
     void EVT_BrowserSave( wxCommandEvent& event ){};
     void EVT_BrowserImport( wxCommandEvent& event ){};
     void EVT_BrowserExport( wxCommandEvent& event ){};
-    void EVT_BrowserViewMode_Raw( wxCommandEvent& event ){};
-    void EVT_BrowserViewMode_Thumbnail( wxCommandEvent& event ){};
-    void EVT_BrowserViewMode_List( wxCommandEvent& event ){};
-    void EVT_BrowserViewMode_Preview( wxCommandEvent& event ){};
-    void EVT_BrowserViewMode_Class( wxCommandEvent& event ){};
-    void EVT_BrowserViewMode_Audio( wxCommandEvent& event ){};
-    void EVT_BrowserViewMode_Music( wxCommandEvent& event ){};
-    void EVT_BrowserViewMode_Graphics( wxCommandEvent& event ){};
-    void EVT_BrowserViewMode_Mesh( wxCommandEvent& event ){};
-    void EVT_BrowserDock( wxCommandEvent& event ){};
+    void EVT_BrowserViewMode_Raw( wxCommandEvent& event );
+    void EVT_BrowserViewMode_Thumbnail( wxCommandEvent& event );
+    void EVT_BrowserViewMode_List( wxCommandEvent& event );
+    void EVT_BrowserViewMode_Preview( wxCommandEvent& event );
+    void EVT_BrowserViewMode_Class( wxCommandEvent& event );
+    void EVT_BrowserViewMode_Audio( wxCommandEvent& event );
+    void EVT_BrowserViewMode_Music( wxCommandEvent& event );
+    void EVT_BrowserViewMode_Graphics( wxCommandEvent& event );
+    void EVT_BrowserViewMode_Mesh( wxCommandEvent& event );
+    void EVT_BrowserDock( wxCommandEvent& event );
+    
+    void update(); //Update layout.
    
     wxMenu* m_MenuFile = NULL;
     wxMenu* m_MenuViewMode = NULL;
     wxMenu* m_MenuView = NULL;
     wxMenuBar* m_MenuBar = NULL;
+    wxPanel* m_OptionsBar = NULL;
+    wxBoxSizer* m_VSizer = NULL;
     
     wxDECLARE_EVENT_TABLE();
 };

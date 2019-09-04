@@ -49,7 +49,7 @@ bool EdEditor::KillTool( const EdToolFrame* Tool )
 }
 
 EdToolFrame::EdToolFrame( bool bStartDocked ) 
-      : wxFrame( (EdEditorFrame*)EdEditor::GetFrame(), -1, "Editor Tool", wxDefaultPosition )
+      : wxFrame( (EdEditorFrame*)EdEditor::GetFrame(), -1, "Editor Tool", wxDefaultPosition, wxSize(512,384) )
 {
     EdEditor::NewTool(this);
 }
@@ -103,13 +103,13 @@ wxSize( 400, 20 ), wxTE_READONLY );
     Connect( wxID_OK , wxEVT_COMMAND_BUTTON_CLICKED, 
 wxCommandEventHandler(EdAbout::CloseAbout) );
     
-    this->SetSizer(ContentSizer);
+    SetSizer(ContentSizer);
     
     closeb->SetFocus();
     Centre();
     
     SetMinSize( wxSize(420,400) );
-    this->Show(true);
+    Show(true);
 }
 
 void EdAbout::CloseAbout( wxCommandEvent& event )
