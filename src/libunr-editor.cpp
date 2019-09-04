@@ -28,6 +28,10 @@
 
 #include "private/libunr-editor.h"
 
+EdEditorFrame* EdEditorFrame::sm_Frame;
+TArray<EdToolFrame*> EdEditorFrame::sm_ToolArray;
+size_t EdEditorFrame::sm_EmptySlots;
+
 EdEditorFrame::EdEditorFrame( const wxString& Title, const wxPoint& Pos, const wxSize& Size )
     : wxFrame( NULL, wxID_ANY, Title, Pos, Size )
 {
@@ -166,7 +170,7 @@ bitmap_MusicBrowser, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
     SetStatusText( "Welcome to libunr!" );
 }
 
-static bool EdEditorFrame::NewTool( const EdToolFrame* Tool )
+bool EdEditorFrame::NewTool( const EdToolFrame* Tool )
 {
     if( sm_EmptySlots > 0 ) //A slot was freed earlier, find and use that slot.
     {
@@ -186,13 +190,13 @@ static bool EdEditorFrame::NewTool( const EdToolFrame* Tool )
     return true;
 }
 
-static bool EdEditorFrame::KillTool( const EdToolFrame* Tool )
+bool EdEditorFrame::KillTool( const EdToolFrame* Tool )
 {
     for( size_t i; i++; i<sm_ToolArray.Size() )
     {
         if( sm_ToolArray[i]==Tool )
         {
-            m_ToolArray[i] = NULL;
+            sm_ToolArray[i] = NULL;
             sm_EmptySlots++;
             return true;
         }
@@ -201,14 +205,30 @@ static bool EdEditorFrame::KillTool( const EdToolFrame* Tool )
     }
 }
 
-static void Editor_Log( const wxString& Msg )
+void EdEditorFrame::Editor_Log( const wxString& Msg )
 {
     std::cout << Msg;
 }
 
-static EdEditorFrame* GetFrame()
+EdEditorFrame* EdEditorFrame::GetFrame()
 {
     return sm_Frame;
+}
+
+void EdEditorFrame::OnExit( wxCommandEvent& event )
+{
+    Close( true );
+}
+
+void EdEditorFrame::OnAbout( wxCommandEvent& event )
+{
+    if( m_bAboutUp )
+        return;
+    else
+    {
+        new EdAbout( this, &m_bAboutUp );
+        m_bAboutUp = true;
+    }
 }
 
 void EdEditorFrame::EVT_New( wxCommandEvent& event ){}
@@ -265,10 +285,10 @@ wxBEGIN_EVENT_TABLE(EdEditorFrame, wxFrame)
     EVT_MENU(ID_Preferences, EdEditorFrame::EVT_Preferences)
     EVT_MENU(ID_BrowserPackage, EdEditorFrame::EVT_BrowserPackage)
     EVT_MENU(ID_BrowserClass, EdEditorFrame::EVT_BrowserClass)
-    EVT_MENU(ID_Audio, EdEditorFrame::EVT_BrowserAudio)
-    EVT_MENU(ID_Music, EdEditorFrame::EVT_BrowserMusic)
-    EVT_MENU(ID_Graphics, EdEditorFrame::EVT_BrowserGraphics)
-    EVT_MENU(ID_Mesh, EdEditorFrame::EVT_BrowserMesh)
+    EVT_MENU(ID_BrowserAudio, EdEditorFrame::EVT_BrowserAudio)
+    EVT_MENU(ID_BrowserMusic, EdEditorFrame::EVT_BrowserMusic)
+    EVT_MENU(ID_BrowserGraphics, EdEditorFrame::EVT_BrowserGraphics)
+    EVT_MENU(ID_BrowserMesh, EdEditorFrame::EVT_BrowserMesh)
     EVT_MENU(ID_ViewLog, EdEditorFrame::EVT_ViewLog)
     EVT_MENU(ID_ActiveTools, EdEditorFrame::EVT_ActiveTools)
     EVT_MENU(ID_MapEditor, EdEditorFrame::EVT_MapEditor)
@@ -276,4 +296,4 @@ wxBEGIN_EVENT_TABLE(EdEditorFrame, wxFrame)
     EVT_MENU(ID_Manual, EdEditorFrame::EVT_Manual)
 wxEND_EVENT_TABLE()
 
-wxIMPLEMENT_APP(WXAPP_EdEditor)
+wxIMPLEMENT_APP(WXAPP_EdEditor);

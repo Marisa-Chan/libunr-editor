@@ -95,12 +95,14 @@ public:
     
 private:
     
-    static EdEditorFrame* sm_Frame = NULL; //Reference to the one instance of EdEditorFrame.
-    static TArray<EdToolFrame> sm_ToolArray;
+    static EdEditorFrame* sm_Frame; //Reference to the one instance of EdEditorFrame.
+    static TArray<EdToolFrame*> sm_ToolArray;
     static size_t sm_EmptySlots;
+    
+    bool m_bAboutUp; //Is there already an about instance?
 };
 
-class WXAPP_EdEditor : public wxAPP
+class WXAPP_EdEditor : public wxApp
 {
 public:
     virtual bool OnInit();

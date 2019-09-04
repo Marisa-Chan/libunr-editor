@@ -59,8 +59,8 @@ EdToolFrame::~EdToolFrame()
     EdEditor::KillTool(this);
 }
 
-EdAbout::EdAbout( wxWindow* parent, wxFrame** ptr )
-: wxFrame( parent, -1, "About", wxDefaultPosition, wxSize(420,400) ), m_Selfptr(ptr)
+EdAbout::EdAbout( wxWindow* parent, bool* Switch )
+: wxFrame( parent, -1, "About", wxDefaultPosition, wxSize(420,400) ), m_Switch(Switch)
 {
     wxBoxSizer* ContentSizer = new wxBoxSizer( wxVERTICAL );
     
@@ -114,6 +114,6 @@ wxCommandEventHandler(EdAbout::CloseAbout) );
 
 void EdAbout::CloseAbout( wxCommandEvent& event )
 {
-    *m_Selfptr = NULL;
+    *m_Switch = false;
     Close(true);
 }

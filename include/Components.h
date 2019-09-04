@@ -34,14 +34,6 @@
 
 #include <wx/wrapsizer.h>
 
-namespace EdEditor //Editor interface
-{
-    void* GetFrame();
-    bool NewTool( const EdToolFrame* Tool );
-    bool KillTool( const EdToolFrame* Tool );
-    void Editor_Log( const wxString& Msg );
-}
-
 class EdToolFrame : public wxFrame
 {
 public:
@@ -54,12 +46,20 @@ public:
 
 class EdAbout : public wxFrame
 {
-private:
-	wxFrame** m_Selfptr;
-	
 //NOTE: If changing any things around here, probably will have to account for new sizing.
 public:
-	EdAbout( wxWindow* parent, wxFrame** ptr );
+	EdAbout( wxWindow* parent, bool* Switch );
 	
 	void CloseAbout( wxCommandEvent& event );
+    
+private:
+    bool* m_Switch;
 };
+
+namespace EdEditor //Editor interface
+{
+    void* GetFrame();
+    bool NewTool( const EdToolFrame* Tool );
+    bool KillTool( const EdToolFrame* Tool );
+    void Editor_Log( const wxString& Msg );
+}
