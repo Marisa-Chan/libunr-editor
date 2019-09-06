@@ -32,6 +32,8 @@
     #include <wx/wx.h>
 #endif
 
+#include <wx/splitter.h>
+
 #include "Components.h"
 
 enum
@@ -59,6 +61,7 @@ enum
     ID_BrowserSave,
     ID_BrowserImport,
     ID_BrowserExport,
+    ID_BrowserViewMode_Choice,
     ID_BrowserViewMode_Raw,
     ID_BrowserViewMode_Thumbnail,
     ID_BrowserViewMode_List,
@@ -84,11 +87,13 @@ public:
     bool m_bPreview = true; //Preview the contents of a file in List and Raw mode.
     
 private:
+    void OnExit( wxCommandEvent& event );
     void EVT_BrowserNew( wxCommandEvent& event ){};
     void EVT_BrowserOpen( wxCommandEvent& event ){};
     void EVT_BrowserSave( wxCommandEvent& event ){};
     void EVT_BrowserImport( wxCommandEvent& event ){};
     void EVT_BrowserExport( wxCommandEvent& event ){};
+    void EVT_ViewChoice( wxCommandEvent& event );
     void EVT_BrowserViewMode_Raw( wxCommandEvent& event );
     void EVT_BrowserViewMode_Thumbnail( wxCommandEvent& event );
     void EVT_BrowserViewMode_List( wxCommandEvent& event );
@@ -102,12 +107,20 @@ private:
     
     void update(); //Update layout.
    
+    //Menu elements
     wxMenu* m_MenuFile = NULL;
     wxMenu* m_MenuViewMode = NULL;
     wxMenu* m_MenuView = NULL;
     wxMenuBar* m_MenuBar = NULL;
-    wxPanel* m_OptionsBar = NULL;
-    wxBoxSizer* m_VSizer = NULL;
+    
+    wxBoxSizer* m_WindowArea = NULL;
+        wxPanel* m_OptionsBar = NULL;
+        wxChoice* m_ViewModeChoice = NULL;
+        wxSplitterWindow* m_MainSplitter = NULL;
+            wxSplitterWindow* m_ViewSplitter = NULL;
+                wxPanel* m_ViewWindow = NULL;
+                wxPanel* m_PreviewWindow = NULL;
+            wxCheckListBox* m_PackagesList = NULL;
     
     wxDECLARE_EVENT_TABLE();
 };

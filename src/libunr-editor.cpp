@@ -164,7 +164,7 @@ bitmap_MusicBrowser, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
     backGround->SetBackgroundColour( wxColour( 80, 80, 80 ) );
     contentSizer2->Add( backGround, 1, wxEXPAND );
     
-    this->SetSizer(contentSizer);
+    SetSizer(contentSizer);
     
     CreateStatusBar();
     SetStatusText( "Welcome to libunr!" );

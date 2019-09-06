@@ -19,7 +19,7 @@ fi
 
 BUILD_WXLIB=$(wx-config --cflags)
 BUILD_WXLIB_PREFIX=$(wx-config --prefix)
-BUILD_WXLIB_LIBRARIES=$(wx-config --libs)
+BUILD_WXLIB_LIBRARIES=$(wx-config --libs std,aui)
 
 #################################################
 # Functions
@@ -27,7 +27,7 @@ BUILD_WXLIB_LIBRARIES=$(wx-config --libs)
 print_help()
 {
   echo
-  echo "libunr configure script - Written by Adam Smith - edited by Hyzoran for editor project"
+  echo "libunr configure script - Written by Adam Smith - edited by Hyzoran for libunr-editor"
   echo "Usage: ./configure [options]"
   echo
   echo "Options:"

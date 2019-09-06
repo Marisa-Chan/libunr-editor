@@ -32,6 +32,8 @@
     #include <wx/wx.h>
 #endif
 
+#include <wx/aui/aui.h>
+
 #include <wx/statline.h>
 
 #include <libunr/Util/TArray.h>

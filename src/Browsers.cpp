@@ -33,7 +33,12 @@ EdBrowser::EdBrowser( int BrowserFlags, bool bDock ) : EdToolFrame(bDock), m_Bro
 					"Import Assets into Package");
         m_MenuFile->Append(ID_BrowserExport, "&Export... ",
 					"Export Objects from package");
-    
+					
+	    m_MenuFile->AppendSeparator();
+	    
+	    m_MenuFile->Append(wxID_EXIT, "&Exit...",
+					"");
+					
     m_MenuViewMode = new wxMenu();
     
         m_MenuViewMode->AppendCheckItem(ID_BrowserViewMode_Raw, "Object View", "");
@@ -73,8 +78,6 @@ EdBrowser::EdBrowser( int BrowserFlags, bool bDock ) : EdToolFrame(bDock), m_Bro
         m_MenuBar->Append( m_MenuView, "&View" );
     
     SetMenuBar( m_MenuBar );
-
-    wxBoxSizer* contentSizer = new wxBoxSizer( wxVERTICAL );
     
     //TODO: Package Bar 
     //TODO: Group Bar
@@ -83,14 +86,70 @@ EdBrowser::EdBrowser( int BrowserFlags, bool bDock ) : EdToolFrame(bDock), m_Bro
     
     SetMinSize( wxSize(512,384) );
     
-    m_VSizer = new wxBoxSizer( wxVERTICAL );
+    //Window Area - Contains All the contents of the Browser Window besides the menu bar.
+        //Options Bar
+        //Main Splitter
+            //View Splitter
+            //Package List Window
+            
+    m_WindowArea = new wxBoxSizer( wxVERTICAL );
     
-    m_OptionsBar = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( -1, 32 ), wxBORDER_NONE );
-    m_VSizer->Add( m_OptionsBar, 0, wxALIGN_TOP | wxEXPAND );
+        //Options Bar - Quick-Select view options
+        m_OptionsBar = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( -1, 32 ), wxBORDER_SIMPLE );
+        
+            wxBoxSizer* optionsSizer = new wxBoxSizer( wxHORIZONTAL );
+            
+            wxString choiceStrAry[3] = { "Object", "Tile", "List" };
+            m_ViewModeChoice = new wxChoice( m_OptionsBar, ID_BrowserViewMode_Choice, wxDefaultPosition, 
+                wxDefaultSize, 3, choiceStrAry, 0, wxDefaultValidator, "View Mode" );
+            m_ViewModeChoice->SetSelection( m_ViewMode );
+                
+            m_OptionsBar->SetSizer( optionsSizer );
+            
+        m_WindowArea->Add( m_OptionsBar, 0, wxALIGN_TOP | wxEXPAND );
+        //Main Splitter
+        m_MainSplitter = new wxSplitterWindow( this, wxID_ANY, wxDefaultPosition, wxSize( 500,330 ) );
+        m_MainSplitter->SetMinSize( wxSize(500,330) );
+        
+        m_WindowArea->Add( m_MainSplitter, 1, wxALIGN_BOTTOM | wxEXPAND );
+    
+            //View Splitter - View and Preview window split.
+            m_ViewSplitter = new wxSplitterWindow( m_MainSplitter, wxID_ANY, wxDefaultPosition, wxSize( -1, 360 ) );
+            m_ViewSplitter->SetMinSize( wxSize(500,100) );
+
+                //View and Preview Windows
+                m_ViewWindow = new wxPanel( m_ViewSplitter, -1 );
+                m_PreviewWindow = new wxPanel( m_ViewSplitter, -1 );
+                
+            m_ViewSplitter->SplitVertically( m_ViewWindow, m_PreviewWindow );
+            m_ViewSplitter->SetMinimumPaneSize( 50 );
+            m_ViewSplitter->SetSashPosition( 250 );
+        
+            //Packages List Window
+            m_PackagesList = new wxCheckListBox( m_MainSplitter, -1 ); 
+            m_PackagesList->SetMinSize( wxSize(500,32) );
+        
+        m_MainSplitter->SplitHorizontally( m_ViewSplitter, m_PackagesList );
+        m_MainSplitter->SetMinimumPaneSize( 50 );
+        m_MainSplitter->SetSashGravity( 1.0 );
+    
+    SetSizer(m_WindowArea);
     
     update();
 
     Show(true);
+}
+
+void EdBrowser::OnExit( wxCommandEvent& event )
+{
+    Close(true);
+}
+
+void EdBrowser::EVT_ViewChoice( wxCommandEvent& event )
+{
+    m_ViewMode = static_cast<EBrowserViewMode>(event.GetSelection());
+    
+    update();
 }
 
 void EdBrowser::EVT_BrowserViewMode_Raw( wxCommandEvent& event )
@@ -175,22 +234,38 @@ void EdBrowser::update()
     
     m_MenuViewMode->Check( ID_BrowserViewMode_Preview, m_bPreview );
     
-    //Window Label
+    m_ViewModeChoice->SetSelection( m_ViewMode );
+    
+    //Window Label/Icon
     if( m_BrowserFlags == BRWFLG_Class )
+    {
         SetLabel(wxString("Class Browser"));
+    }
     else if( m_BrowserFlags == BRWFLG_Audio )
+    {
         SetLabel(wxString("Audio Browser"));    
+    }
     else if( m_BrowserFlags == BRWFLG_Music )
+    {
         SetLabel(wxString("Music Browser"));    
+    }
     else if( m_BrowserFlags == BRWFLG_Graphics )
+    {
         SetLabel(wxString("Graphics Browser"));    
+    }
     else if( m_BrowserFlags == BRWFLG_Mesh )
+    {
         SetLabel(wxString("Mesh Browser"));
+    }
     else
+    {
         SetLabel(wxString("Package Browser"));
+    }
 }
 
 wxBEGIN_EVENT_TABLE(EdBrowser, wxFrame)
+    EVT_CHOICE(ID_BrowserViewMode_Choice,   EdBrowser::EVT_ViewChoice )
+    EVT_MENU(wxID_EXIT, EdBrowser::OnExit)
     EVT_MENU(ID_BrowserNew,   EdBrowser::EVT_BrowserNew)
     EVT_MENU(ID_BrowserOpen,   EdBrowser::EVT_BrowserOpen)
     EVT_MENU(ID_BrowserSave,   EdBrowser::EVT_BrowserSave)
