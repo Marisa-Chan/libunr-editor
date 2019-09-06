@@ -36,8 +36,7 @@ EdBrowser::EdBrowser( int BrowserFlags, bool bDock ) : EdToolFrame(bDock), m_Bro
 					
 	    m_MenuFile->AppendSeparator();
 	    
-	    m_MenuFile->Append(wxID_EXIT, "&Exit...",
-					"");
+	    m_MenuFile->Append(wxID_EXIT, "&Exit...", "");
 					
     m_MenuViewMode = new wxMenu();
     
@@ -103,10 +102,26 @@ EdBrowser::EdBrowser( int BrowserFlags, bool bDock ) : EdToolFrame(bDock), m_Bro
             m_ViewModeChoice = new wxChoice( m_OptionsBar, ID_BrowserViewMode_Choice, wxDefaultPosition, 
                 wxDefaultSize, 3, choiceStrAry, 0, wxDefaultValidator, "View Mode" );
             m_ViewModeChoice->SetSelection( m_ViewMode );
+            
+            m_ViewCheck_Class = new wxCheckBox( m_OptionsBar, ID_BrowserViewMode_Class, "Class" );
+            m_ViewCheck_Audio = new wxCheckBox( m_OptionsBar, ID_BrowserViewMode_Audio, "Audio" );
+            m_ViewCheck_Music = new wxCheckBox( m_OptionsBar, ID_BrowserViewMode_Music, "Music" );
+            m_ViewCheck_Graphics = new wxCheckBox( m_OptionsBar, ID_BrowserViewMode_Graphics, "Graphics" );
+            m_ViewCheck_Mesh = new wxCheckBox( m_OptionsBar, ID_BrowserViewMode_Mesh, "Mesh" );
+            m_ViewCheck_Package = new wxCheckBox( m_OptionsBar, ID_BrowserViewMode_Package, "All" );
+            
+            optionsSizer->Add( m_ViewModeChoice, 0, wxALIGN_LEFT );
+            optionsSizer->Add( m_ViewCheck_Class, 0, wxALIGN_LEFT );
+            optionsSizer->Add( m_ViewCheck_Audio, 0, wxALIGN_LEFT );
+            optionsSizer->Add( m_ViewCheck_Music, 0, wxALIGN_LEFT );
+            optionsSizer->Add( m_ViewCheck_Graphics, 0, wxALIGN_LEFT );
+            optionsSizer->Add( m_ViewCheck_Mesh, 0, wxALIGN_LEFT );
+            optionsSizer->Add( m_ViewCheck_Package, 0, wxALIGN_LEFT );
                 
             m_OptionsBar->SetSizer( optionsSizer );
             
         m_WindowArea->Add( m_OptionsBar, 0, wxALIGN_TOP | wxEXPAND );
+        
         //Main Splitter
         m_MainSplitter = new wxSplitterWindow( this, wxID_ANY, wxDefaultPosition, wxSize( 500,330 ) );
         m_MainSplitter->SetMinSize( wxSize(500,330) );
@@ -131,6 +146,7 @@ EdBrowser::EdBrowser( int BrowserFlags, bool bDock ) : EdToolFrame(bDock), m_Bro
         
         m_MainSplitter->SplitHorizontally( m_ViewSplitter, m_PackagesList );
         m_MainSplitter->SetMinimumPaneSize( 50 );
+        m_MainSplitter->SetSashPosition( 400 );
         m_MainSplitter->SetSashGravity( 1.0 );
     
     SetSizer(m_WindowArea);
@@ -138,6 +154,11 @@ EdBrowser::EdBrowser( int BrowserFlags, bool bDock ) : EdToolFrame(bDock), m_Bro
     update();
 
     Show(true);
+}
+
+void UpdatePackageList()
+{
+    m_PackagesList->Set( EdEditor::GetPackageStrings() );
 }
 
 void EdBrowser::OnExit( wxCommandEvent& event )
@@ -215,6 +236,13 @@ void EdBrowser::EVT_BrowserViewMode_Mesh( wxCommandEvent& event )
     update();
 }
 
+void EdBrowser::EVT_BrowserViewMode_Package( wxCommandEvent& event )
+{
+    m_BrowserFlags = BRWFLG_Package;
+    
+    update();
+}
+
 void EdBrowser::EVT_BrowserDock( wxCommandEvent& event )
 {
 }
@@ -231,6 +259,12 @@ void EdBrowser::update()
     m_MenuViewMode->Check( ID_BrowserViewMode_Music, m_BrowserFlags & BRWFLG_Music );
     m_MenuViewMode->Check( ID_BrowserViewMode_Graphics, m_BrowserFlags & BRWFLG_Graphics );
     m_MenuViewMode->Check( ID_BrowserViewMode_Mesh, m_BrowserFlags & BRWFLG_Mesh );
+    m_ViewCheck_Class->SetValue( m_BrowserFlags & BRWFLG_Class );
+    m_ViewCheck_Audio->SetValue( m_BrowserFlags & BRWFLG_Audio );
+    m_ViewCheck_Music->SetValue( m_BrowserFlags & BRWFLG_Music );
+    m_ViewCheck_Graphics->SetValue( m_BrowserFlags & BRWFLG_Graphics );
+    m_ViewCheck_Mesh->SetValue( m_BrowserFlags & BRWFLG_Mesh );
+    m_ViewCheck_Package->SetValue( m_BrowserFlags == BRWFLG_Package );
     
     m_MenuViewMode->Check( ID_BrowserViewMode_Preview, m_bPreview );
     
@@ -276,9 +310,15 @@ wxBEGIN_EVENT_TABLE(EdBrowser, wxFrame)
     EVT_MENU(ID_BrowserViewMode_List,   EdBrowser::EVT_BrowserViewMode_List)
     EVT_MENU(ID_BrowserViewMode_Preview,   EdBrowser::EVT_BrowserViewMode_Preview)
     EVT_MENU(ID_BrowserViewMode_Class,   EdBrowser::EVT_BrowserViewMode_Class)
+    EVT_CHECKBOX(ID_BrowserViewMode_Class, EdBrowser::EVT_BrowserViewMode_Class)
     EVT_MENU(ID_BrowserViewMode_Audio,   EdBrowser::EVT_BrowserViewMode_Audio)
+    EVT_CHECKBOX(ID_BrowserViewMode_Audio, EdBrowser::EVT_BrowserViewMode_Audio)
     EVT_MENU(ID_BrowserViewMode_Music,   EdBrowser::EVT_BrowserViewMode_Music)
+    EVT_CHECKBOX(ID_BrowserViewMode_Music, EdBrowser::EVT_BrowserViewMode_Music)
     EVT_MENU(ID_BrowserViewMode_Graphics,   EdBrowser::EVT_BrowserViewMode_Graphics)
+    EVT_CHECKBOX(ID_BrowserViewMode_Graphics, EdBrowser::EVT_BrowserViewMode_Graphics)
     EVT_MENU(ID_BrowserViewMode_Mesh,   EdBrowser::EVT_BrowserViewMode_Mesh)
+    EVT_CHECKBOX(ID_BrowserViewMode_Mesh, EdBrowser::EVT_BrowserViewMode_Mesh)
+    EVT_CHECKBOX(ID_BrowserViewMode_Package, EdBrowser::EVT_BrowserViewMode_Package)
     EVT_MENU(ID_BrowserDock,   EdBrowser::EVT_BrowserDock)
 wxEND_EVENT_TABLE()

@@ -62,4 +62,7 @@ namespace EdEditor //Editor interface
     bool NewTool( const EdToolFrame* Tool );
     bool KillTool( const EdToolFrame* Tool );
     void Editor_Log( const wxString& Msg );
-}
+    wxArrayString* GetPackageStrings();
+    
+    bool IsPackageModified( size_t I ); //Has the package of this index been modified in memory?
+};

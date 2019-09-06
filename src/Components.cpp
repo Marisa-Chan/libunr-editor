@@ -33,21 +33,6 @@
 #include "private/libunr-editor.h"
 #include "Components.h"
 
-void* EdEditor::GetFrame()
-{
-    return EdEditorFrame::GetFrame();
-}
-
-bool EdEditor::NewTool( const EdToolFrame* Tool )
-{
-    return EdEditorFrame::NewTool( Tool );
-}
-
-bool EdEditor::KillTool( const EdToolFrame* Tool )
-{
-    return EdEditorFrame::KillTool( Tool );
-}
-
 EdToolFrame::EdToolFrame( bool bStartDocked ) 
       : wxFrame( (EdEditorFrame*)EdEditor::GetFrame(), -1, "Editor Tool", wxDefaultPosition, wxSize(512,384) )
 {
@@ -116,4 +101,29 @@ void EdAbout::CloseAbout( wxCommandEvent& event )
 {
     *m_Switch = false;
     Close(true);
+}
+
+void* EdEditor::GetFrame()
+{
+    return EdEditorFrame::GetFrame();
+}
+
+bool EdEditor::NewTool( const EdToolFrame* Tool )
+{
+    return EdEditorFrame::NewTool( Tool );
+}
+
+bool EdEditor::KillTool( const EdToolFrame* Tool )
+{
+    return EdEditorFrame::KillTool( Tool );
+}
+
+bool EdEditor::IsPackageModified( size_t I );
+{
+    return EdEditorFrame::IsPackageModified( I );
+}
+
+wxArrayString* GetPackageStrings()
+{
+    return EdEditorFrame::GetPackageStrings();
 }

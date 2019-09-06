@@ -71,6 +71,7 @@ enum
     ID_BrowserViewMode_Music,
     ID_BrowserViewMode_Graphics,
     ID_BrowserViewMode_Mesh,
+    ID_BrowserViewMode_Package,
     ID_BrowserDock
 };
 
@@ -81,6 +82,8 @@ public:
     //Browser mode flags.
     
 	EdBrowser( int BrowserFlags, bool bDock = false );
+	
+	void UpdatePackageList();
     
     int m_BrowserFlags;
     EBrowserViewMode m_ViewMode;
@@ -103,6 +106,7 @@ private:
     void EVT_BrowserViewMode_Music( wxCommandEvent& event );
     void EVT_BrowserViewMode_Graphics( wxCommandEvent& event );
     void EVT_BrowserViewMode_Mesh( wxCommandEvent& event );
+    void EVT_BrowserViewMode_Package( wxCommandEvent& event );
     void EVT_BrowserDock( wxCommandEvent& event );
     
     void update(); //Update layout.
@@ -115,11 +119,19 @@ private:
     
     wxBoxSizer* m_WindowArea = NULL;
         wxPanel* m_OptionsBar = NULL;
-        wxChoice* m_ViewModeChoice = NULL;
+            wxChoice* m_ViewModeChoice = NULL;
+            wxCheckBox* m_ViewCheck_Class;
+            wxCheckBox* m_ViewCheck_Audio;
+            wxCheckBox* m_ViewCheck_Music;
+            wxCheckBox* m_ViewCheck_Graphics;
+            wxCheckBox* m_ViewCheck_Mesh;
+            wxCheckBox* m_ViewCheck_Package;
+            
         wxSplitterWindow* m_MainSplitter = NULL;
             wxSplitterWindow* m_ViewSplitter = NULL;
                 wxPanel* m_ViewWindow = NULL;
                 wxPanel* m_PreviewWindow = NULL;
+                
             wxCheckListBox* m_PackagesList = NULL;
     
     wxDECLARE_EVENT_TABLE();

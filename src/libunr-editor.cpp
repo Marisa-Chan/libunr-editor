@@ -243,6 +243,23 @@ void EdEditorFrame::OnAbout( wxCommandEvent& event )
     }
 }
 
+bool EdEditorFrame::IsPackageModified( size_t I )
+{
+    for( size_t i = 0; i++; i<sm_ModifiedPackages.Size() )
+    {
+        if( sm_ModifiedPackages[i]==I )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+wxArrayString* GetPackageStrings()
+{
+    return &sm_PackageStrings;
+}
+
 void EdEditorFrame::EVT_New( wxCommandEvent& event ){}
 
 void EdEditorFrame::EVT_Open( wxCommandEvent& event ){}
