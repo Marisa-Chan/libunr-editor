@@ -111,6 +111,13 @@ private:
     void EVT_BrowserDock( wxCommandEvent& event );
     
     void update(); //Update layout.
+    
+    static wxIcon m_icoPackage;
+    static wxIcon m_icoClass;
+    static wxIcon m_icoAudio;
+    static wxIcon m_icoMusic;
+    static wxIcon m_icoGraphics;
+    static wxIcon m_icoMesh;
    
     //Menu elements
     wxMenu* m_MenuFile = NULL;

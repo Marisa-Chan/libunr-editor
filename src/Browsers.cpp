@@ -1,5 +1,12 @@
 #include "Browsers.h"
 
+wxIcon EdBrowser::m_icoPackage = wxIcon(wxT("res/bitmap/PackageBrowser.png"));
+wxIcon EdBrowser::m_icoClass = wxIcon(wxT("res/bitmap/ClassBrowser.png"));
+wxIcon EdBrowser::m_icoAudio = wxIcon(wxT("res/bitmap/AudioBrowser.png"));
+wxIcon EdBrowser::m_icoMusic = wxIcon(wxT("res/bitmap/MusicBrowser.png"));
+wxIcon EdBrowser::m_icoGraphics = wxIcon(wxT("res/bitmap/GraphicsBrowser.png"));
+wxIcon EdBrowser::m_icoMesh = wxIcon(wxT("res/bitmap/MeshBrowser.png"));
+    
 EdBrowser::EdBrowser( int BrowserFlags, bool bDock ) : EdToolFrame(bDock), m_BrowserFlags(BrowserFlags)
 {
     //Default Viewmode per browser mode.
@@ -15,7 +22,7 @@ EdBrowser::EdBrowser( int BrowserFlags, bool bDock ) : EdToolFrame(bDock), m_Bro
         m_ViewMode = VIEW_Thumbnail;
     else
         m_ViewMode = VIEW_Raw;
-    
+        
     wxMenu* menuFile = new wxMenu();
     
     m_MenuFile = new wxMenu();
@@ -298,26 +305,32 @@ void EdBrowser::update()
     if( m_BrowserFlags == BRWFLG_Class )
     {
         SetLabel(wxString("Class Browser"));
+        SetIcon(m_icoClass);
     }
     else if( m_BrowserFlags == BRWFLG_Audio )
     {
         SetLabel(wxString("Audio Browser"));    
+        SetIcon(m_icoAudio);
     }
     else if( m_BrowserFlags == BRWFLG_Music )
     {
         SetLabel(wxString("Music Browser"));    
+        SetIcon(m_icoMusic);
     }
     else if( m_BrowserFlags == BRWFLG_Graphics )
     {
-        SetLabel(wxString("Graphics Browser"));    
+        SetLabel(wxString("Graphics Browser")); 
+        SetIcon(m_icoGraphics);   
     }
     else if( m_BrowserFlags == BRWFLG_Mesh )
     {
         SetLabel(wxString("Mesh Browser"));
+        SetIcon(m_icoMesh);
     }
     else
     {
         SetLabel(wxString("Package Browser"));
+        SetIcon(m_icoPackage);
     }
 }
 

@@ -108,6 +108,7 @@ private:
     static TArray<UPackage*> sm_Packages;
     
     bool m_bAboutUp; //Is there already an about instance?
+    
 };
 
 class WXAPP_EdEditor : public wxApp
