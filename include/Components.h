@@ -32,6 +32,8 @@
     #include <wx/wx.h>
 #endif
 
+#include <libunr/Core/UPackage.h>
+
 #include <wx/wrapsizer.h>
 
 class EdToolFrame : public wxFrame
@@ -62,7 +64,8 @@ namespace EdEditor //Editor interface
     bool NewTool( const EdToolFrame* Tool );
     bool KillTool( const EdToolFrame* Tool );
     void Editor_Log( const wxString& Msg );
-    wxArrayString* GetPackageStrings();
+    TArray<UPackage*>* GetPackages();
+    void LoadPackages( const wxArrayString& Paths );
     
     bool IsPackageModified( size_t I ); //Has the package of this index been modified in memory?
 };

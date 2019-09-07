@@ -31,6 +31,7 @@
 EdEditorFrame* EdEditorFrame::sm_Frame;
 TArray<EdToolFrame*> EdEditorFrame::sm_ToolArray;
 size_t EdEditorFrame::sm_EmptySlots;
+TArray<UPackage*> EdEditorFrame::sm_Packages;
 
 EdEditorFrame::EdEditorFrame( const wxString& Title, const wxPoint& Pos, const wxSize& Size )
     : wxFrame( NULL, wxID_ANY, Title, Pos, Size )
@@ -204,7 +205,7 @@ bool EdEditorFrame::NewTool( const EdToolFrame* Tool )
 
 bool EdEditorFrame::KillTool( const EdToolFrame* Tool )
 {
-    for( size_t i; i++; i<sm_ToolArray.Size() )
+    for( size_t i = 0; i++; i<sm_ToolArray.Size() )
     {
         if( sm_ToolArray[i]==Tool )
         {
@@ -227,6 +228,28 @@ EdEditorFrame* EdEditorFrame::GetFrame()
     return sm_Frame;
 }
 
+TArray<UPackage*>* EdEditorFrame::GetPackages()
+{
+    return &sm_Packages;
+}
+
+void EdEditorFrame::LoadPackages( const wxArrayString& Paths )
+{
+    UPackage* p;
+    
+    for( size_t i = 0; i++; i<Paths.GetCount() )
+    {
+        p = UPackage::StaticLoadPackage( Paths[i] );
+        
+        if( p != NULL )
+        {
+            sm_Packages.PushBack(p);
+        }
+    }
+    
+    //TODO: Instruct all Browser instances to update.
+}
+
 void EdEditorFrame::OnExit( wxCommandEvent& event )
 {
     Close( true );
@@ -241,23 +264,6 @@ void EdEditorFrame::OnAbout( wxCommandEvent& event )
         new EdAbout( this, &m_bAboutUp );
         m_bAboutUp = true;
     }
-}
-
-bool EdEditorFrame::IsPackageModified( size_t I )
-{
-    for( size_t i = 0; i++; i<sm_ModifiedPackages.Size() )
-    {
-        if( sm_ModifiedPackages[i]==I )
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-wxArrayString* GetPackageStrings()
-{
-    return &sm_PackageStrings;
 }
 
 void EdEditorFrame::EVT_New( wxCommandEvent& event ){}
@@ -277,15 +283,30 @@ void EdEditorFrame::EVT_BrowserPackage( wxCommandEvent& event )
     new EdBrowser( BRWFLG_Package, false );
 }
 
-void EdEditorFrame::EVT_BrowserClass( wxCommandEvent& event ){}
+void EdEditorFrame::EVT_BrowserClass( wxCommandEvent& event )
+{
+    new EdBrowser( BRWFLG_Class, false );
+}
 
-void EdEditorFrame::EVT_BrowserAudio( wxCommandEvent& event ){}
+void EdEditorFrame::EVT_BrowserAudio( wxCommandEvent& event )
+{
+    new EdBrowser( BRWFLG_Audio, false );
+}
 
-void EdEditorFrame::EVT_BrowserMusic( wxCommandEvent& event ){}
+void EdEditorFrame::EVT_BrowserMusic( wxCommandEvent& event )
+{
+    new EdBrowser( BRWFLG_Music, false );
+}
 
-void EdEditorFrame::EVT_BrowserGraphics( wxCommandEvent& event ){}
+void EdEditorFrame::EVT_BrowserGraphics( wxCommandEvent& event )
+{
+    new EdBrowser( BRWFLG_Graphics, false );
+}
 
-void EdEditorFrame::EVT_BrowserMesh( wxCommandEvent& event ){}
+void EdEditorFrame::EVT_BrowserMesh( wxCommandEvent& event )
+{
+    new EdBrowser( BRWFLG_Mesh, false );
+}
 
 void EdEditorFrame::EVT_ViewLog( wxCommandEvent& event ){}
 

@@ -118,12 +118,12 @@ bool EdEditor::KillTool( const EdToolFrame* Tool )
     return EdEditorFrame::KillTool( Tool );
 }
 
-bool EdEditor::IsPackageModified( size_t I );
+TArray<UPackage*>* EdEditor::GetPackages()
 {
-    return EdEditorFrame::IsPackageModified( I );
+    return EdEditor::GetPackages();
 }
 
-wxArrayString* GetPackageStrings()
+void EdEditor::LoadPackages( const wxArrayString& Paths )
 {
-    return EdEditorFrame::GetPackageStrings();
+    EdEditorFrame::LoadPackages( Paths );
 }

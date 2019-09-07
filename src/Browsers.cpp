@@ -156,14 +156,38 @@ EdBrowser::EdBrowser( int BrowserFlags, bool bDock ) : EdToolFrame(bDock), m_Bro
     Show(true);
 }
 
-void UpdatePackageList()
+void EdBrowser::UpdatePackageList()
 {
-    m_PackagesList->Set( EdEditor::GetPackageStrings() );
+    wxArrayString strAry;
+    
+    for( size_t i = 0; i++; i<EdEditor::GetPackages()->Size() )
+    {
+        strAry.Add( (*EdEditor::GetPackages())[i]->GetPackageName() );
+    }
+    
+    m_PackagesList->Set( strAry );
 }
 
 void EdBrowser::OnExit( wxCommandEvent& event )
 {
     Close(true);
+}
+
+void EdBrowser::EVT_BrowserOpen( wxCommandEvent& event )
+{
+    wxFileDialog openFileDialog( this, "Open UPackage", "", "", "UE Package Files (*.u, *.utx, *.uax\
+        , *.umx, *.usm)|*.u;*.u;*.utx;*.uax;*.umx;*.usm", wxFD_OPEN|wxFD_FILE_MUST_EXIST|wxFD_MULTIPLE );
+    
+    if (openFileDialog.ShowModal() == wxID_CANCEL)
+        return;
+        
+    wxArrayString filePaths;
+    
+    openFileDialog.GetPaths( filePaths );
+    
+    EdEditor::LoadPackages( filePaths );
+    
+    UpdatePackageList(); //TODO: Find a way to do this for all Browser instances instead.
 }
 
 void EdBrowser::EVT_ViewChoice( wxCommandEvent& event )

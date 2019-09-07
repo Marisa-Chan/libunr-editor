@@ -32,6 +32,7 @@
     #include <wx/wx.h>
 #endif
 
+#include <libunr/Core/UPackage.h>
 #include <wx/splitter.h>
 
 #include "Components.h"
@@ -92,7 +93,7 @@ public:
 private:
     void OnExit( wxCommandEvent& event );
     void EVT_BrowserNew( wxCommandEvent& event ){};
-    void EVT_BrowserOpen( wxCommandEvent& event ){};
+    void EVT_BrowserOpen( wxCommandEvent& event );
     void EVT_BrowserSave( wxCommandEvent& event ){};
     void EVT_BrowserImport( wxCommandEvent& event ){};
     void EVT_BrowserExport( wxCommandEvent& event ){};

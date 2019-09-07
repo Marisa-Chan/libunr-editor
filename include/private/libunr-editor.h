@@ -37,6 +37,7 @@
 #include <wx/statline.h>
 
 #include <libunr/Util/TArray.h>
+#include <libunr/Core/UPackage.h>
 
 #include "Components.h"
 #include "Browsers.h"
@@ -73,8 +74,8 @@ public:
     static bool KillTool( const EdToolFrame* Tool );
     static void Editor_Log( const wxString& Msg );
     static EdEditorFrame* GetFrame();
-    static bool IsPackageModified( size_t I )
-    static wxArrayString* GetPackageStrings();
+    static TArray<UPackage*>* GetPackages();
+    static void LoadPackages( const wxArrayString& Paths );
     
     //Events
     void OnExit( wxCommandEvent& event );
@@ -104,9 +105,7 @@ private:
     static EdEditorFrame* sm_Frame; //Reference to the one instance of EdEditorFrame.
     static TArray<EdToolFrame*> sm_ToolArray;
     static size_t sm_EmptySlots;
-    static wxArrayString sm_PackageStrings;
-    
-    static TArray<int> sm_ModifiedPackages;
+    static TArray<UPackage*> sm_Packages;
     
     bool m_bAboutUp; //Is there already an about instance?
 };
