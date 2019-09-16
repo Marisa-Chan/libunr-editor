@@ -85,9 +85,6 @@ EdBrowser::EdBrowser( int BrowserFlags, bool bDock ) : EdToolFrame(bDock), m_Bro
     
     SetMenuBar( m_MenuBar );
     
-    //TODO: Package Bar 
-    //TODO: Group Bar
-    
     Centre();
     
     SetMinSize( wxSize(512,384) );
@@ -167,7 +164,7 @@ void EdBrowser::UpdatePackageList()
 {
     wxArrayString strAry;
     
-    for( size_t i = 0; i++; i<EdEditor::GetPackages()->Size() )
+    for( size_t i = 0; i<EdEditor::GetPackages()->Size(); i++ )
     {
         strAry.Add( (*EdEditor::GetPackages())[i]->GetPackageName() );
     }

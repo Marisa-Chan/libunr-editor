@@ -32,7 +32,7 @@
     #include <wx/wx.h>
 #endif
 
-#include <libunr/Core/UPackage.h>
+#include <libunr/libunr.h>
 
 #include <wx/wrapsizer.h>
 

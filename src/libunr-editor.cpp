@@ -33,6 +33,10 @@ TArray<EdToolFrame*> EdEditorFrame::sm_ToolArray;
 size_t EdEditorFrame::sm_EmptySlots;
 TArray<UPackage*> EdEditorFrame::sm_Packages;
 
+wxIcon EdEditorFrame::m_File = wxIcon(wxT("res/bitmap/New.png"));
+wxIcon EdEditorFrame::m_Dir = wxIcon(wxT("res/bitmap/Open.png"));
+wxIcon EdEditorFrame::m_Save = wxIcon(wxT("res/bitmap/Save.png"));
+
 EdEditorFrame::EdEditorFrame( const wxString& Title, const wxPoint& Pos, const wxSize& Size )
     : wxFrame( NULL, wxID_ANY, Title, Pos, Size )
 {
@@ -111,43 +115,34 @@ instance");
     #define C_BUTTONSIZE 34
     #define C_BUTTONCOLOUR wxColour( 130, 130, 130 )
     
-    wxBitmap bitmap_NewMap( "res/bitmap/New.png", wxBITMAP_TYPE_PNG );
-    wxBitmapButton* button_NewMap = new wxBitmapButton( toolBar, ID_New, bitmap_NewMap, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
+    wxBitmapButton* button_NewMap = new wxBitmapButton( toolBar, ID_New, EdEditorFrame::m_File, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
     buttonSizer->Add( button_NewMap, 0, wxALIGN_CENTRE_VERTICAL );
     
-    wxBitmap bitmap_OpenMap( "res/bitmap/Open.png", wxBITMAP_TYPE_PNG );
-    wxBitmapButton* button_OpenMap = new wxBitmapButton( toolBar, ID_Open, bitmap_OpenMap, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
+    wxBitmapButton* button_OpenMap = new wxBitmapButton( toolBar, ID_Open, EdEditorFrame::m_Dir, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
     buttonSizer->Add( button_OpenMap, 0, wxALIGN_CENTRE_VERTICAL );
     
-    wxBitmap bitmap_Save( "res/bitmap/Save.png", wxBITMAP_TYPE_PNG );
-    wxBitmapButton* button_Save = new wxBitmapButton( toolBar, ID_Save, bitmap_Save, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
+    wxBitmapButton* button_Save = new wxBitmapButton( toolBar, ID_Save, EdEditorFrame::m_Save, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
     buttonSizer->Add( button_Save, 0, wxALIGN_CENTRE_VERTICAL );
     
     buttonSizer->AddSpacer( C_BUTTONSIZE );
     
-    wxBitmap bitmap_PackageBrowser( "res/bitmap/PackageBrowser.png", wxBITMAP_TYPE_PNG );
-    wxBitmapButton* button_PackageBrowser = new wxBitmapButton( toolBar, ID_BrowserPackage, bitmap_PackageBrowser, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
+    wxBitmapButton* button_PackageBrowser = new wxBitmapButton( toolBar, ID_BrowserPackage, EdBrowser::m_icoPackage, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
     buttonSizer->Add( button_PackageBrowser, 0, wxALIGN_CENTRE_VERTICAL );
     
-    wxBitmap bitmap_ClassBrowser( "res/bitmap/ClassBrowser.png", wxBITMAP_TYPE_PNG );
-    wxBitmapButton* button_ClassBrowser = new wxBitmapButton( toolBar, ID_BrowserClass, bitmap_ClassBrowser, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
+    wxBitmapButton* button_ClassBrowser = new wxBitmapButton( toolBar, ID_BrowserClass, EdBrowser::m_icoClass, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
     buttonSizer->Add( button_ClassBrowser, 0, wxALIGN_CENTRE_VERTICAL );
     
-    wxBitmap bitmap_AudioBrowser( "res/bitmap/AudioBrowser.png", wxBITMAP_TYPE_PNG );
-    wxBitmapButton* button_AudioBrowser = new wxBitmapButton( toolBar, ID_BrowserAudio, bitmap_AudioBrowser, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
+    wxBitmapButton* button_AudioBrowser = new wxBitmapButton( toolBar, ID_BrowserAudio, EdBrowser::m_icoAudio, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
     buttonSizer->Add( button_AudioBrowser, 0, wxALIGN_CENTRE_VERTICAL );
     
-    wxBitmap bitmap_MusicBrowser( "res/bitmap/MusicBrowser.png", wxBITMAP_TYPE_PNG );
     wxBitmapButton* button_MusicBrowser = new wxBitmapButton( toolBar, ID_BrowserMusic, 
-bitmap_MusicBrowser, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
+EdBrowser::m_icoMusic, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
     buttonSizer->Add( button_MusicBrowser, 0, wxALIGN_CENTRE_VERTICAL );
     
-    wxBitmap bitmap_GraphicsBrowser( "res/bitmap/GraphicsBrowser.png", wxBITMAP_TYPE_PNG );
-    wxBitmapButton* button_GraphicsBrowser = new wxBitmapButton( toolBar, ID_BrowserGraphics, bitmap_GraphicsBrowser, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
+    wxBitmapButton* button_GraphicsBrowser = new wxBitmapButton( toolBar, ID_BrowserGraphics, EdBrowser::m_icoGraphics, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
     buttonSizer->Add( button_GraphicsBrowser, 0, wxALIGN_CENTRE_VERTICAL );
     
-    wxBitmap bitmap_MeshBrowser( "res/bitmap/MeshBrowser.png", wxBITMAP_TYPE_PNG );
-    wxBitmapButton* button_MeshBrowser = new wxBitmapButton( toolBar, ID_BrowserMesh, bitmap_MeshBrowser, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
+    wxBitmapButton* button_MeshBrowser = new wxBitmapButton( toolBar, ID_BrowserMesh, EdBrowser::m_icoMesh, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
     buttonSizer->Add( button_MeshBrowser, 0, wxALIGN_CENTRE_VERTICAL );
     
     toolBar->SetSizer(buttonSizer);
@@ -237,7 +232,7 @@ void EdEditorFrame::LoadPackages( const wxArrayString& Paths )
 {
     UPackage* p;
     
-    for( size_t i = 0; i++; i<Paths.GetCount() )
+    for( size_t i = 0; i<Paths.GetCount(); i++ )
     {
         p = UPackage::StaticLoadPackage( Paths[i] );
         
@@ -318,8 +313,152 @@ void EdEditorFrame::EVT_MeshEditor( wxCommandEvent& event ){}
 
 void EdEditorFrame::EVT_Manual( wxCommandEvent& event ){}
 
+EdGamePrompt::EdGamePrompt( TArray<char*>* Names )
+    : wxDialog( NULL, wxID_ANY, "Select Game", wxDefaultPosition, wxSize(420,400) )
+{
+    wxBoxSizer* vsizer = new wxBoxSizer( wxVERTICAL );
+    
+    m_GameSize = Names->Size();
+    m_Names = Names;
+    wxString strNames[m_GameSize];
+    
+    for( size_t i = 0; i<m_GameSize; i++ )
+    {
+        strNames[i] = wxString::FromAscii( (*Names)[i] );
+    }
+    
+    m_ChoiceBox = new wxListBox( this, ID_GameChoice, wxDefaultPosition, wxSize(420,-1), m_GameSize, strNames,
+        wxLB_SINGLE | wxLB_NEEDED_SB );
+        
+        vsizer->Add( m_ChoiceBox );
+        
+   wxPanel* endPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize );
+    
+        wxBoxSizer* hsizer = new wxBoxSizer( wxHORIZONTAL );
+        wxButton* confirmB = new wxButton( endPanel, ID_NewGameChoice, "Add" );
+        wxButton* cancelB = new wxButton( endPanel, wxID_CANCEL, "Cancel" );
+        
+        hsizer->Add( confirmB, 0, wxALIGN_LEFT, 4 );
+        hsizer->Add( cancelB, 0, wxALIGN_LEFT, 4 );
+        endPanel->SetSizer( hsizer );
+        
+        vsizer->Add( endPanel );
+        
+    SetSizer( vsizer );
+}
+
+int EdGamePrompt::GetSelected()
+{
+    return m_GameSelect;
+}
+
+void EdGamePrompt::EVT_ChoiceSelect( wxCommandEvent& event )
+{
+    m_GameSelect = event.GetSelection();
+    EndModal(0);
+}
+
+void EdGamePrompt::EVT_NewGame( wxCommandEvent& event )
+{
+    EdNewGameDialog newGamePrompt( m_GameSize, &m_GameSelect );
+    
+    if( newGamePrompt.ShowModal() == wxID_CANCEL )
+        return;
+    else
+    {
+        m_GameSelect = m_GameSize;
+        EndModal(0);
+    }
+}
+
+EdNewGameDialog::EdNewGameDialog( size_t NewIndex, int* ChoiceOut )
+    : wxDialog( NULL, wxID_ANY, "Add Game" )
+{
+    m_GameSize = NewIndex;
+    
+    wxBoxSizer* vsizer = new wxBoxSizer( wxVERTICAL );
+    
+    wxStaticText* labelName = new wxStaticText( this, wxID_ANY, "Name:" );
+    vsizer->Add( labelName, wxALIGN_LEFT );
+    
+    m_NameField = new wxTextCtrl( this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize );
+    vsizer->Add( m_NameField, wxALIGN_LEFT );
+    
+    wxStaticText* exeName = new wxStaticText( this, wxID_ANY, "Executable Name:" );
+    vsizer->Add( exeName, wxALIGN_LEFT );
+    
+    m_ExeField =  new wxTextCtrl( this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize );
+    vsizer->Add( m_ExeField, wxALIGN_LEFT );
+    
+    wxStaticText* pathName = new wxStaticText( this, wxID_ANY, "Directory:" );
+    vsizer->Add( pathName, wxALIGN_LEFT );
+    
+    wxBoxSizer* hsizer = new wxBoxSizer( wxHORIZONTAL );
+    wxPanel* pathPanel = new wxPanel( this );
+        
+        m_PathField =  new wxTextCtrl( pathPanel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize );
+        hsizer->Add( m_PathField, wxALIGN_LEFT );
+        
+        wxButton* pathB = new wxButton( pathPanel, ID_DirDialog, "..." );
+        hsizer->Add( pathB, wxALIGN_LEFT );
+        
+        pathPanel->SetSizer(hsizer);
+    
+    vsizer->Add( pathPanel, wxALIGN_LEFT );
+    vsizer->AddSpacer( 4 );
+    
+    wxBoxSizer* hsizer2 = new wxBoxSizer( wxHORIZONTAL );
+    wxPanel* bPanel = new wxPanel( this );
+        
+        wxButton* confirmB = new wxButton( bPanel, ID_Confirm, "Confirm" );
+        hsizer2->Add( confirmB, wxALIGN_LEFT );
+        wxButton* cancelB = new wxButton( bPanel, wxID_CANCEL, "Cancel" );
+        hsizer2->Add( cancelB, wxALIGN_LEFT );
+        
+        bPanel->SetSizer(hsizer2);
+        
+    vsizer->Add( bPanel, wxALIGN_LEFT );
+    
+    SetSizer( vsizer );
+}
+
+void EdNewGameDialog::EVT_Confirm( wxCommandEvent& event )
+{
+    //TODO: Verify directory
+    
+    GLibunrConfig->WriteString( "Game", "Name", m_NameField->GetLineText(0), m_GameSize );
+    GLibunrConfig->WriteString( "Game", "Exec", m_ExeField->GetLineText(0), m_GameSize );
+    GLibunrConfig->WriteString( "Game", "Path", m_PathField->GetLineText(0), m_GameSize );
+    
+    GLibunrConfig->Save();
+    
+    EndModal(0);
+    
+}
+
+void EdNewGameDialog::EVT_DirDialog( wxCommandEvent& event )
+{
+    wxDirDialog file( this, "Game Directory", "", wxDD_DIR_MUST_EXIST  );
+    if( file.ShowModal() == wxID_CANCEL )
+        return;
+    else
+        m_PathField->ChangeValue( file.GetPath() );
+}
+
+int WXAPP_EdEditor::GamePromptHandler( TArray<char*>* Names )
+{
+    EdGamePrompt gamePrompt( Names );
+    
+    gamePrompt.ShowModal();
+    
+    return gamePrompt.GetSelected();
+}
+
 bool WXAPP_EdEditor::OnInit()
 {
+    if( LibunrInit( GamePromptHandler, NULL, true ) == false )
+        return true;
+    
     EdEditorFrame* frame = new EdEditorFrame( "libunr-editor", wxPoint(-1,-1), 
         wxSize( wxSystemSettings::GetMetric ( wxSYS_SCREEN_X ), wxSystemSettings::GetMetric ( wxSYS_SCREEN_Y ) ) );
     frame->Show(true);
@@ -352,6 +491,16 @@ wxBEGIN_EVENT_TABLE(EdEditorFrame, wxFrame)
     EVT_MENU(ID_MapEditor, EdEditorFrame::EVT_MapEditor)
     EVT_MENU(ID_MeshEditor, EdEditorFrame::EVT_MeshEditor)
     EVT_MENU(ID_Manual, EdEditorFrame::EVT_Manual)
+wxEND_EVENT_TABLE()
+
+wxBEGIN_EVENT_TABLE(EdGamePrompt, wxDialog)
+    EVT_LISTBOX_DCLICK(ID_GameChoice, EdGamePrompt::EVT_ChoiceSelect)
+    EVT_BUTTON(ID_NewGameChoice, EdGamePrompt::EVT_NewGame)
+wxEND_EVENT_TABLE()
+
+wxBEGIN_EVENT_TABLE(EdNewGameDialog, wxDialog)
+    EVT_BUTTON(ID_DirDialog, EdNewGameDialog::EVT_DirDialog)
+    EVT_BUTTON(ID_Confirm, EdNewGameDialog::EVT_Confirm)
 wxEND_EVENT_TABLE()
 
 wxIMPLEMENT_APP(WXAPP_EdEditor);

@@ -36,8 +36,7 @@
 
 #include <wx/statline.h>
 
-#include <libunr/Util/TArray.h>
-#include <libunr/Core/UPackage.h>
+#include <libunr/libunr.h>
 
 #include "Components.h"
 #include "Browsers.h"
@@ -98,6 +97,10 @@ public:
     void EVT_MeshEditor( wxCommandEvent& event );
     void EVT_Manual( wxCommandEvent& event );
     
+    static wxIcon m_File;
+    static wxIcon m_Dir;
+    static wxIcon m_Save;
+    
     wxDECLARE_EVENT_TABLE();
     
 private:
@@ -111,8 +114,58 @@ private:
     
 };
 
+enum
+{
+	ID_GameChoice,
+	ID_NewGameChoice,
+	ID_DirDialog,
+	ID_Confirm
+};
+
+class EdGamePrompt : public wxDialog
+{
+public:
+    EdGamePrompt( TArray<char*>* Names );
+    
+    int GetSelected();
+    
+    wxDECLARE_EVENT_TABLE();
+    
+private:
+    wxListBox* m_ChoiceBox;
+    
+private:
+    void EVT_ChoiceSelect( wxCommandEvent& event );
+    void EVT_NewGame( wxCommandEvent& event );
+    
+    int m_GameSelect = -1;
+    TArray<char*>* m_Names;
+    size_t m_GameSize;
+};
+
+class EdNewGameDialog : public wxDialog
+{
+public:
+    EdNewGameDialog( size_t NewIndex, int* ChoiceOut );
+    
+    wxDECLARE_EVENT_TABLE();
+    
+private:
+    wxTextCtrl* m_NameField;
+    wxTextCtrl* m_ExeField;
+    wxTextCtrl* m_PathField;
+    
+    int m_GameSize;
+    
+private:
+    void EVT_Confirm( wxCommandEvent& event );
+    void EVT_DirDialog( wxCommandEvent& event );
+};
+
 class WXAPP_EdEditor : public wxApp
 {
 public:
     virtual bool OnInit();
+    
+    static int GamePromptHandler( TArray<char*>* Names );
 };

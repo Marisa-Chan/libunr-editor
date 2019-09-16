@@ -90,6 +90,13 @@ public:
     EBrowserViewMode m_ViewMode;
     bool m_bPreview = true; //Preview the contents of a file in List and Raw mode.
     
+    static wxIcon m_icoPackage;
+    static wxIcon m_icoClass;
+    static wxIcon m_icoAudio;
+    static wxIcon m_icoMusic;
+    static wxIcon m_icoGraphics;
+    static wxIcon m_icoMesh;
+    
 private:
     void OnExit( wxCommandEvent& event );
     void EVT_BrowserNew( wxCommandEvent& event ){};
@@ -111,13 +118,6 @@ private:
     void EVT_BrowserDock( wxCommandEvent& event );
     
     void update(); //Update layout.
-    
-    static wxIcon m_icoPackage;
-    static wxIcon m_icoClass;
-    static wxIcon m_icoAudio;
-    static wxIcon m_icoMusic;
-    static wxIcon m_icoGraphics;
-    static wxIcon m_icoMesh;
    
     //Menu elements
     wxMenu* m_MenuFile = NULL;
