@@ -120,7 +120,7 @@ bool EdEditor::KillTool( const EdToolFrame* Tool )
 
 TArray<UPackage*>* EdEditor::GetPackages()
 {
-    return EdEditor::GetPackages();
+    return EdEditorFrame::GetPackages();
 }
 
 void EdEditor::LoadPackages( const wxArrayString& Paths )
