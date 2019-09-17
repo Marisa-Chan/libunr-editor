@@ -234,7 +234,7 @@ void EdEditorFrame::LoadPackages( const wxArrayString& Paths )
     
     for( size_t i = 0; i<Paths.GetCount(); i++ )
     {
-        p = UPackage::StaticLoadPackage( Paths[i] );
+        p = UPackage::StaticLoadPackage( Paths[i], false );
         
         if( p != NULL )
         {
@@ -242,7 +242,23 @@ void EdEditorFrame::LoadPackages( const wxArrayString& Paths )
         }
     }
     
-    //TODO: Instruct all Browser instances to update.
+    wxArrayString strAry;
+    
+    for( size_t i = 0; i<UPackage::GetLoadedPackages()->Size(); i++ )
+    {
+        strAry.Add( (*UPackage::GetLoadedPackages())[i]->GetPackageName() );
+    }
+    
+    if( strAry.GetCount() > 0 )
+    {
+        for( size_t i = 0; i<sm_ToolArray.Size(); i++ )
+        {
+            if( sm_ToolArray[i]->m_ToolType == TOOL_Browser )
+            {
+                static_cast<EdBrowser*>( sm_ToolArray[i] )->UpdatePackageList( strAry );
+            }
+        }
+    }
 }
 
 void EdEditorFrame::OnExit( wxCommandEvent& event )

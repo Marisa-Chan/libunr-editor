@@ -84,7 +84,7 @@ public:
     
 	EdBrowser( int BrowserFlags, bool bDock = false );
 	
-	void UpdatePackageList();
+	void UpdatePackageList( const wxArrayString& NewList );
     
     int m_BrowserFlags;
     EBrowserViewMode m_ViewMode;

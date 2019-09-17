@@ -36,14 +36,21 @@
 
 #include <wx/wrapsizer.h>
 
+enum
+{
+    TOOL_Generic = 0,
+    TOOL_Browser = 1
+};
+
 class EdToolFrame : public wxFrame
 {
 public:
-      EdToolFrame( bool bStartDocked = false );
-      
-      ~EdToolFrame();
-      
-      bool m_bDocked = false;
+    EdToolFrame( bool bStartDocked = false );
+
+    ~EdToolFrame();
+
+    bool m_bDocked = false;
+    int m_ToolType = TOOL_Generic;
 };
 
 class EdAbout : public wxFrame

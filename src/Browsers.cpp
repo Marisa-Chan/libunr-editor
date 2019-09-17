@@ -7,8 +7,11 @@ wxIcon EdBrowser::m_icoMusic = wxIcon(wxT("res/bitmap/MusicBrowser.png"));
 wxIcon EdBrowser::m_icoGraphics = wxIcon(wxT("res/bitmap/GraphicsBrowser.png"));
 wxIcon EdBrowser::m_icoMesh = wxIcon(wxT("res/bitmap/MeshBrowser.png"));
     
-EdBrowser::EdBrowser( int BrowserFlags, bool bDock ) : EdToolFrame(bDock), m_BrowserFlags(BrowserFlags)
+EdBrowser::EdBrowser( int BrowserFlags, bool bDock ) 
+    : EdToolFrame(bDock), m_BrowserFlags(BrowserFlags)
 {
+    m_ToolType = TOOL_Browser;    
+    
     //Default Viewmode per browser mode.
     if( m_BrowserFlags == BRWFLG_Class )
         m_ViewMode = VIEW_List;
@@ -146,30 +149,32 @@ EdBrowser::EdBrowser( int BrowserFlags, bool bDock ) : EdToolFrame(bDock), m_Bro
         
             //Packages List Window
             m_PackagesList = new wxCheckListBox( m_MainSplitter, -1 ); 
-            m_PackagesList->SetMinSize( wxSize(500,32) );
+            m_PackagesList->SetMinSize( wxSize(500,96) );
         
         m_MainSplitter->SplitHorizontally( m_ViewSplitter, m_PackagesList );
         m_MainSplitter->SetMinimumPaneSize( 50 );
         m_MainSplitter->SetSashPosition( 400 );
-        m_MainSplitter->SetSashGravity( 1.0 );
+        m_MainSplitter->SetSashGravity( 0.9 );
     
     SetSizer(m_WindowArea);
+    
+    wxArrayString strAry;
+    
+    for( size_t i = 0; i<UPackage::GetLoadedPackages()->Size(); i++ )
+    {
+        strAry.Add( (*UPackage::GetLoadedPackages())[i]->GetPackageName() );
+    }
+    
+    UpdatePackageList( strAry );
     
     update();
 
     Show(true);
 }
 
-void EdBrowser::UpdatePackageList()
+void EdBrowser::UpdatePackageList( const wxArrayString& NewList )
 {
-    wxArrayString strAry;
-    
-    for( size_t i = 0; i<EdEditor::GetPackages()->Size(); i++ )
-    {
-        strAry.Add( (*EdEditor::GetPackages())[i]->GetPackageName() );
-    }
-    
-    m_PackagesList->Set( strAry );
+    m_PackagesList->Set( NewList );
 }
 
 void EdBrowser::OnExit( wxCommandEvent& event )
@@ -190,8 +195,6 @@ void EdBrowser::EVT_BrowserOpen( wxCommandEvent& event )
     openFileDialog.GetPaths( filePaths );
     
     EdEditor::LoadPackages( filePaths );
-    
-    UpdatePackageList(); //TODO: Find a way to do this for all Browser instances instead.
 }
 
 void EdBrowser::EVT_ViewChoice( wxCommandEvent& event )
