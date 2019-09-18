@@ -1,4 +1,6 @@
 */build
+build/
+wxWidgets/
 CMakeFiles/
 *.o
 *.tmp
@@ -13,3 +15,4 @@ Makefile
 Makefile
 libunr-editor
 *.log
+*.vcxproj.user

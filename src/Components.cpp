@@ -1,6 +1,4 @@
- /*===========================================================================*\
-|*  libunr - An open source Unreal Engine 1 implementation in library form   *|
-|*  Copyright (C) 2018-2019  Adam W.E. Smith                                 *|
+/*===========================================================================*\
 |*  libunr-editor - An open source development suite for Unreal Engine 1     *|
 |*  games and libunr                                                         *|
 |*  Copyright (C) 2018-2019  Adam W.E. Smith                                 *|
@@ -20,17 +18,13 @@
 \*===========================================================================*/
 
 /*========================================================================
- * Components.cpp
- * 
- * 
- * 
- * j
+ * Components.cpp - Various internal components of the editor.
+ *
  * written by Jesse 'Hyzoran' Kowalik
  *========================================================================
 */
 
-
-#include "private/libunr-editor.h"
+#include "libunr-editor.h"
 #include "Components.h"
 
 EdToolFrame::EdToolFrame( bool bStartDocked ) 

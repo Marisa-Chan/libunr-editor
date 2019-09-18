@@ -1,6 +1,4 @@
 /*===========================================================================*\
-|*  libunr - An open source Unreal Engine 1 implementation in library form   *|
-|*  Copyright (C) 2018-2019  Adam W.E. Smith                                 *|
 |*  libunr-editor - An open source development suite for Unreal Engine 1     *|
 |*  games and libunr                                                         *|
 |*  Copyright (C) 2018-2019  Adam W.E. Smith                                 *|
@@ -26,7 +24,7 @@
  *========================================================================
 */
 
-#include "private/libunr-editor.h"
+#include "libunr-editor.h"
 
 EdEditorFrame* EdEditorFrame::sm_Frame;
 TArray<EdToolFrame*> EdEditorFrame::sm_ToolArray;
@@ -73,10 +71,8 @@ EdEditorFrame::EdEditorFrame( const wxString& Title, const wxPoint& Pos, const w
         
         menuView->Append(ID_BrowserPackage, "&Package Browser...", "Open a Package browser instance");
         menuView->Append(ID_BrowserClass, "&Class Browser...", "Open an Class browser instance");
-        menuView->Append(ID_BrowserAudio, "&Audio Browser...", "Open an Audio browser\
-instance");
-        menuView->Append(ID_BrowserMusic, "&Music Browser...", "Open a Music browser\
-instance");
+        menuView->Append(ID_BrowserAudio, "&Audio Browser...", "Open an Audio browser instance");
+        menuView->Append(ID_BrowserMusic, "&Music Browser...", "Open a Music browser instance");
         menuView->Append(ID_BrowserGraphics, "&Graphics Browser...", "Open a Graphics browser instance");
         menuView->Append(ID_BrowserMesh, "&Mesh Browser...", "Open a mesh browser instance");
         
@@ -135,8 +131,7 @@ instance");
     wxBitmapButton* button_AudioBrowser = new wxBitmapButton( toolBar, ID_BrowserAudio, EdBrowser::m_icoAudio, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
     buttonSizer->Add( button_AudioBrowser, 0, wxALIGN_CENTRE_VERTICAL );
     
-    wxBitmapButton* button_MusicBrowser = new wxBitmapButton( toolBar, ID_BrowserMusic, 
-EdBrowser::m_icoMusic, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
+    wxBitmapButton* button_MusicBrowser = new wxBitmapButton( toolBar, ID_BrowserMusic, EdBrowser::m_icoMusic, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
     buttonSizer->Add( button_MusicBrowser, 0, wxALIGN_CENTRE_VERTICAL );
     
     wxBitmapButton* button_GraphicsBrowser = new wxBitmapButton( toolBar, ID_BrowserGraphics, EdBrowser::m_icoGraphics, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
@@ -168,7 +163,7 @@ EdBrowser::m_icoMusic, wxDefaultPosition, wxSize( C_BUTTONSIZE,C_BUTTONSIZE ) );
 
 EdEditorFrame::~EdEditorFrame()
 {
-    for( size_t i = 0; i++; i<sm_ToolArray.Size() )
+    for( size_t i = 0; i<sm_ToolArray.Size(); i++ )
     {
         if( sm_ToolArray[i] != NULL )
         {
@@ -181,7 +176,7 @@ bool EdEditorFrame::NewTool( const EdToolFrame* Tool )
 {
     if( sm_EmptySlots > 0 ) //A slot was freed earlier, find and use that slot.
     {
-        for( size_t i = 0; i++; i<sm_ToolArray.Size() )
+        for( size_t i = 0; i<sm_ToolArray.Size(); i++ )
         {
             if( sm_ToolArray[i] == NULL )
             {
@@ -200,7 +195,7 @@ bool EdEditorFrame::NewTool( const EdToolFrame* Tool )
 
 bool EdEditorFrame::KillTool( const EdToolFrame* Tool )
 {
-    for( size_t i = 0; i++; i<sm_ToolArray.Size() )
+    for( size_t i = 0; i<sm_ToolArray.Size(); i++ )
     {
         if( sm_ToolArray[i]==Tool )
         {
@@ -331,19 +326,18 @@ EdGamePrompt::EdGamePrompt( TArray<char*>* Names )
     
     m_GameSize = Names->Size();
     m_Names = Names;
-    wxString strNames[m_GameSize];
+    wxString* strNames = new wxString[m_GameSize];
     
     for( size_t i = 0; i<m_GameSize; i++ )
     {
         strNames[i] = wxString::FromAscii( (*Names)[i] );
     }
     
-    m_ChoiceBox = new wxListBox( this, ID_GameChoice, wxDefaultPosition, wxSize(420,-1), m_GameSize, strNames,
-        wxLB_SINGLE | wxLB_NEEDED_SB );
+    m_ChoiceBox = new wxListBox( this, ID_GameChoice, wxDefaultPosition, wxSize(420,-1), m_GameSize, strNames,wxLB_SINGLE | wxLB_NEEDED_SB );
         
         vsizer->Add( m_ChoiceBox );
         
-   wxPanel* endPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize );
+    wxPanel* endPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize );
     
         wxBoxSizer* hsizer = new wxBoxSizer( wxHORIZONTAL );
         wxButton* confirmB = new wxButton( endPanel, ID_NewGameChoice, "Add" );

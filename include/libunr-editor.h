@@ -1,6 +1,4 @@
- /*===========================================================================*\
-|*  libunr - An open source Unreal Engine 1 implementation in library form   *|
-|*  Copyright (C) 2018-2019  Adam W.E. Smith                                 *|
+/*===========================================================================*\
 |*  libunr-editor - An open source development suite for Unreal Engine 1     *|
 |*  games and libunr                                                         *|
 |*  Copyright (C) 2018-2019  Adam W.E. Smith                                 *|
@@ -28,15 +26,13 @@
 #pragma once
 
 #include <wx/wxprec.h>
-#ifndef WX_PRECOMP
-    #include <wx/wx.h>
-#endif
+#include <wx/wx.h>
 
 #include <wx/aui/aui.h>
 
 #include <wx/statline.h>
 
-#include <libunr/libunr.h>
+#include <libunr.h>
 
 #include "Components.h"
 #include "Browsers.h"
