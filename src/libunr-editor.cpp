@@ -163,7 +163,7 @@ EdEditorFrame::EdEditorFrame( const wxString& Title, const wxPoint& Pos, const w
 
 EdEditorFrame::~EdEditorFrame()
 {
-    for( size_t i = 0; i<sm_ToolArray.Size(); i++ )
+    for( size_t i = 0; i < sm_ToolArray.Size(); i++ )
     {
         if( sm_ToolArray[i] != NULL )
         {
@@ -176,7 +176,7 @@ bool EdEditorFrame::NewTool( const EdToolFrame* Tool )
 {
     if( sm_EmptySlots > 0 ) //A slot was freed earlier, find and use that slot.
     {
-        for( size_t i = 0; i<sm_ToolArray.Size(); i++ )
+        for( size_t i = 0; i < sm_ToolArray.Size(); i++ )
         {
             if( sm_ToolArray[i] == NULL )
             {
@@ -195,7 +195,7 @@ bool EdEditorFrame::NewTool( const EdToolFrame* Tool )
 
 bool EdEditorFrame::KillTool( const EdToolFrame* Tool )
 {
-    for( size_t i = 0; i<sm_ToolArray.Size(); i++ )
+    for( size_t i = 0; i < sm_ToolArray.Size(); i++ )
     {
         if( sm_ToolArray[i]==Tool )
         {
@@ -350,6 +350,7 @@ EdGamePrompt::EdGamePrompt( TArray<char*>* Names )
         vsizer->Add( endPanel );
         
     SetSizer( vsizer );
+    delete strNames;
 }
 
 int EdGamePrompt::GetSelected()
