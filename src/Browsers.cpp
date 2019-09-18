@@ -7,6 +7,18 @@ wxIcon EdBrowser::m_icoMusic = wxIcon(wxT("res/bitmap/MusicBrowser.png"));
 wxIcon EdBrowser::m_icoGraphics = wxIcon(wxT("res/bitmap/GraphicsBrowser.png"));
 wxIcon EdBrowser::m_icoMesh = wxIcon(wxT("res/bitmap/MeshBrowser.png"));
     
+struct ObjectItemPair
+{
+    ObjectItemPair( UClass* inClass, wxTreeItemId inItem )
+    {
+        Class = inClass;
+        Item = inItem;
+    }
+        
+    UClass* Class;
+    wxTreeItemId Item;
+};
+
 EdBrowser::EdBrowser( int BrowserFlags, bool bDock ) 
     : EdToolFrame(bDock), m_BrowserFlags(BrowserFlags)
 {
@@ -138,23 +150,30 @@ EdBrowser::EdBrowser( int BrowserFlags, bool bDock )
             //View Splitter - View and Preview window split.
             m_ViewSplitter = new wxSplitterWindow( m_MainSplitter, wxID_ANY, wxDefaultPosition, wxSize( -1, 360 ) );
             m_ViewSplitter->SetMinSize( wxSize(500,100) );
-
-                //View and Preview Windows
-                m_ViewWindow = new wxPanel( m_ViewSplitter, -1 );
+            
+                m_View_Object = new wxTreeCtrl( m_ViewSplitter, 
+                    ID_BrowserObjectMode, wxDefaultPosition, wxSize( -1, -1 ) );
+                m_View_List = new wxTreeCtrl( m_ViewSplitter, 
+                    ID_BrowserListMode, wxDefaultPosition, wxSize( -1, -1 ), wxTR_HAS_BUTTONS | wxTR_MULTIPLE );
+                m_View_Tile = new wxListCtrl( m_ViewSplitter, ID_BrowserTileMode, 
+                    wxDefaultPosition, wxSize( -1, -1 ), wxLC_ICON );
+                    
                 m_PreviewWindow = new wxPanel( m_ViewSplitter, -1 );
                 
-            m_ViewSplitter->SplitVertically( m_ViewWindow, m_PreviewWindow );
-            m_ViewSplitter->SetMinimumPaneSize( 50 );
-            m_ViewSplitter->SetSashPosition( 250 );
+            m_ViewSplitter->SplitVertically( m_View_Object, m_PreviewWindow );
+            OldWindow = m_View_Object;
+            m_ViewSplitter->SetMinimumPaneSize( 250 );
+            m_ViewSplitter->SetSashPosition( m_ViewSplitter->GetSize().GetWidth()*0.8 );
+            m_ViewSplitter->SetSashGravity( 0.8 );
         
             //Packages List Window
             m_PackagesList = new wxCheckListBox( m_MainSplitter, -1 ); 
-            m_PackagesList->SetMinSize( wxSize(500,96) );
+            m_PackagesList->SetMinSize( wxSize(500,128) );
         
+        m_MainSplitter->SetMinimumPaneSize( 128 );
+        m_MainSplitter->SetSashPosition( m_MainSplitter->GetSize().GetHeight()*0.8 );
+        m_MainSplitter->SetSashGravity( 0.8 );
         m_MainSplitter->SplitHorizontally( m_ViewSplitter, m_PackagesList );
-        m_MainSplitter->SetMinimumPaneSize( 50 );
-        m_MainSplitter->SetSashPosition( 400 );
-        m_MainSplitter->SetSashGravity( 0.9 );
     
     SetSizer(m_WindowArea);
     
@@ -174,7 +193,14 @@ EdBrowser::EdBrowser( int BrowserFlags, bool bDock )
 
 void EdBrowser::UpdatePackageList( const wxArrayString& NewList )
 {
+    //TODO: Remember selections on Package changes.
+    
     m_PackagesList->Set( NewList );
+    
+    for( size_t i = 0; i<m_PackagesList->GetCount(); i++ )
+    {
+        m_PackagesList->Check( i, true );
+    }
 }
 
 void EdBrowser::OnExit( wxCommandEvent& event )
@@ -332,6 +358,130 @@ void EdBrowser::update()
         SetLabel(wxString("Package Browser"));
         SetIcon(m_icoPackage);
     }
+    
+    //Actual rendering stuff.
+        
+    //Object View
+    if( m_ViewMode == VIEW_Raw )
+    {
+        m_View_Object->Show(true);
+        m_View_List->Show(false);
+        m_View_Tile->Show(false);
+        
+        objectUpdate();
+        
+        m_ViewSplitter->ReplaceWindow( OldWindow, m_View_Object );
+        OldWindow = m_View_Object;
+    }
+    
+    //List View 
+    if( m_ViewMode == VIEW_List )
+    {
+        m_View_Object->Show(false);
+        m_View_List->Show(true);
+        m_View_Tile->Show(false);
+            
+        listUpdate();
+        
+        m_ViewSplitter->ReplaceWindow( OldWindow, m_View_List );
+        OldWindow = m_View_List;
+    }
+    
+    //Tile View 
+    if( m_ViewMode == VIEW_Thumbnail )
+    {
+        m_View_Object->Show(false);
+        m_View_List->Show(false);
+        m_View_Tile->Show(true);
+        
+        tileUpdate();
+        
+        m_ViewSplitter->ReplaceWindow( OldWindow, m_View_Tile );
+        OldWindow = m_View_Tile;
+    }
+    
+    //Render Preview?
+    
+    m_PreviewWindow->Show( m_bPreview );
+    
+    if( !m_bPreview )
+        m_ViewSplitter->Unsplit( m_PreviewWindow );
+    else if( !m_ViewSplitter->IsSplit() )
+    {
+        m_ViewSplitter->SplitVertically( OldWindow, m_PreviewWindow, 
+            m_ViewSplitter->GetSize().GetWidth()*0.8 );
+    }
+    
+    m_ViewSplitter->UpdateSize();
+        
+}
+
+void EdBrowser::objectUpdate()
+{
+    m_PackagesList->Enable();
+}
+
+void EdBrowser::listUpdate()
+{
+    m_View_List->DeleteAllItems();
+    
+    if( m_bTreeView )
+    {
+        m_PackagesList->Disable(); //Tree view doesnt support package filtering.
+        
+        TArray<ObjectItemPair> parents;
+        TArray<ObjectItemPair> newParents;
+        bool bBuildTree = true;
+        
+        parents.PushBack( ObjectItemPair( UObject::StaticClass(), 
+            addTreeItem( UObject::StaticClass(), NULL ) ) );
+           
+        while( bBuildTree ) 
+        {
+            bBuildTree = false;
+            
+            for( size_t i = 0; i<UObject::ClassPool.Size(); i++ )
+            {
+                UClass* currentClass = UObject::ClassPool[i];
+                
+                for( size_t i2 = 0; i<parents.Size(); i++ )
+                {
+                    if( currentClass->SuperClass == parents[i2].Class )
+                    {
+                        bBuildTree = true;
+                        newParents.PushBack( ObjectItemPair( currentClass, 
+                            addTreeItem( currentClass, &parents[i2].Item ) ) );
+                            
+                        break;
+                    }
+                }
+            }
+            
+            parents.Clear();
+            parents = newParents;
+            newParents.Clear();
+        }
+        
+        return;
+    }
+    
+    m_PackagesList->Enable();
+}
+
+wxTreeItemId EdBrowser::addTreeItem( UClass* Class, wxTreeItemId* Parent )
+{
+    if( Parent == NULL )
+        return m_View_List->AddRoot( wxString( Class->Name.Data() ) + wxString(" (") +
+            wxString( Class->Pkg->Name.Data() ) + wxString(") ") );
+            
+    return m_View_List->AppendItem( *Parent, wxString( Class->Name.Data() ) + wxString(" (") +
+            wxString( Class->Pkg->Name.Data() ) + wxString(") ") );
+        
+}
+
+void EdBrowser::tileUpdate()
+{
+    m_PackagesList->Enable();
 }
 
 wxBEGIN_EVENT_TABLE(EdBrowser, wxFrame)

@@ -230,16 +230,11 @@ TArray<UPackage*>* EdEditorFrame::GetPackages()
 
 void EdEditorFrame::LoadPackages( const wxArrayString& Paths )
 {
-    UPackage* p;
-    
     for( size_t i = 0; i<Paths.GetCount(); i++ )
     {
-        p = UPackage::StaticLoadPackage( Paths[i], false );
+        UPackage* p = UPackage::StaticLoadPackage( Paths[i], false );
         
-        if( p != NULL )
-        {
-            sm_Packages.PushBack(p);
-        }
+        p->LoadEditableTypes();
     }
     
     wxArrayString strAry;
@@ -474,6 +469,13 @@ bool WXAPP_EdEditor::OnInit()
 {
     if( LibunrInit( GamePromptHandler, NULL, true ) == false )
         return true;
+    
+    /*
+    for( size_t i = 0; i<UPackage::GetLoadedPackages()->Size(); i++ )
+    {
+        (*UPackage::GetLoadedPackages())[i]->LoadEditableTypes();
+    }
+    */
     
     EdEditorFrame* frame = new EdEditorFrame( "libunr-editor", wxPoint(-1,-1), 
         wxSize( wxSystemSettings::GetMetric ( wxSYS_SCREEN_X ), wxSystemSettings::GetMetric ( wxSYS_SCREEN_Y ) ) );

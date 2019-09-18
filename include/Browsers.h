@@ -34,6 +34,8 @@
 
 #include <libunr/Core/UPackage.h>
 #include <wx/splitter.h>
+#include <wx/treectrl.h>
+#include <wx/listctrl.h>
 
 #include "Components.h"
 
@@ -73,7 +75,10 @@ enum
     ID_BrowserViewMode_Graphics,
     ID_BrowserViewMode_Mesh,
     ID_BrowserViewMode_Package,
-    ID_BrowserDock
+    ID_BrowserDock,
+    ID_BrowserObjectMode,
+    ID_BrowserListMode,
+    ID_BrowserTileMode
 };
 
 
@@ -85,10 +90,13 @@ public:
 	EdBrowser( int BrowserFlags, bool bDock = false );
 	
 	void UpdatePackageList( const wxArrayString& NewList );
+	
+	TArray<UPackage*> GetEnabledPackages();
     
     int m_BrowserFlags;
     EBrowserViewMode m_ViewMode;
-    bool m_bPreview = true; //Preview the contents of a file in List and Raw mode.
+    bool m_bPreview = false; //Preview the contents of a file in List and Raw mode.
+    bool m_bTreeView = true; //If true, package filtering is disabled btw.
     
     static wxIcon m_icoPackage;
     static wxIcon m_icoClass;
@@ -98,6 +106,7 @@ public:
     static wxIcon m_icoMesh;
     
 private:
+
     void OnExit( wxCommandEvent& event );
     void EVT_BrowserNew( wxCommandEvent& event ){};
     void EVT_BrowserOpen( wxCommandEvent& event );
@@ -118,6 +127,11 @@ private:
     void EVT_BrowserDock( wxCommandEvent& event );
     
     void update(); //Update layout.
+    
+    void objectUpdate();
+    void listUpdate();
+    wxTreeItemId addTreeItem( UClass* Class, wxTreeItemId* Parent );
+    void tileUpdate();
    
     //Menu elements
     wxMenu* m_MenuFile = NULL;
@@ -134,10 +148,17 @@ private:
             wxCheckBox* m_ViewCheck_Graphics;
             wxCheckBox* m_ViewCheck_Mesh;
             wxCheckBox* m_ViewCheck_Package;
-            
+             
         wxSplitterWindow* m_MainSplitter = NULL;
             wxSplitterWindow* m_ViewSplitter = NULL;
-                wxPanel* m_ViewWindow = NULL;
+                    wxWindow* OldWindow = NULL;
+                    wxTreeCtrl* m_View_Object = NULL; //For Object mode.
+                    wxTreeCtrl* m_View_List = NULL; //For List mode.
+                    wxListCtrl* m_View_Tile = NULL; //For Tile Mode.
+                    
+                    wxPanel* m_ObjectBar = NULL;
+                    wxPanel* m_ListBar = NULL;
+                    
                 wxPanel* m_PreviewWindow = NULL;
                 
             wxCheckListBox* m_PackagesList = NULL;
