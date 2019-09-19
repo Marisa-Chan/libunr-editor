@@ -236,6 +236,8 @@ void EdBrowser::UpdatePackageList( const wxArrayString& NewList )
     {
         m_PackagesList->Check( i, true );
     }
+    
+    update();
 }
 
 void EdBrowser::OnExit( wxCommandEvent& event )
