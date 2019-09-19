@@ -31,9 +31,16 @@ TArray<EdToolFrame*> EdEditorFrame::sm_ToolArray;
 size_t EdEditorFrame::sm_EmptySlots;
 TArray<UPackage*> EdEditorFrame::sm_Packages;
 
-wxIcon EdEditorFrame::m_File = wxIcon(wxT("res/bitmap/New.png"));
-wxIcon EdEditorFrame::m_Dir = wxIcon(wxT("res/bitmap/Open.png"));
-wxIcon EdEditorFrame::m_Save = wxIcon(wxT("res/bitmap/Save.png"));
+wxIcon EdEditorFrame::m_File;
+wxIcon EdEditorFrame::m_Dir;
+wxIcon EdEditorFrame::m_Save;
+
+wxIcon EdBrowser::m_icoPackage;
+wxIcon EdBrowser::m_icoClass;
+wxIcon EdBrowser::m_icoAudio;
+wxIcon EdBrowser::m_icoMusic;
+wxIcon EdBrowser::m_icoGraphics;
+wxIcon EdBrowser::m_icoMesh;
 
 EdEditorFrame::EdEditorFrame( const wxString& Title, const wxPoint& Pos, const wxSize& Size )
     : wxFrame( NULL, wxID_ANY, Title, Pos, Size )
@@ -333,7 +340,7 @@ EdGamePrompt::EdGamePrompt( TArray<char*>* Names )
         strNames[i] = wxString::FromAscii( (*Names)[i] );
     }
     
-    m_ChoiceBox = new wxListBox( this, ID_GameChoice, wxDefaultPosition, wxSize(420,-1), m_GameSize, strNames,wxLB_SINGLE | wxLB_NEEDED_SB );
+    m_ChoiceBox = new wxListBox( this, ID_GameChoice, wxDefaultPosition, wxSize(420,-1), m_GameSize, strNames, wxLB_SINGLE | wxLB_NEEDED_SB );
         
         vsizer->Add( m_ChoiceBox );
         
@@ -350,7 +357,6 @@ EdGamePrompt::EdGamePrompt( TArray<char*>* Names )
         vsizer->Add( endPanel );
         
     SetSizer( vsizer );
-    delete strNames;
 }
 
 int EdGamePrompt::GetSelected()
@@ -464,7 +470,20 @@ bool WXAPP_EdEditor::OnInit()
 {
     if( LibunrInit( GamePromptHandler, NULL, true ) == false )
         return true;
-    
+
+    wxInitAllImageHandlers();
+
+    EdEditorFrame::m_File = wxIcon(wxT("res/bitmap/New.png"));
+    EdEditorFrame::m_Dir = wxIcon(wxT("res/bitmap/Open.png"));
+    EdEditorFrame::m_Save = wxIcon(wxT("res/bitmap/Save.png"));
+
+    EdBrowser::m_icoPackage = wxIcon(wxT("res/bitmap/PackageBrowser.png"));
+    EdBrowser::m_icoClass = wxIcon(wxT("res/bitmap/ClassBrowser.png"));
+    EdBrowser::m_icoAudio = wxIcon(wxT("res/bitmap/AudioBrowser.png"));
+    EdBrowser::m_icoMusic = wxIcon(wxT("res/bitmap/MusicBrowser.png"));
+    EdBrowser::m_icoGraphics = wxIcon(wxT("res/bitmap/GraphicsBrowser.png"));
+    EdBrowser::m_icoMesh = wxIcon(wxT("res/bitmap/MeshBrowser.png"));
+
     /*
     for( size_t i = 0; i<UPackage::GetLoadedPackages()->Size(); i++ )
     {

@@ -42,7 +42,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -105,13 +105,20 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)libunr\include\;$(ProjectDir)wxWidgets\include;$(ProjectDir)wxWidgets\include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)libunr\include\;$(ProjectDir)wxWidgets\include\msvc;$(ProjectDir)wxWidgets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <UndefinePreprocessorDefinitions>
+      </UndefinePreprocessorDefinitions>
+      <PreprocessorDefinitions>__WXMSW__;wxNEEDS_DECL_BEFORE_TEMPLATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>$(SolutionDir)libunr\build\$(Configuration)\libunr.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>4194304</StackReserveSize>
+      <AdditionalLibraryDirectories>$(ProjectDir)wxWidgets\lib\vc_$(Platform)_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(ProjectDir)build\$(Configuration)\$(TargetName).exe $(SolutionDir)dist\$(TargetName).exe</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

@@ -24,13 +24,6 @@
 *========================================================================
 */
 #include "Browsers.h"
-
-wxIcon EdBrowser::m_icoPackage = wxIcon(wxT("res/bitmap/PackageBrowser.png"));
-wxIcon EdBrowser::m_icoClass = wxIcon(wxT("res/bitmap/ClassBrowser.png"));
-wxIcon EdBrowser::m_icoAudio = wxIcon(wxT("res/bitmap/AudioBrowser.png"));
-wxIcon EdBrowser::m_icoMusic = wxIcon(wxT("res/bitmap/MusicBrowser.png"));
-wxIcon EdBrowser::m_icoGraphics = wxIcon(wxT("res/bitmap/GraphicsBrowser.png"));
-wxIcon EdBrowser::m_icoMesh = wxIcon(wxT("res/bitmap/MeshBrowser.png"));
     
 struct ObjectItemPair
 {
@@ -465,17 +458,17 @@ void EdBrowser::listUpdate()
         {
             bBuildTree = false;
             
-            for( size_t i = 0; i<UObject::ClassPool.Size(); i++ )
+            for( size_t i = 0; i < UObject::ClassPool.Size(); i++ )
             {
                 UClass* currentClass = UObject::ClassPool[i];
                 
-                for( size_t i2 = 0; i<parents.Size(); i++ )
+                for( size_t j = 0; j < parents.Size(); j++ )
                 {
-                    if( currentClass->SuperClass == parents[i2].Class )
+                    if( currentClass->SuperClass == parents[j].Class )
                     {
                         bBuildTree = true;
                         newParents.PushBack( ObjectItemPair( currentClass, 
-                            addTreeItem( currentClass, &parents[i2].Item ) ) );
+                            addTreeItem( currentClass, &parents[j].Item ) ) );
                             
                         break;
                     }
