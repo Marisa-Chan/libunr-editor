@@ -357,6 +357,7 @@ EdGamePrompt::EdGamePrompt( TArray<char*>* Names )
         vsizer->Add( endPanel );
         
     SetSizer( vsizer );
+    delete[] strNames;
 }
 
 int EdGamePrompt::GetSelected()
@@ -484,12 +485,10 @@ bool WXAPP_EdEditor::OnInit()
     EdBrowser::m_icoGraphics = wxIcon(wxT("res/bitmap/GraphicsBrowser.png"));
     EdBrowser::m_icoMesh = wxIcon(wxT("res/bitmap/MeshBrowser.png"));
 
-    /*
     for( size_t i = 0; i<UPackage::GetLoadedPackages()->Size(); i++ )
     {
         (*UPackage::GetLoadedPackages())[i]->LoadEditableTypes();
     }
-    */
     
     EdEditorFrame* frame = new EdEditorFrame( "libunr-editor", wxPoint(-1,-1), 
         wxSize( wxSystemSettings::GetMetric ( wxSYS_SCREEN_X ), wxSystemSettings::GetMetric ( wxSYS_SCREEN_Y ) ) );

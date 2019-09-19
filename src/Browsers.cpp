@@ -461,6 +461,7 @@ void EdBrowser::listUpdate()
             for( size_t i = 0; i < UObject::ClassPool.Size(); i++ )
             {
                 UClass* currentClass = UObject::ClassPool[i];
+                currentClass = currentClass;
                 
                 for( size_t j = 0; j < parents.Size(); j++ )
                 {
@@ -475,12 +476,12 @@ void EdBrowser::listUpdate()
                 }
             }
             
-            parents.Clear();
-            parents = newParents;
-            newParents.Clear();
+           parents.Clear();
+           parents = newParents;
+           newParents.Clear();
         }
         
-        return;
+       return;
     }
     
     m_PackagesList->Enable();
