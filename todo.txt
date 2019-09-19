@@ -1,0 +1,13 @@
+- Show Package.Class in title when selecting class
+- Implement Descending Sort, Package Sort
+- Fix Segfaults on close
+- Fix About tab
+- Fix Icons
+- Add placeholder menu entries to match UnrealEd 2.2
+- Remove slash AND .u from the end of the package (libunr issue?)
+- Fix object list not updating on package load... ??
+- Add "Set root" functionality in tree browser
+- Polish/Change/Fix Icon Graphics (They ugly)
+- Implement Rendering of non-class objects in browser
+-Implement memory for various controls, such as Class tree expansion, Package 
+selections, etc. to prevent state reset on update
