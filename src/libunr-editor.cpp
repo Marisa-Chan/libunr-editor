@@ -243,7 +243,7 @@ void EdEditorFrame::LoadPackages( const wxArrayString& Paths )
     
     for( size_t i = 0; i<UPackage::GetLoadedPackages()->Size(); i++ )
     {
-        strAry.Add( (*UPackage::GetLoadedPackages())[i]->GetPackageName() );
+        strAry.Add( (*UPackage::GetLoadedPackages())[i]->Name.Data() );
     }
     
     if( strAry.GetCount() > 0 )
@@ -472,7 +472,7 @@ bool WXAPP_EdEditor::OnInit()
     if( LibunrInit( GamePromptHandler, NULL, true ) == false )
         return true;
 
-    wxInitAllImageHandlers();
+    //wxInitAllImageHandlers();
 
     EdEditorFrame::m_File = wxIcon(wxT("res/bitmap/New.png"));
     EdEditorFrame::m_Dir = wxIcon(wxT("res/bitmap/Open.png"));

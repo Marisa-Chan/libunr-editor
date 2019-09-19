@@ -53,6 +53,8 @@ EdBrowser::EdBrowser( int BrowserFlags, bool bDock )
         m_ViewMode = VIEW_Thumbnail;
     else if( m_BrowserFlags == BRWFLG_Mesh )
         m_ViewMode = VIEW_Thumbnail;
+    else if( m_BrowserFlags == BRWFLG_Level )
+        m_ViewMode = VIEW_Thumbnail;
     else
         m_ViewMode = VIEW_Raw;
         
@@ -94,13 +96,26 @@ EdBrowser::EdBrowser( int BrowserFlags, bool bDock )
         
         m_MenuViewMode->Check( ID_BrowserViewMode_Preview, m_bPreview );
         
+        m_MenuViewMode->AppendCheckItem( ID_BrowserShowPackage, "Objects Show Package", "" );
+        
+        
         m_MenuViewMode->AppendSeparator();
         
+        m_MenuViewMode->AppendCheckItem( ID_BrowserSortMode_Alpha, "Sort Alphanumeric", "" );
+        
+        m_MenuViewMode->AppendCheckItem( ID_BrowserSortMode_Package, "Sort by Package Alphanumeric", "" );
+        
+        m_MenuViewMode->AppendSeparator();
+        
+        m_MenuViewMode->AppendCheckItem( ID_BrowserSortAscending, "Sort Ascending", "" );
+        
+        m_MenuViewMode->AppendSeparator();
         m_MenuViewMode->AppendCheckItem( ID_BrowserViewMode_Class, "Classes", "" );
         m_MenuViewMode->AppendCheckItem( ID_BrowserViewMode_Audio, "Audio", "" );
         m_MenuViewMode->AppendCheckItem( ID_BrowserViewMode_Music, "Music", "" );
         m_MenuViewMode->AppendCheckItem( ID_BrowserViewMode_Graphics, "Graphics", "" );
         m_MenuViewMode->AppendCheckItem( ID_BrowserViewMode_Mesh, "Meshes", "" );
+        m_MenuViewMode->AppendCheckItem( ID_BrowserViewMode_Level, "Levels", "" );
         
     m_MenuView = new wxMenu();
     
@@ -120,7 +135,7 @@ EdBrowser::EdBrowser( int BrowserFlags, bool bDock )
     
     Centre();
     
-    SetMinSize( wxSize(512,384) );
+    SetMinSize( wxSize(600,384) );
     
     //Window Area - Contains All the contents of the Browser Window besides the menu bar.
         //Options Bar
@@ -145,6 +160,7 @@ EdBrowser::EdBrowser( int BrowserFlags, bool bDock )
             m_ViewCheck_Music = new wxCheckBox( m_OptionsBar, ID_BrowserViewMode_Music, "Music" );
             m_ViewCheck_Graphics = new wxCheckBox( m_OptionsBar, ID_BrowserViewMode_Graphics, "Graphics" );
             m_ViewCheck_Mesh = new wxCheckBox( m_OptionsBar, ID_BrowserViewMode_Mesh, "Mesh" );
+            m_ViewCheck_Level = new wxCheckBox( m_OptionsBar, ID_BrowserViewMode_Level, "Levels" );
             m_ViewCheck_Package = new wxCheckBox( m_OptionsBar, ID_BrowserViewMode_Package, "All" );
             
             optionsSizer->Add( m_ViewModeChoice, 0, wxALIGN_LEFT );
@@ -153,6 +169,7 @@ EdBrowser::EdBrowser( int BrowserFlags, bool bDock )
             optionsSizer->Add( m_ViewCheck_Music, 0, wxALIGN_LEFT );
             optionsSizer->Add( m_ViewCheck_Graphics, 0, wxALIGN_LEFT );
             optionsSizer->Add( m_ViewCheck_Mesh, 0, wxALIGN_LEFT );
+            optionsSizer->Add( m_ViewCheck_Level, 0, wxALIGN_LEFT );
             optionsSizer->Add( m_ViewCheck_Package, 0, wxALIGN_LEFT );
                 
             m_OptionsBar->SetSizer( optionsSizer );
@@ -172,7 +189,7 @@ EdBrowser::EdBrowser( int BrowserFlags, bool bDock )
                 m_View_Object = new wxTreeCtrl( m_ViewSplitter, 
                     ID_BrowserObjectMode, wxDefaultPosition, wxSize( -1, -1 ) );
                 m_View_List = new wxTreeCtrl( m_ViewSplitter, 
-                    ID_BrowserListMode, wxDefaultPosition, wxSize( -1, -1 ), wxTR_HAS_BUTTONS | wxTR_MULTIPLE );
+                    ID_BrowserListMode, wxDefaultPosition, wxSize( -1, -1 ), wxTR_HIDE_ROOT | wxTR_HAS_BUTTONS | wxTR_MULTIPLE );
                 m_View_Tile = new wxListCtrl( m_ViewSplitter, ID_BrowserTileMode, 
                     wxDefaultPosition, wxSize( -1, -1 ), wxLC_ICON );
                     
@@ -199,7 +216,7 @@ EdBrowser::EdBrowser( int BrowserFlags, bool bDock )
     
     for( size_t i = 0; i<UPackage::GetLoadedPackages()->Size(); i++ )
     {
-        strAry.Add( (*UPackage::GetLoadedPackages())[i]->GetPackageName() );
+        strAry.Add( (*UPackage::GetLoadedPackages())[i]->Name.Data() );
     }
     
     UpdatePackageList( strAry );
@@ -311,6 +328,13 @@ void EdBrowser::EVT_BrowserViewMode_Mesh( wxCommandEvent& event )
     update();
 }
 
+void EdBrowser::EVT_BrowserViewMode_Level( wxCommandEvent& event )
+{
+    m_BrowserFlags ^= BRWFLG_Level;
+    
+    update();
+}
+
 void EdBrowser::EVT_BrowserViewMode_Package( wxCommandEvent& event )
 {
     m_BrowserFlags = BRWFLG_Package;
@@ -320,6 +344,34 @@ void EdBrowser::EVT_BrowserViewMode_Package( wxCommandEvent& event )
 
 void EdBrowser::EVT_BrowserDock( wxCommandEvent& event )
 {
+}
+
+void EdBrowser::EVT_BrowserShowPackage( wxCommandEvent& event )
+{
+    m_bShowPackage = !m_bShowPackage;
+    
+    update();
+}
+
+void EdBrowser::EVT_BrowserSortAscending( wxCommandEvent& event )
+{
+    m_bSortAscending = !m_bSortAscending;
+    
+    update();
+}
+
+void EdBrowser::EVT_BrowserSortMode_Alpha( wxCommandEvent& event )
+{
+    m_SortMode = SORT_Alpha;
+    
+    update();
+}
+
+void EdBrowser::EVT_BrowserSortMode_Package( wxCommandEvent& event )
+{
+    m_SortMode = SORT_AlphaPackage;
+    
+    update();
 }
 
 void EdBrowser::update()
@@ -334,12 +386,20 @@ void EdBrowser::update()
     m_MenuViewMode->Check( ID_BrowserViewMode_Music, m_BrowserFlags & BRWFLG_Music );
     m_MenuViewMode->Check( ID_BrowserViewMode_Graphics, m_BrowserFlags & BRWFLG_Graphics );
     m_MenuViewMode->Check( ID_BrowserViewMode_Mesh, m_BrowserFlags & BRWFLG_Mesh );
+    m_MenuViewMode->Check( ID_BrowserViewMode_Level, m_BrowserFlags & BRWFLG_Level );
     m_ViewCheck_Class->SetValue( m_BrowserFlags & BRWFLG_Class );
     m_ViewCheck_Audio->SetValue( m_BrowserFlags & BRWFLG_Audio );
     m_ViewCheck_Music->SetValue( m_BrowserFlags & BRWFLG_Music );
     m_ViewCheck_Graphics->SetValue( m_BrowserFlags & BRWFLG_Graphics );
     m_ViewCheck_Mesh->SetValue( m_BrowserFlags & BRWFLG_Mesh );
+    m_ViewCheck_Level->SetValue( m_BrowserFlags & BRWFLG_Level );
     m_ViewCheck_Package->SetValue( m_BrowserFlags == BRWFLG_Package );
+    
+    
+    m_MenuViewMode->Check( ID_BrowserShowPackage, m_bShowPackage );
+    m_MenuViewMode->Check( ID_BrowserSortMode_Alpha, m_SortMode == SORT_Alpha );
+    m_MenuViewMode->Check( ID_BrowserSortMode_Package, m_SortMode == SORT_AlphaPackage );
+    m_MenuViewMode->Check( ID_BrowserSortAscending, m_bSortAscending );
     
     m_MenuViewMode->Check( ID_BrowserViewMode_Preview, m_bPreview );
     
@@ -369,6 +429,11 @@ void EdBrowser::update()
     else if( m_BrowserFlags == BRWFLG_Mesh )
     {
         SetLabel(wxString("Mesh Browser"));
+        SetIcon(m_icoMesh);
+    }
+    else if( m_BrowserFlags == BRWFLG_Level )
+    {
+        SetLabel(wxString("Level Browser"));
         SetIcon(m_icoMesh);
     }
     else
@@ -444,16 +509,30 @@ void EdBrowser::listUpdate()
     m_View_List->DeleteAllItems();
     
     if( m_bTreeView )
-    {
         m_PackagesList->Disable(); //Tree view doesnt support package filtering.
+    else
+        m_PackagesList->Enable();
         
+    //Class Items
+Classes:
+    
+    if( !m_BrowserFlags & BRWFLG_Class )
+        goto Audio;
+        
+    if( m_bTreeView ) //Tree view for classes
+    {
         TArray<ObjectItemPair> parents;
         TArray<ObjectItemPair> newParents;
         bool bBuildTree = true;
         
+        wxTreeItemId root = m_View_List->AddRoot(""); //Dummy root
+        
         parents.PushBack( ObjectItemPair( UObject::StaticClass(), 
-            addTreeItem( UObject::StaticClass(), NULL ) ) );
-           
+            addTreeItem( UObject::StaticClass(), root ) ) );
+            
+            
+        wxTreeItemId object = parents[0].Item; //remember object to expand it later
+        
         while( bBuildTree ) 
         {
             bBuildTree = false;
@@ -469,33 +548,62 @@ void EdBrowser::listUpdate()
                     {
                         bBuildTree = true;
                         newParents.PushBack( ObjectItemPair( currentClass, 
-                            addTreeItem( currentClass, &parents[j].Item ) ) );
+                            addTreeItem( currentClass, parents[j].Item ) ) );
                             
                         break;
                     }
                 }
             }
             
+           //Sort
+           for( size_t j = 0; j < parents.Size(); j++ )
+           {
+                m_View_List->SortChildren( parents[j].Item );
+           }
+           
            parents.Clear();
            parents = newParents;
            newParents.Clear();
         }
         
+        //Automatically expand Object 
+        m_View_List->Expand( object );
+        
        return;
     }
-    
-    m_PackagesList->Enable();
+    else //List view for classes
+    {
+    }
+Audio:
+    if( !m_BrowserFlags & BRWFLG_Audio )
+        goto Music;
+Music:
+    if( !m_BrowserFlags & BRWFLG_Music )
+        goto Graphics;
+Graphics:
+    if( !m_BrowserFlags & BRWFLG_Graphics )
+        goto Mesh;
+Mesh:
+    if( !m_BrowserFlags & BRWFLG_Mesh )
+        goto Level;
+Level:
+    if( !m_BrowserFlags & BRWFLG_Level )
+        goto Finish;
+Finish:
+    return;
 }
 
-wxTreeItemId EdBrowser::addTreeItem( UClass* Class, wxTreeItemId* Parent )
-{
-    if( Parent == NULL )
-        return m_View_List->AddRoot( wxString( Class->Name.Data() ) + wxString(" (") +
-            wxString( Class->Pkg->Name.Data() ) + wxString(") ") );
-            
-    return m_View_List->AppendItem( *Parent, wxString( Class->Name.Data() ) + wxString(" (") +
-            wxString( Class->Pkg->Name.Data() ) + wxString(") ") );
-        
+wxTreeItemId EdBrowser::addTreeItem( UClass* Class, wxTreeItemId Parent )
+{  
+    if( m_bShowPackage )
+    {
+        return m_View_List->AppendItem( Parent, wxString( Class->Name.Data() ) + wxString(" (") +
+                wxString( Class->Pkg->Name.Data() ) + wxString(") ") );
+    }
+    else
+    {
+        return m_View_List->AppendItem( Parent, wxString( Class->Name.Data() ) );
+    }
 }
 
 void EdBrowser::tileUpdate()
@@ -527,4 +635,8 @@ wxBEGIN_EVENT_TABLE(EdBrowser, wxFrame)
     EVT_CHECKBOX(ID_BrowserViewMode_Mesh, EdBrowser::EVT_BrowserViewMode_Mesh)
     EVT_CHECKBOX(ID_BrowserViewMode_Package, EdBrowser::EVT_BrowserViewMode_Package)
     EVT_MENU(ID_BrowserDock,   EdBrowser::EVT_BrowserDock)
+    EVT_MENU(ID_BrowserShowPackage, EdBrowser::EVT_BrowserShowPackage  )
+    EVT_MENU(ID_BrowserSortAscending, EdBrowser::EVT_BrowserSortAscending  )
+    EVT_MENU(ID_BrowserSortMode_Alpha, EdBrowser::EVT_BrowserSortMode_Alpha  )
+    EVT_MENU(ID_BrowserSortMode_Package, EdBrowser::EVT_BrowserSortMode_Package  )
 wxEND_EVENT_TABLE()

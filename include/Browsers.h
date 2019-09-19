@@ -42,7 +42,9 @@ enum
     BRWFLG_Music = 1<<2,
     BRWFLG_Graphics = 1<<3,
     BRWFLG_Mesh = 1<<4,
-    BRWFLG_Package = ( BRWFLG_Class | BRWFLG_Audio | BRWFLG_Music | BRWFLG_Graphics | BRWFLG_Mesh )
+    BRWFLG_Level = 1<<5,
+    BRWFLG_Package = 
+    ( BRWFLG_Class | BRWFLG_Audio | BRWFLG_Music | BRWFLG_Graphics | BRWFLG_Mesh | BRWFLG_Level )
 };
 
 enum EBrowserViewMode
@@ -52,6 +54,11 @@ enum EBrowserViewMode
     VIEW_List = 2 //Legacy UE2-style list mode. Still uses tree for Classes.
 };
 
+enum ESortMode //How to sort objects, no effect for classes in tree mode.
+{
+    SORT_Alpha = 0,
+    SORT_AlphaPackage = 1,
+};
 
 enum
 {
@@ -74,7 +81,12 @@ enum
     ID_BrowserDock,
     ID_BrowserObjectMode,
     ID_BrowserListMode,
-    ID_BrowserTileMode
+    ID_BrowserTileMode,
+    ID_BrowserShowPackage,
+    ID_BrowserSortAscending,
+    ID_BrowserSortMode_Alpha,
+    ID_BrowserSortMode_Package,
+    ID_BrowserViewMode_Level
 };
 
 
@@ -89,10 +101,15 @@ public:
 	
 	TArray<UPackage*> GetEnabledPackages();
     
+    //View Preferences
     int m_BrowserFlags;
     EBrowserViewMode m_ViewMode;
     bool m_bPreview = false; //Preview the contents of a file in List and Raw mode.
     bool m_bTreeView = true; //If true, package filtering is disabled btw.
+    bool m_bShowPackage = true; //Show package after object name
+    ESortMode m_SortMode = SORT_AlphaPackage;
+    bool m_bSortAscending = true; //If true, sorts A-Z, 0-9 instead of Z-A, 9-0.
+    bool m_bClassTree = true; //Use class tree in List mode.
     
     static wxIcon m_icoPackage;
     static wxIcon m_icoClass;
@@ -119,14 +136,19 @@ private:
     void EVT_BrowserViewMode_Music( wxCommandEvent& event );
     void EVT_BrowserViewMode_Graphics( wxCommandEvent& event );
     void EVT_BrowserViewMode_Mesh( wxCommandEvent& event );
+    void EVT_BrowserViewMode_Level( wxCommandEvent& event );
     void EVT_BrowserViewMode_Package( wxCommandEvent& event );
     void EVT_BrowserDock( wxCommandEvent& event );
+    void EVT_BrowserShowPackage( wxCommandEvent& event );
+    void EVT_BrowserSortAscending( wxCommandEvent& event );
+    void EVT_BrowserSortMode_Alpha( wxCommandEvent& event );
+    void EVT_BrowserSortMode_Package( wxCommandEvent& event );
     
     void update(); //Update layout.
     
     void objectUpdate();
     void listUpdate();
-    wxTreeItemId addTreeItem( UClass* Class, wxTreeItemId* Parent );
+    wxTreeItemId addTreeItem( UClass* Class, wxTreeItemId Parent );
     void tileUpdate();
    
     //Menu elements
@@ -143,6 +165,7 @@ private:
             wxCheckBox* m_ViewCheck_Music;
             wxCheckBox* m_ViewCheck_Graphics;
             wxCheckBox* m_ViewCheck_Mesh;
+            wxCheckBox* m_ViewCheck_Level;
             wxCheckBox* m_ViewCheck_Package;
              
         wxSplitterWindow* m_MainSplitter = NULL;
