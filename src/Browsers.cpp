@@ -757,7 +757,7 @@ void EdBrowser::listUpdate()
                     {
                         if( bFirstOfPackage )
                         {
-                            packageRoot = m_View_List->AppendItem( levelRoot, currentPackage->GetPackageName() );
+                            packageRoot = m_View_List->AppendItem( levelRoot, currentPackage->Name.Data() );
                             bFirstOfPackage = false;
                         }
                         
@@ -793,7 +793,8 @@ wxTreeItemId EdBrowser::addTreeItem( UClass* Class, wxTreeItemId Parent )
 void EdBrowser::addObjectItem( UObject* Obj, wxTreeItemId Parent )
 {
     m_View_List->AppendItem( Parent, wxString( Obj->Name.Data() ) + wxString(" <") + 
-            wxString( Obj->Class->Name.Data() ) + wxString(">") );
+            wxString( Obj->Pkg->Name.Data() ) + wxString( "." ) +
+            wxString( Obj->Class->Name.Data() ) + wxString("> ") );
 }
 
 void EdBrowser::tileUpdate()
