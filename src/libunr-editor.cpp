@@ -469,12 +469,9 @@ int WXAPP_EdEditor::GamePromptHandler( TArray<char*>* Names )
 
 bool WXAPP_EdEditor::OnInit()
 {
-    if( LibunrInit( GamePromptHandler, NULL, true ) == false )
-        return true;
+    wxInitAllImageHandlers();
 
-    //wxInitAllImageHandlers();
-
-    EdEditorFrame::m_File = wxIcon(wxT("res/bitmap/New.png"));
+    EdEditorFrame::m_File = wxIcon(wxString("res/bitmap/New.png"));
     EdEditorFrame::m_Dir = wxIcon(wxT("res/bitmap/Open.png"));
     EdEditorFrame::m_Save = wxIcon(wxT("res/bitmap/Save.png"));
 
@@ -484,6 +481,9 @@ bool WXAPP_EdEditor::OnInit()
     EdBrowser::m_icoMusic = wxIcon(wxT("res/bitmap/MusicBrowser.png"));
     EdBrowser::m_icoGraphics = wxIcon(wxT("res/bitmap/GraphicsBrowser.png"));
     EdBrowser::m_icoMesh = wxIcon(wxT("res/bitmap/MeshBrowser.png"));
+    
+    if( LibunrInit( GamePromptHandler, NULL, true ) == false )
+        return true;
 
     for( size_t i = 0; i<UPackage::GetLoadedPackages()->Size(); i++ )
     {

@@ -23,6 +23,7 @@
  * written by Jesse 'Hyzoran' Kowalik
 *========================================================================
 */
+
 #include "Browsers.h"
     
 struct ObjectItemPair
@@ -518,7 +519,7 @@ void EdBrowser::listUpdate()
     //Class Items
 Classes:
     
-    if( !m_BrowserFlags & BRWFLG_Class )
+    if( !(m_BrowserFlags & BRWFLG_Class) )
         goto Audio;
         
     if( m_bTreeView ) //Tree view for classes
@@ -577,19 +578,19 @@ Classes:
     {
     }
 Audio:
-    if( !m_BrowserFlags & BRWFLG_Audio )
+    if( !(m_BrowserFlags & BRWFLG_Audio) )
         goto Music;
 Music:
-    if( !m_BrowserFlags & BRWFLG_Music )
+    if( !(m_BrowserFlags & BRWFLG_Music) )
         goto Graphics;
 Graphics:
-    if( !m_BrowserFlags & BRWFLG_Graphics )
+    if( !(m_BrowserFlags & BRWFLG_Graphics) )
         goto Mesh;
 Mesh:
-    if( !m_BrowserFlags & BRWFLG_Mesh )
+    if( !(m_BrowserFlags & BRWFLG_Mesh) )
         goto Level;
 Level:
-    if( !m_BrowserFlags & BRWFLG_Level )
+    if( !(m_BrowserFlags & BRWFLG_Level) )
         goto Finish;
 Finish:
     return;
