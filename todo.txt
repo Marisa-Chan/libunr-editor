@@ -1,13 +1,26 @@
 - Show Package.Class in title when selecting class
 - Implement Descending Sort, Package Sort
+- Implement Package filter
+- Implement Tile and Object modes
+- Implement Tree by group
 - Fix Segfaults on close
 - Fix About tab
-- Fix Icons
 - Add placeholder menu entries to match UnrealEd 2.2
-- Remove slash AND .u from the end of the package (libunr issue?)
-- Fix object list not updating on package load... ??
-- Add "Set root" functionality in tree browser
+- Right click menu for Browser
+    - Add "Set root" functionality in tree browser
+    - Add "Just this package" and "Select all" options to package list
+    - Add "Expand All Subs" option
+    - Add "Collapse All Subs" option 
+- Fix Browser preview not working if enabled by default (requiring disable->Enable to actually work)
 - Polish/Change/Fix Icon Graphics (They ugly)
-- Implement Rendering of non-class objects in browser
--Implement memory for various controls, such as Class tree expansion, Package 
+- Implement Preview of Browser contents
+    - Classes UnrealScript
+    - Audio player gui, sort of like SLADE
+    - Same with Music
+    - Graphics are obvious
+    - Same with Meshes
+    - Levels display levelscreenshot
+-Display UObjects in Browser (Textures, Audio, etc)
+-Implement custom wxTreeCtrl class to store UClass and UObject references for every item.
+-Implement memory for various controls, such as Class tree expansion, Package.
 selections, etc. to prevent state reset on update

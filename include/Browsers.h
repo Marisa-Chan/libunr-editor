@@ -85,7 +85,8 @@ enum
     ID_BrowserSortAscending,
     ID_BrowserSortMode_Alpha,
     ID_BrowserSortMode_Package,
-    ID_BrowserViewMode_Level
+    ID_BrowserViewMode_Level,
+    ID_PackageList
 };
 
 
@@ -104,7 +105,6 @@ public:
     int m_BrowserFlags;
     EBrowserViewMode m_ViewMode;
     bool m_bPreview = false; //Preview the contents of a file in List and Raw mode.
-    bool m_bTreeView = true; //If true, package filtering is disabled btw.
     bool m_bShowPackage = true; //Show package after object name
     ESortMode m_SortMode = SORT_AlphaPackage;
     bool m_bSortAscending = true; //If true, sorts A-Z, 0-9 instead of Z-A, 9-0.
@@ -142,12 +142,14 @@ private:
     void EVT_BrowserSortAscending( wxCommandEvent& event );
     void EVT_BrowserSortMode_Alpha( wxCommandEvent& event );
     void EVT_BrowserSortMode_Package( wxCommandEvent& event );
+    void EVT_PackagesList( wxCommandEvent& event );
     
     void update(); //Update layout.
     
     void objectUpdate();
     void listUpdate();
     wxTreeItemId addTreeItem( UClass* Class, wxTreeItemId Parent );
+    void addObjectItem( UObject* Obj, wxTreeItemId Parent );
     void tileUpdate();
    
     //Menu elements

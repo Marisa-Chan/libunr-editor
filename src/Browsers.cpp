@@ -203,7 +203,7 @@ EdBrowser::EdBrowser( int BrowserFlags, bool bDock )
             m_ViewSplitter->SetSashGravity( 0.8 );
         
             //Packages List Window
-            m_PackagesList = new wxCheckListBox( m_MainSplitter, -1 ); 
+            m_PackagesList = new wxCheckListBox( m_MainSplitter, ID_PackageList ); 
             m_PackagesList->SetMinSize( wxSize(500,128) );
         
         m_MainSplitter->SetMinimumPaneSize( 128 );
@@ -249,7 +249,7 @@ void EdBrowser::OnExit( wxCommandEvent& event )
 void EdBrowser::EVT_BrowserOpen( wxCommandEvent& event )
 {
     wxFileDialog openFileDialog( this, "Open UPackage", "", "", "UE Package Files (*.u, *.utx, *.uax\
-        , *.umx, *.usm)|*.u;*.u;*.utx;*.uax;*.umx;*.usm", wxFD_OPEN|wxFD_FILE_MUST_EXIST|wxFD_MULTIPLE );
+        , *.umx, *.usm, *.unr)|*.u;*.u;*.utx;*.uax;*.umx;*.usm;*.unr", wxFD_OPEN|wxFD_FILE_MUST_EXIST|wxFD_MULTIPLE );
     
     if (openFileDialog.ShowModal() == wxID_CANCEL)
         return;
@@ -374,6 +374,11 @@ void EdBrowser::EVT_BrowserSortMode_Package( wxCommandEvent& event )
 {
     m_SortMode = SORT_AlphaPackage;
     
+    update();
+}
+
+void EdBrowser::EVT_PackagesList( wxCommandEvent& event )
+{
     update();
 }
 
@@ -511,24 +516,15 @@ void EdBrowser::listUpdate()
 {
     m_View_List->DeleteAllItems();
     
-    if( m_bTreeView )
-        m_PackagesList->Disable(); //Tree view doesnt support package filtering.
-    else
-        m_PackagesList->Enable();
-        
-    //Class Items
-Classes:
+    wxTreeItemId root = m_View_List->AddRoot(""); //Dummy root
     
-    if( !(m_BrowserFlags & BRWFLG_Class) )
-        goto Audio;
-        
-    if( m_bTreeView ) //Tree view for classes
+    if( m_BrowserFlags & BRWFLG_Class )
     {
+        wxTreeItemId levelRoot = m_View_List->AppendItem( root, "========== Classes ==========" );
+        
         TArray<ObjectItemPair> parents;
         TArray<ObjectItemPair> newParents;
         bool bBuildTree = true;
-        
-        wxTreeItemId root = m_View_List->AddRoot(""); //Dummy root
         
         parents.PushBack( ObjectItemPair( UObject::StaticClass(), 
             addTreeItem( UObject::StaticClass(), root ) ) );
@@ -558,7 +554,7 @@ Classes:
                 }
             }
             
-           //Sort
+           //Sort Alphanumeric
            for( size_t j = 0; j < parents.Size(); j++ )
            {
                 m_View_List->SortChildren( parents[j].Item );
@@ -569,29 +565,214 @@ Classes:
            newParents.Clear();
         }
         
-        //Automatically expand Object 
-        m_View_List->Expand( object );
+        if( m_BrowserFlags == BRWFLG_Class )
+            m_View_List->Expand( object );
+            
+        m_View_List->AppendItem( root, "" );
+    }
+     
+    UPackage* currentPackage;
+    FExport* currentExport;
+    bool bFirstOfPackage = true;
+    wxTreeItemId packageRoot;
+    
+    if( m_BrowserFlags & BRWFLG_Audio )
+    {    
+        //Divider Item
+        wxTreeItemId audioRoot = m_View_List->AppendItem( root, "========== Sounds ==========" );
         
-       return;
+        for( size_t i = 0; i<UPackage::GetLoadedPackages()->Size(); i++ )
+        {
+            if( !(m_PackagesList->IsChecked(i) ) ) //If Package is not selected, skip it.
+                continue;
+                
+            currentPackage = (*UPackage::GetLoadedPackages())[i];
+                
+            for( size_t j = 0; j<currentPackage->GetExportTable().Size(); j++ )
+            {
+                currentExport = &currentPackage->GetExportTable()[j];
+                if( currentExport->Obj != NULL )
+                {
+                    if( currentExport->Obj->IsA( USound::StaticClass() ) )
+                    {
+                        if( bFirstOfPackage )
+                        {
+                            packageRoot = m_View_List->AppendItem( audioRoot, currentPackage->GetPackageName() );
+                            bFirstOfPackage = false;
+                        }
+                        
+                        addObjectItem( currentExport->Obj, packageRoot );
+                    }
+                }
+            }
+            
+            bFirstOfPackage = true;
+        }
+        
+        if( m_BrowserFlags == BRWFLG_Audio )
+            m_View_List->Expand( audioRoot );
+            
+        m_View_List->AppendItem( root, "" );
     }
-    else //List view for classes
-    {
+       
+    if( m_BrowserFlags & BRWFLG_Music )
+    { 
+        //Divider Item
+        wxTreeItemId musicRoot = m_View_List->AppendItem( root, "========== Music ==========" );
+            
+        for( size_t i = 0; i<UPackage::GetLoadedPackages()->Size(); i++ )
+        {
+            if( !(m_PackagesList->IsChecked(i) ) ) //If Package is not selected, skip it.
+                continue;
+                
+            currentPackage = (*UPackage::GetLoadedPackages())[i];
+            
+            for( size_t j = 0; j<currentPackage->GetExportTable().Size(); j++ )
+            {
+                currentExport = &currentPackage->GetExportTable()[j];
+                
+                if( currentExport->Obj != NULL )
+                {
+                    if( currentExport->Obj->IsA( UMusic::StaticClass() ) )
+                    {
+                        if( bFirstOfPackage )
+                        {
+                            packageRoot = m_View_List->AppendItem( musicRoot, currentPackage->GetPackageName() );
+                            bFirstOfPackage = false;
+                        }
+                        
+                        addObjectItem( currentExport->Obj, packageRoot );
+                    }
+                }
+            }
+            
+            bFirstOfPackage = true;
+        }
+        
+        if( m_BrowserFlags == BRWFLG_Music )
+            m_View_List->Expand( musicRoot );
+            
+        m_View_List->AppendItem( root, "" );
     }
-Audio:
-    if( !(m_BrowserFlags & BRWFLG_Audio) )
-        goto Music;
-Music:
-    if( !(m_BrowserFlags & BRWFLG_Music) )
-        goto Graphics;
-Graphics:
-    if( !(m_BrowserFlags & BRWFLG_Graphics) )
-        goto Mesh;
-Mesh:
-    if( !(m_BrowserFlags & BRWFLG_Mesh) )
-        goto Level;
-Level:
-    if( !(m_BrowserFlags & BRWFLG_Level) )
-        goto Finish;
+    
+    if( m_BrowserFlags & BRWFLG_Graphics )
+    { 
+        //Divider Item
+        wxTreeItemId textureRoot = m_View_List->AppendItem( root, "========== Textures ==========" );
+        
+        for( size_t i = 0; i<UPackage::GetLoadedPackages()->Size(); i++ )
+        {
+            if( !(m_PackagesList->IsChecked(i) ) ) //If Package is not selected, skip it.
+                continue;
+                
+            currentPackage = (*UPackage::GetLoadedPackages())[i];
+            
+            for( size_t j = 0; j<currentPackage->GetExportTable().Size(); j++ )
+            {
+                currentExport = &currentPackage->GetExportTable()[j];
+                
+                if( currentExport->Obj != NULL )
+                {
+                    if( currentExport->Obj->IsA( UTexture::StaticClass() ) )
+                    {
+                        if( bFirstOfPackage )
+                        {
+                            packageRoot = m_View_List->AppendItem( textureRoot, currentPackage->GetPackageName() );
+                            bFirstOfPackage = false;
+                        }
+                        
+                        addObjectItem( currentExport->Obj, packageRoot );
+                    }
+                }
+            }
+            
+            bFirstOfPackage = true;
+        }
+        
+        if( m_BrowserFlags == BRWFLG_Graphics )
+            m_View_List->Expand( textureRoot );
+            
+        m_View_List->AppendItem( root, "" );
+    }
+    
+    if( m_BrowserFlags & BRWFLG_Mesh )
+    { 
+        //Divider Item
+        wxTreeItemId meshRoot = m_View_List->AppendItem( root, "========== Meshes ==========" );
+          
+        for( size_t i = 0; i<UPackage::GetLoadedPackages()->Size(); i++ )
+        {
+            if( !(m_PackagesList->IsChecked(i) ) ) //If Package is not selected, skip it.
+                continue;
+                
+            currentPackage = (*UPackage::GetLoadedPackages())[i];
+            
+            for( size_t j = 0; j<currentPackage->GetExportTable().Size(); j++ )
+            {
+                currentExport = &currentPackage->GetExportTable()[j];
+                
+                if( currentExport->Obj != NULL )
+                {
+                    if( currentExport->Obj->IsA( UMesh::StaticClass() ) )
+                    {
+                        if( bFirstOfPackage )
+                        {
+                            packageRoot = m_View_List->AppendItem( meshRoot, currentPackage->GetPackageName() );
+                            bFirstOfPackage = false;
+                        }
+                        
+                        addObjectItem( currentExport->Obj, packageRoot );
+                    }
+                }
+            }
+            
+            bFirstOfPackage = true;
+        }
+        
+        if( m_BrowserFlags == BRWFLG_Mesh )
+            m_View_List->Expand( meshRoot );
+            
+        m_View_List->AppendItem( root, "" );
+    }
+    
+    if( m_BrowserFlags & BRWFLG_Level )
+    {      
+        //Divider Item
+        wxTreeItemId levelRoot = m_View_List->AppendItem( root, "========== Levels ==========" );
+        
+        for( size_t i = 0; i<UPackage::GetLoadedPackages()->Size(); i++ )
+        {
+            if( !(m_PackagesList->IsChecked(i) ) ) //If Package is not selected, skip it.
+                continue;
+            
+            currentPackage = (*UPackage::GetLoadedPackages())[i];
+            
+            for( size_t j = 0; j<currentPackage->GetExportTable().Size(); j++ )
+            {
+                currentExport = &currentPackage->GetExportTable()[j];
+                
+                if( currentExport->Obj != NULL )
+                {
+                    if( currentExport->Obj->IsA( ULevel::StaticClass() ) )
+                    {
+                        if( bFirstOfPackage )
+                        {
+                            packageRoot = m_View_List->AppendItem( levelRoot, currentPackage->GetPackageName() );
+                            bFirstOfPackage = false;
+                        }
+                        
+                        addObjectItem( currentExport->Obj, packageRoot );
+                    }
+                }
+            }
+            
+            bFirstOfPackage = true;
+        }
+        
+        if( m_BrowserFlags == BRWFLG_Level )
+            m_View_List->Expand( levelRoot );
+    }
+    
 Finish:
     return;
 }
@@ -607,6 +788,12 @@ wxTreeItemId EdBrowser::addTreeItem( UClass* Class, wxTreeItemId Parent )
     {
         return m_View_List->AppendItem( Parent, wxString( Class->Name.Data() ) );
     }
+}
+
+void EdBrowser::addObjectItem( UObject* Obj, wxTreeItemId Parent )
+{
+    m_View_List->AppendItem( Parent, wxString( Obj->Name.Data() ) + wxString(" <") + 
+            wxString( Obj->Class->Name.Data() ) + wxString(">") );
 }
 
 void EdBrowser::tileUpdate()
@@ -644,4 +831,5 @@ wxBEGIN_EVENT_TABLE(EdBrowser, wxFrame)
     EVT_MENU(ID_BrowserSortAscending, EdBrowser::EVT_BrowserSortAscending  )
     EVT_MENU(ID_BrowserSortMode_Alpha, EdBrowser::EVT_BrowserSortMode_Alpha  )
     EVT_MENU(ID_BrowserSortMode_Package, EdBrowser::EVT_BrowserSortMode_Package  )
+    EVT_CHECKLISTBOX( ID_PackageList, EdBrowser::EVT_PackagesList )
 wxEND_EVENT_TABLE()
