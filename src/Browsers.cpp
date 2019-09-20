@@ -25,23 +25,14 @@
 */
 
 #include "Browsers.h"
-    
-struct ObjectItemPair
-{
-    ObjectItemPair( UClass* inClass, wxTreeItemId inItem )
-    {
-        Class = inClass;
-        Item = inItem;
-    }
-        
-    UClass* Class;
-    wxTreeItemId Item;
-};
 
 EdBrowser::EdBrowser( int BrowserFlags, bool bDock ) 
     : EdToolFrame(bDock), m_BrowserFlags(BrowserFlags)
 {
     m_ToolType = TOOL_Browser;    
+    
+    m_MiscExpands.Resize( 5 );
+    
     
     //Default Viewmode per browser mode.
     if( m_BrowserFlags == BRWFLG_Class )
@@ -514,22 +505,54 @@ void EdBrowser::objectUpdate()
 
 void EdBrowser::listUpdate()
 {
+    //TODO: Highly inefficient memory of expanded tree items, really need to implement custom class.
+    
+    //Save expanded items
+    TArray<UPackage*> expandedPackages;
+    TArray<UClass*> expandedClasses;
+    TArray<wxTreeItemId> toExpand;
+    TArray<bool> miscExpands( 5 );
+    
+    //Iterate though all UClasses so that their expanded state can be preserved
+    for( size_t i = 0; i<m_ListClasses.Size(); i++ )
+    {
+        if( m_View_List->IsExpanded( m_ListClasses[i].Item) )
+            expandedClasses.PushBack( m_ListClasses[i].Class );
+    }
+    
+    for( size_t i = 0; i<m_MiscExpands.Size(); i++ )
+    {
+        if( m_MiscExpands[i].IsOk() )
+            miscExpands[i] = m_View_List->IsExpanded( m_MiscExpands[i] );
+    }
+    
+    //Iterate though all UPackages so that their expanded state can be preserved
+    for( size_t i = 0; i<m_ListPackages.Size(); i++ )
+    {
+        if( m_View_List->IsExpanded( m_ListPackages[i].Item) )
+            expandedPackages.PushBack( m_ListPackages[i].Class );
+    }
+    
+    m_ListClasses.Clear();
+    m_ListObjects.Clear();
+    m_ListPackages.Clear();
     m_View_List->DeleteAllItems();
     
     wxTreeItemId root = m_View_List->AddRoot(""); //Dummy root
     
     if( m_BrowserFlags & BRWFLG_Class )
     {
-        wxTreeItemId levelRoot = m_View_List->AppendItem( root, "========== Classes ==========" );
+        m_View_List->AppendItem( root, "========== Classes ==========" );
         
-        TArray<ObjectItemPair> parents;
-        TArray<ObjectItemPair> newParents;
+        TArray<ClassItemPair> parents;
+        TArray<ClassItemPair> newParents;
         bool bBuildTree = true;
         
-        parents.PushBack( ObjectItemPair( UObject::StaticClass(), 
-            addTreeItem( UObject::StaticClass(), root ) ) );
+        parents.PushBack( ClassItemPair( UObject::StaticClass(), 
+            addTreeItem( UObject::StaticClass(), root, expandedClasses, toExpand ) ) );
             
-            
+        m_ListClasses.PushBack(parents[0]);
+        
         wxTreeItemId object = parents[0].Item; //remember object to expand it later
         
         while( bBuildTree ) 
@@ -546,8 +569,8 @@ void EdBrowser::listUpdate()
                     if( currentClass->SuperClass == parents[j].Class )
                     {
                         bBuildTree = true;
-                        newParents.PushBack( ObjectItemPair( currentClass, 
-                            addTreeItem( currentClass, parents[j].Item ) ) );
+                        newParents.PushBack( ClassItemPair( currentClass, 
+                            addTreeItem( currentClass, parents[j].Item, expandedClasses, toExpand ) ) );
                             
                         break;
                     }
@@ -570,7 +593,7 @@ void EdBrowser::listUpdate()
             
         m_View_List->AppendItem( root, "" );
     }
-     
+    
     UPackage* currentPackage;
     FExport* currentExport;
     bool bFirstOfPackage = true;
@@ -580,6 +603,7 @@ void EdBrowser::listUpdate()
     {    
         //Divider Item
         wxTreeItemId audioRoot = m_View_List->AppendItem( root, "========== Sounds ==========" );
+        m_MiscExpands[0] = audioRoot;
         
         for( size_t i = 0; i<UPackage::GetLoadedPackages()->Size(); i++ )
         {
@@ -597,11 +621,14 @@ void EdBrowser::listUpdate()
                     {
                         if( bFirstOfPackage )
                         {
-                            packageRoot = m_View_List->AppendItem( audioRoot, currentPackage->GetPackageName() );
+                            packageRoot = m_View_List->AppendItem( audioRoot, currentPackage->Name.Data() );
+                            if( miscExpands[0] == true )
+                                m_View_List->Expand( m_MiscExpands[0] );
+                                
                             bFirstOfPackage = false;
                         }
                         
-                        addObjectItem( currentExport->Obj, packageRoot );
+                        addObjectItem( currentExport->Obj, packageRoot, expandedPackages, toExpand );
                     }
                 }
             }
@@ -619,6 +646,7 @@ void EdBrowser::listUpdate()
     { 
         //Divider Item
         wxTreeItemId musicRoot = m_View_List->AppendItem( root, "========== Music ==========" );
+        m_MiscExpands[1] = musicRoot;
             
         for( size_t i = 0; i<UPackage::GetLoadedPackages()->Size(); i++ )
         {
@@ -637,11 +665,14 @@ void EdBrowser::listUpdate()
                     {
                         if( bFirstOfPackage )
                         {
-                            packageRoot = m_View_List->AppendItem( musicRoot, currentPackage->GetPackageName() );
+                            packageRoot = m_View_List->AppendItem( musicRoot, currentPackage->Name.Data() );
+                            if( miscExpands[1] == true )
+                                m_View_List->Expand( m_MiscExpands[1] );
+                            
                             bFirstOfPackage = false;
                         }
                         
-                        addObjectItem( currentExport->Obj, packageRoot );
+                        addObjectItem( currentExport->Obj, packageRoot, expandedPackages, toExpand );
                     }
                 }
             }
@@ -659,6 +690,7 @@ void EdBrowser::listUpdate()
     { 
         //Divider Item
         wxTreeItemId textureRoot = m_View_List->AppendItem( root, "========== Textures ==========" );
+        m_MiscExpands[2] = textureRoot;
         
         for( size_t i = 0; i<UPackage::GetLoadedPackages()->Size(); i++ )
         {
@@ -677,11 +709,14 @@ void EdBrowser::listUpdate()
                     {
                         if( bFirstOfPackage )
                         {
-                            packageRoot = m_View_List->AppendItem( textureRoot, currentPackage->GetPackageName() );
+                            packageRoot = m_View_List->AppendItem( textureRoot, currentPackage->Name.Data() );
+                            if( miscExpands[2] == true )
+                                m_View_List->Expand( m_MiscExpands[2] );
+                                
                             bFirstOfPackage = false;
                         }
                         
-                        addObjectItem( currentExport->Obj, packageRoot );
+                        addObjectItem( currentExport->Obj, packageRoot, expandedPackages, toExpand );
                     }
                 }
             }
@@ -699,6 +734,7 @@ void EdBrowser::listUpdate()
     { 
         //Divider Item
         wxTreeItemId meshRoot = m_View_List->AppendItem( root, "========== Meshes ==========" );
+        m_MiscExpands[3] = meshRoot;
           
         for( size_t i = 0; i<UPackage::GetLoadedPackages()->Size(); i++ )
         {
@@ -717,11 +753,14 @@ void EdBrowser::listUpdate()
                     {
                         if( bFirstOfPackage )
                         {
-                            packageRoot = m_View_List->AppendItem( meshRoot, currentPackage->GetPackageName() );
+                            packageRoot = m_View_List->AppendItem( meshRoot, currentPackage->Name.Data() );
+                            if( miscExpands[3] == true )
+                                m_View_List->Expand( m_MiscExpands[3] );
+                                
                             bFirstOfPackage = false;
                         }
                         
-                        addObjectItem( currentExport->Obj, packageRoot );
+                        addObjectItem( currentExport->Obj, packageRoot, expandedPackages, toExpand );
                     }
                 }
             }
@@ -739,6 +778,7 @@ void EdBrowser::listUpdate()
     {      
         //Divider Item
         wxTreeItemId levelRoot = m_View_List->AppendItem( root, "========== Levels ==========" );
+        m_MiscExpands[4] = levelRoot;
         
         for( size_t i = 0; i<UPackage::GetLoadedPackages()->Size(); i++ )
         {
@@ -758,10 +798,13 @@ void EdBrowser::listUpdate()
                         if( bFirstOfPackage )
                         {
                             packageRoot = m_View_List->AppendItem( levelRoot, currentPackage->Name.Data() );
+                            if( miscExpands[4] == true )
+                                m_View_List->Expand( m_MiscExpands[4] );
+                                
                             bFirstOfPackage = false;
                         }
                         
-                        addObjectItem( currentExport->Obj, packageRoot );
+                        addObjectItem( currentExport->Obj, packageRoot, expandedPackages, toExpand );
                     }
                 }
             }
@@ -773,28 +816,54 @@ void EdBrowser::listUpdate()
             m_View_List->Expand( levelRoot );
     }
     
+    //Remember Expanded
+    for( size_t i = 0; i<toExpand.Size(); i++ )
+    {
+        m_View_List->Expand( toExpand[i] );
+    }
+    
 Finish:
     return;
 }
 
-wxTreeItemId EdBrowser::addTreeItem( UClass* Class, wxTreeItemId Parent )
+wxTreeItemId EdBrowser::addTreeItem( UClass* Class, wxTreeItemId Parent, 
+    TArray<UClass*>& EAry, TArray<wxTreeItemId>& EId )
 {  
+    wxTreeItemId itemId;
+    
     if( m_bShowPackage )
     {
-        return m_View_List->AppendItem( Parent, wxString( Class->Name.Data() ) + wxString(" (") +
+        itemId = m_View_List->AppendItem( Parent, wxString( Class->Name.Data() ) + wxString(" (") +
                 wxString( Class->Pkg->Name.Data() ) + wxString(") ") );
     }
     else
     {
-        return m_View_List->AppendItem( Parent, wxString( Class->Name.Data() ) );
+        itemId = m_View_List->AppendItem( Parent, wxString( Class->Name.Data() ) );
     }
+    
+    for( size_t i = 0; i<EAry.Size(); i++ )
+    {
+        if( EAry[i] == Class )
+            EId.PushBack( itemId );
+    }
+    
+    m_ListClasses.PushBack( ClassItemPair( Class, itemId ) );
+    
+    return itemId;
 }
 
-void EdBrowser::addObjectItem( UObject* Obj, wxTreeItemId Parent )
+void EdBrowser::addObjectItem( UObject* Obj, wxTreeItemId Parent, 
+        TArray<UPackage*>& EAry, TArray<wxTreeItemId>& EId )
 {
-    m_View_List->AppendItem( Parent, wxString( Obj->Name.Data() ) + wxString(" <") + 
-            wxString( Obj->Pkg->Name.Data() ) + wxString( "." ) +
-            wxString( Obj->Class->Name.Data() ) + wxString("> ") );
+    wxTreeItemId itemId = m_View_List->AppendItem( Parent, wxString( Obj->Name.Data() ) );
+            
+    for( size_t i = 0; i<EAry.Size(); i++ )
+    {
+        if( EAry[i] == Obj->Pkg )
+            EId.PushBack( itemId );
+    }
+    
+    m_ListPackages.PushBack( PackageItemPair( Obj->Pkg, itemId ) );
 }
 
 void EdBrowser::tileUpdate()

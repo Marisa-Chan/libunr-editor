@@ -1,6 +1,5 @@
 - Show Package.Class in title when selecting class
 - Implement Descending Sort, Package Sort
-- Implement Package filter
 - Implement Tile and Object modes
 - Implement Tree by group
 - Fix Segfaults on close
@@ -20,7 +19,5 @@
     - Graphics are obvious
     - Same with Meshes
     - Levels display levelscreenshot
--Display UObjects in Browser (Textures, Audio, etc)
--Implement custom wxTreeCtrl class to store UClass and UObject references for every item.
 -Implement memory for various controls, such as Class tree expansion, Package.
 selections, etc. to prevent state reset on update

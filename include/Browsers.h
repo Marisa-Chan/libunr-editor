@@ -35,6 +35,42 @@
 
 #include "Components.h"
 
+struct ClassItemPair
+{
+    ClassItemPair( UClass* inClass, wxTreeItemId inItem )
+    {
+        Class = inClass;
+        Item = inItem;
+    }
+        
+    UClass* Class;
+    wxTreeItemId Item;
+};
+
+struct ObjectItemPair
+{
+    ObjectItemPair( UObject* inClass, wxTreeItemId inItem )
+    {
+        Class = inClass;
+        Item = inItem;
+    }
+        
+    UObject* Class;
+    wxTreeItemId Item;
+};
+
+struct PackageItemPair
+{
+    PackageItemPair( UPackage* inClass, wxTreeItemId inItem )
+    {
+        Class = inClass;
+        Item = inItem;
+    }
+        
+    UPackage* Class;
+    wxTreeItemId Item;
+};
+
 enum
 {
     BRWFLG_Class = 1<<0,
@@ -148,8 +184,11 @@ private:
     
     void objectUpdate();
     void listUpdate();
-    wxTreeItemId addTreeItem( UClass* Class, wxTreeItemId Parent );
-    void addObjectItem( UObject* Obj, wxTreeItemId Parent );
+    wxTreeItemId addTreeItem( UClass* Class, wxTreeItemId Parent, 
+        TArray<UClass*>& EAry, TArray<wxTreeItemId>& EId );
+        
+    void addObjectItem( UObject* Obj, wxTreeItemId Parent, 
+        TArray<UPackage*>& EAry, TArray<wxTreeItemId>& EId );
     void tileUpdate();
    
     //Menu elements
@@ -173,7 +212,22 @@ private:
             wxSplitterWindow* m_ViewSplitter = NULL;
                     wxWindow* OldWindow = NULL;
                     wxTreeCtrl* m_View_Object = NULL; //For Object mode.
+                    
                     wxTreeCtrl* m_View_List = NULL; //For List mode.
+                    
+                        TArray<ClassItemPair> m_ListClasses; //Store references to UClass so each 
+                        //wxTreeCtrlID can reference what it represents.
+                        TArray<ObjectItemPair> m_ListObjects; //Store references to UObjects so each 
+                        //wxTreeCtrlID can reference what it represents.
+                        TArray<PackageItemPair> m_ListPackages; //Store references to UPackage Trees so each 
+                        //wxTreeCtrlID can reference what it represents.
+                        TArray<wxTreeItemId> m_MiscExpands; //For remember category expands
+                        //0 - Audio
+                        //1 - Music
+                        //2 - Textures
+                        //3 - Mesh
+                        //4 - Level
+                    
                     wxListCtrl* m_View_Tile = NULL; //For Tile Mode.
                     
                     wxPanel* m_ObjectBar = NULL;
