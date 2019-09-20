@@ -43,8 +43,7 @@ enum
     BRWFLG_Graphics = 1<<3,
     BRWFLG_Mesh = 1<<4,
     BRWFLG_Level = 1<<5,
-    BRWFLG_Package = 
-    ( BRWFLG_Class | BRWFLG_Audio | BRWFLG_Music | BRWFLG_Graphics | BRWFLG_Mesh | BRWFLG_Level )
+    BRWFLG_Package = ( BRWFLG_Class | BRWFLG_Audio | BRWFLG_Music | BRWFLG_Graphics | BRWFLG_Mesh | BRWFLG_Level )
 };
 
 enum EBrowserViewMode
