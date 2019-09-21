@@ -35,39 +35,15 @@
 
 #include "Components.h"
 
-struct ClassItemPair
-{
-    ClassItemPair( UClass* inClass, wxTreeItemId inItem )
-    {
-        Class = inClass;
-        Item = inItem;
-    }
-        
-    UClass* Class;
-    wxTreeItemId Item;
-};
-
 struct ObjectItemPair
 {
-    ObjectItemPair( UObject* inClass, wxTreeItemId inItem )
+    ObjectItemPair( UObject* inObj, wxTreeItemId inItem )
     {
-        Class = inClass;
+        Obj = inObj;
         Item = inItem;
     }
         
-    UObject* Class;
-    wxTreeItemId Item;
-};
-
-struct PackageItemPair
-{
-    PackageItemPair( UPackage* inClass, wxTreeItemId inItem )
-    {
-        Class = inClass;
-        Item = inItem;
-    }
-        
-    UPackage* Class;
+    UObject* Obj;
     wxTreeItemId Item;
 };
 
@@ -184,11 +160,10 @@ private:
     
     void objectUpdate();
     void listUpdate();
-    wxTreeItemId addTreeItem( UClass* Class, wxTreeItemId Parent, 
-        TArray<UClass*>& EAry, TArray<wxTreeItemId>& EId );
+    wxTreeItemId addTreeItem( UObject* Class, wxTreeItemId Parent, 
+        TArray<UObject*>& EAry, TArray<wxTreeItemId>& EId );
         
-    void addObjectItem( UObject* Obj, wxTreeItemId Parent, 
-        TArray<UPackage*>& EAry, TArray<wxTreeItemId>& EId );
+    void addObjectItem( UObject* Obj, wxTreeItemId Parent );
     void tileUpdate();
    
     //Menu elements
@@ -215,11 +190,7 @@ private:
                     
                     wxTreeCtrl* m_View_List = NULL; //For List mode.
                     
-                        TArray<ClassItemPair> m_ListClasses; //Store references to UClass so each 
-                        //wxTreeCtrlID can reference what it represents.
                         TArray<ObjectItemPair> m_ListObjects; //Store references to UObjects so each 
-                        //wxTreeCtrlID can reference what it represents.
-                        TArray<PackageItemPair> m_ListPackages; //Store references to UPackage Trees so each 
                         //wxTreeCtrlID can reference what it represents.
                         TArray<wxTreeItemId> m_MiscExpands; //For remember category expands
                         //0 - Audio
