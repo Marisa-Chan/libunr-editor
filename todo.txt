@@ -19,5 +19,4 @@
     - Graphics are obvious
     - Same with Meshes
     - Levels display levelscreenshot
--Implement memory for various controls, such as Class tree expansion, Package.
 selections, etc. to prevent state reset on update
