@@ -206,29 +206,13 @@ void EdBrowser::SYS_NewObjects( size_t ObjectStartIndex )
         }
         
         case( BRWFLG_Audio ):
-        {
-            listUpdate( ObjectStartIndex );
-            break;
-        }
-        
         case( BRWFLG_Music ):
         {
             listUpdate( ObjectStartIndex );
             break;
         }
-        
         case( BRWFLG_Texture ):
-        {
-            tileUpdate( ObjectStartIndex );
-            break;
-        }
-        
         case( BRWFLG_Mesh ):
-        {
-            tileUpdate( ObjectStartIndex );
-            break;
-        }
-        
         case( BRWFLG_Level ):
         {
             tileUpdate( ObjectStartIndex );
@@ -269,11 +253,6 @@ void EdBrowser::SYS_ObjectsRemoved()
         }
         
         case( BRWFLG_Audio ):
-        {
-            listUpdate( 0 );
-            break;
-        }
-        
         case( BRWFLG_Music ):
         {
             listUpdate( 0 );
@@ -281,17 +260,7 @@ void EdBrowser::SYS_ObjectsRemoved()
         }
         
         case( BRWFLG_Texture ):
-        {
-            tileUpdate( 0 );
-            break;
-        }
-        
         case( BRWFLG_Mesh ):
-        {
-            tileUpdate( 0 );
-            break;
-        }
-        
         case( BRWFLG_Level ):
         {
             tileUpdate( 0 );
@@ -499,6 +468,87 @@ wxTreeItemId EdBrowser::addTreeItem( wxTreeItemId Parent, UClass* Obj )
 
 void EdBrowser::listUpdate( size_t ObjectStartIndex )
 {
+    UClass* CompareType; //The Type to compare against.
+    TArray<wxTreeItemId> packages;
+    TArray<u32> groups;
+    TArray<wxTreeItemId> groupIDs;
+    
+    switch( m_Mode )
+    {
+        case( BRWFLG_Audio ):
+        {
+            CompareType = USound::StaticClass();
+            break;
+        }
+        case( BRWFLG_Music ):
+        {
+            CompareType = UMusic::StaticClass();
+            break;
+        }
+    }
+    
+    //Clear previous state.
+    m_ListView->DeleteAllItems();
+    
+    wxTreeItemId root = m_ListView->AddRoot(""); //Dummy root
+    
+    //Populate Packages
+    for( size_t i = 0; i<(*UPackage::GetLoadedPackages()).Size(); i++ )
+    {
+        groups.Clear(); //Reset groups for next package.
+        groupIDs.Clear(); //Reset groups for next package.
+        
+        UPackage* currentPackage = (*UPackage::GetLoadedPackages())[i];
+        packages.PushBack( m_ListView->AppendItem( root, currentPackage->Name.Data(), -1, -1,
+            new wxObjectItemData( currentPackage ) ) );
+            
+        //Populate Objects of Package
+        for( size_t j = 0; j<currentPackage->GetExportTable().Size(); j++ )
+        {
+            FExport* currentExport = &currentPackage->GetExportTable()[j];
+            
+            if( currentExport->Obj == NULL ) //Invalid Object, skip.
+                continue;
+                
+            //Object Type match, check against existing groups for this package and populate.
+            if( currentExport->Obj->IsA( CompareType ) )
+            {
+                bool bFoundGroup = false;
+                
+                //Check against so-far populated groups for this package and see if it matches.
+                for( size_t k = 0; k<groups.Size(); k++ )
+                {
+                    if( currentExport->Group == groups[k] ) //Found group, add under group.
+                    {
+                        m_ListView->AppendItem( groupIDs[k], currentExport->Obj->Name.Data(), -1, -1,
+                            new wxObjectItemData( currentExport->Obj ) );
+                        bFoundGroup = true;
+                    }
+                }
+                
+                 //We didnt find a group for this object, make a new one.
+                if( !bFoundGroup )
+                {
+                    groupIDs.PushBack( m_ListView->AppendItem( packages[i], 
+                        currentPackage->GetNameEntryByObjRef( currentExport->Group )->Data ) );
+                        
+                    groups.PushBack( currentExport->Group );
+                        
+                    m_ListView->AppendItem( groupIDs.Back(), currentExport->Obj->Name.Data(), -1, -1,
+                            new wxObjectItemData( currentExport->Obj ) );
+                }
+            }
+        }
+    }
+    
+    //Clear out empty packages.
+    for( size_t i = 0; i<packages.Size(); i++ )
+    {
+        if( !(m_ListView->ItemHasChildren( packages[i] )) )
+        {
+            m_ListView->Delete( packages[i] );
+        }
+    }
 }
 
 void EdBrowser::tileUpdate( size_t ObjectStartIndex )

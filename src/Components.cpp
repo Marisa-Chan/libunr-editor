@@ -28,7 +28,8 @@
 #include "Components.h"
 
 EdToolFrame::EdToolFrame( bool bStartDocked ) 
-      : wxFrame( (EdEditorFrame*)EdEditor::GetFrame(), -1, "Editor Tool", wxDefaultPosition, wxSize(512,384) )
+      : wxFrame( (EdEditorFrame*)EdEditor::GetFrame(), -1, "Editor Tool", wxDefaultPosition, 
+        wxSize(512,384), wxFRAME_FLOAT_ON_PARENT )
 {
     EdEditor::NewTool(this);
 }
