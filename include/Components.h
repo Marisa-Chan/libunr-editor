@@ -47,6 +47,13 @@ public:
 
     bool m_bDocked = false;
     int m_ToolType = TOOL_Generic;
+    
+    //Sysytem notifications, called by EdEditorFrame for all tools when nessecary.
+    //Get a list of new packages loaded.
+    virtual void SYS_NewPackages( size_t PackageStartIndex ) = 0;
+    virtual void SYS_NewObjects( size_t ObjectStartIndex ) = 0;
+    virtual void SYS_PackagesRemoved() = 0; //A Package was removed, please re-process all packages
+    virtual void SYS_ObjectsRemoved() = 0; //Objects were removed, please re-process all objects.
 };
 
 class EdAbout : public wxFrame

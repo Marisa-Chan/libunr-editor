@@ -232,6 +232,9 @@ TArray<UPackage*>* EdEditorFrame::GetPackages()
 
 void EdEditorFrame::LoadPackages( const wxArrayString& Paths )
 {
+    size_t packageStart = (*UPackage::GetLoadedPackages()).Size(); //Index of new packages to load.
+    size_t objectStart = UObject::ObjectPool.Size(); //Index of new objects to load.
+    
     for( size_t i = 0; i<Paths.GetCount(); i++ )
     {
         UPackage* p = UPackage::StaticLoadPackage( Paths[i], false );
@@ -239,21 +242,21 @@ void EdEditorFrame::LoadPackages( const wxArrayString& Paths )
         p->LoadEditableTypes();
     }
     
-    wxArrayString strAry;
-    
-    for( size_t i = 0; i<UPackage::GetLoadedPackages()->Size(); i++ )
-    {
-        strAry.Add( (*UPackage::GetLoadedPackages())[i]->Name.Data() );
-    }
-    
-    if( strAry.GetCount() > 0 )
+    //Check to make sure packages were actually loaded.
+    if( (*UPackage::GetLoadedPackages()).Size() > packageStart ) 
     {
         for( size_t i = 0; i<sm_ToolArray.Size(); i++ )
         {
-            if( sm_ToolArray[i]->m_ToolType == TOOL_Browser )
-            {
-                static_cast<EdBrowser*>( sm_ToolArray[i] )->UpdatePackageList( strAry );
-            }
+            sm_ToolArray[i]->SYS_NewPackages( packageStart );
+        }
+    }
+    
+    //Check to make sure objects were actually loaded.
+    if( UObject::ObjectPool.Size() > objectStart ) 
+    {
+        for( size_t i = 0; i<sm_ToolArray.Size(); i++ )
+        {
+            sm_ToolArray[i]->SYS_NewObjects( objectStart );
         }
     }
 }
@@ -308,7 +311,7 @@ void EdEditorFrame::EVT_BrowserMusic( wxCommandEvent& event )
 
 void EdEditorFrame::EVT_BrowserGraphics( wxCommandEvent& event )
 {
-    new EdBrowser( BRWFLG_Graphics, false );
+    new EdBrowser( BRWFLG_Texture, false );
 }
 
 void EdEditorFrame::EVT_BrowserMesh( wxCommandEvent& event )
