@@ -48,6 +48,8 @@ public:
     bool m_bDocked = false;
     int m_ToolType = TOOL_Generic;
     
+    virtual void OnExit( wxCommandEvent& event );
+    
     //Sysytem notifications, called by EdEditorFrame for all tools when nessecary.
     //Get a list of new packages loaded.
     virtual void SYS_NewPackages( size_t PackageStartIndex ) = 0;

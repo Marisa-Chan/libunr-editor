@@ -29,14 +29,20 @@
 
 EdToolFrame::EdToolFrame( bool bStartDocked ) 
       : wxFrame( (EdEditorFrame*)EdEditor::GetFrame(), -1, "Editor Tool", wxDefaultPosition, 
-        wxSize(512,384), wxFRAME_FLOAT_ON_PARENT )
+        wxSize(300,384), wxFRAME_FLOAT_ON_PARENT | wxMINIMIZE_BOX | wxCLOSE_BOX | wxMAXIMIZE_BOX 
+            | wxFRAME_TOOL_WINDOW | wxRESIZE_BORDER )
 {
     EdEditor::NewTool(this);
 }
 
 EdToolFrame::~EdToolFrame()
 {
+}
+
+void EdToolFrame::OnExit( wxCommandEvent& event )
+{
     EdEditor::KillTool(this);
+    Close(true);
 }
 
 EdAbout::EdAbout( wxWindow* parent, bool* Switch )

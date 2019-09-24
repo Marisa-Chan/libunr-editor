@@ -67,7 +67,7 @@ EdBrowser::EdBrowser( EBrowserType BrowserType, bool bDock )
     
     SetMenuBar( m_MenuBar );
     
-    SetMinSize( wxSize(600,384) );
+    SetMinSize( wxSize(300,384) );
     
     m_WindowAreaSizer = new wxBoxSizer( wxVERTICAL );
     
@@ -136,6 +136,7 @@ EdBrowser::EdBrowser( EBrowserType BrowserType, bool bDock )
     
 ObjectConstruct:
     
+    
     goto Finish;
     
 ListContruct:
@@ -145,26 +146,12 @@ ListContruct:
         m_Check_ShowPackage = new wxCheckBox( m_OptionsBar, ID_Browser_ShowPackage, "Show Package" );
         optionsSizer->Add( m_Check_ShowPackage, 0, wxALIGN_LEFT );
     }
-
-     //Main Splitter
-    m_MainSplitter = new wxSplitterWindow( this, wxID_ANY, wxDefaultPosition, wxSize( 500,330 ) );
-    m_MainSplitter->SetMinSize( wxSize(500,384) );
     
-    m_WindowAreaSizer->Add( m_MainSplitter, 1, wxALIGN_BOTTOM | wxEXPAND );
+    m_ListView = new wxTreeCtrl( this, ID_ClassTree, wxDefaultPosition, wxDefaultSize,
+        wxTR_MULTIPLE | wxTR_HIDE_ROOT | wxTR_HAS_BUTTONS );
+    m_ListView->SetMinSize( wxSize(300,256) );
     
-        m_ListView = new wxTreeCtrl( m_MainSplitter, ID_ClassTree, wxDefaultPosition, wxDefaultSize,
-            wxTR_MULTIPLE | wxTR_HIDE_ROOT | wxTR_HAS_BUTTONS );
-        m_ListView->SetMinSize( wxSize(500,256) );
-    
-        //Packages List Window
-        m_PackagesList = new wxCheckListBox( m_MainSplitter, ID_PackageList, wxDefaultPosition,
-            wxDefaultSize, 0, NULL, wxLB_SORT ); 
-        m_PackagesList->SetMinSize( wxSize(500,128) );
-    
-    m_MainSplitter->SetMinimumPaneSize( 128 );
-    m_MainSplitter->SetSashPosition( m_MainSplitter->GetSize().GetHeight()*0.8 );
-    m_MainSplitter->SetSashGravity( 0.8 );
-    m_MainSplitter->SplitHorizontally( m_ListView, m_PackagesList );
+    m_WindowAreaSizer->Add( m_ListView, 1, wxALIGN_TOP | wxEXPAND );
     
     goto Finish;
 
@@ -186,11 +173,13 @@ Finish:
 
 void EdBrowser::SYS_NewPackages( size_t PackageStartIndex )
 {
+    /*
     for( size_t i = PackageStartIndex; i<(*UPackage::GetLoadedPackages()).Size(); i++ )
     {
         m_PackagesList->Append( (*UPackage::GetLoadedPackages())[i]->Name.Data(),
             (*UPackage::GetLoadedPackages())[i] );
     }
+    */
     
     update();
 }
@@ -231,6 +220,7 @@ void EdBrowser::SYS_NewObjects( size_t ObjectStartIndex )
 
 void EdBrowser::SYS_PackagesRemoved()
 {
+    /*
     m_PackagesList->Clear();
     
     for( size_t i = 0; i<(*UPackage::GetLoadedPackages()).Size(); i++ )
@@ -238,6 +228,7 @@ void EdBrowser::SYS_PackagesRemoved()
         m_PackagesList->Append( (*UPackage::GetLoadedPackages())[i]->Name.Data(),
             (*UPackage::GetLoadedPackages())[i] );
     }
+    */
     
     update();
 }
@@ -279,7 +270,7 @@ void EdBrowser::SYS_ObjectsRemoved()
 
 void EdBrowser::OnExit( wxCommandEvent& event )
 {
-    Close(true);
+    EdToolFrame::OnExit( event );
 }
 
 void EdBrowser::EVT_BrowserNew( wxCommandEvent& event )

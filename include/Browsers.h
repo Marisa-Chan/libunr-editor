@@ -84,9 +84,8 @@ public:
     static wxIcon m_icoMesh;
     
 private:
-
-    void OnExit( wxCommandEvent& event );
     
+    void OnExit( wxCommandEvent& event );
     void EVT_BrowserNew( wxCommandEvent& event );
     void EVT_BrowserOpen( wxCommandEvent& event );
     void EVT_BrowserSave( wxCommandEvent& event );
@@ -117,7 +116,7 @@ private:
     wxCheckBox* m_Check_Dock = NULL;
     wxCheckBox* m_Check_ShowPackage = NULL;
     wxSplitterWindow* m_MainSplitter = NULL;
-    wxCheckListBox* m_PackagesList = NULL;
+    wxChoice* m_PackagesList = NULL;
     
     wxDECLARE_EVENT_TABLE();
 };

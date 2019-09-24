@@ -170,13 +170,7 @@ EdEditorFrame::EdEditorFrame( const wxString& Title, const wxPoint& Pos, const w
 
 EdEditorFrame::~EdEditorFrame()
 {
-    for( size_t i = 0; i < sm_ToolArray.Size(); i++ )
-    {
-        if( sm_ToolArray[i] != NULL )
-        {
-            delete sm_ToolArray[i];
-        }
-    }
+    
 }
 
 bool EdEditorFrame::NewTool( const EdToolFrame* Tool )
@@ -263,6 +257,16 @@ void EdEditorFrame::LoadPackages( const wxArrayString& Paths )
 
 void EdEditorFrame::OnExit( wxCommandEvent& event )
 {
+    /*
+    for( size_t i = 0; i < sm_ToolArray.Size(); i++ )
+    {
+        if( sm_ToolArray[i] != NULL )
+        {
+            sm_ToolArray[i]->Close(true);
+        }
+    }
+    */
+    
     Close( true );
 }
 
@@ -345,7 +349,7 @@ EdGamePrompt::EdGamePrompt( TArray<char*>* Names )
     
     m_ChoiceBox = new wxListBox( this, ID_GameChoice, wxDefaultPosition, wxSize(420,-1), m_GameSize, strNames, wxLB_SINGLE | wxLB_NEEDED_SB );
         
-        vsizer->Add( m_ChoiceBox );
+        vsizer->Add( m_ChoiceBox, 1, wxEXPAND );
         
     wxPanel* endPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize );
     
@@ -397,13 +401,13 @@ EdNewGameDialog::EdNewGameDialog( size_t NewIndex, int* ChoiceOut )
     wxStaticText* labelName = new wxStaticText( this, wxID_ANY, "Name:" );
     vsizer->Add( labelName, wxALIGN_LEFT );
     
-    m_NameField = new wxTextCtrl( this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize );
+    m_NameField = new wxTextCtrl( this, wxID_ANY, "", wxDefaultPosition, wxSize( 300, -1 ) );
     vsizer->Add( m_NameField, wxALIGN_LEFT );
     
     wxStaticText* exeName = new wxStaticText( this, wxID_ANY, "Executable Name:" );
     vsizer->Add( exeName, wxALIGN_LEFT );
     
-    m_ExeField =  new wxTextCtrl( this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize );
+    m_ExeField =  new wxTextCtrl( this, wxID_ANY, "", wxDefaultPosition, wxSize( 300, -1 ) );
     vsizer->Add( m_ExeField, wxALIGN_LEFT );
     
     wxStaticText* pathName = new wxStaticText( this, wxID_ANY, "Directory:" );
@@ -412,7 +416,7 @@ EdNewGameDialog::EdNewGameDialog( size_t NewIndex, int* ChoiceOut )
     wxBoxSizer* hsizer = new wxBoxSizer( wxHORIZONTAL );
     wxPanel* pathPanel = new wxPanel( this );
         
-        m_PathField =  new wxTextCtrl( pathPanel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize );
+        m_PathField =  new wxTextCtrl( pathPanel, wxID_ANY, "", wxDefaultPosition, wxSize( 300, -1 ) );
         hsizer->Add( m_PathField, wxALIGN_LEFT );
         
         wxButton* pathB = new wxButton( pathPanel, ID_DirDialog, "..." );
