@@ -37,7 +37,7 @@
     <ClInclude Include="include\Components.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\private\libunr-editor.h">
+    <ClInclude Include="include\libunr-editor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -105,7 +105,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)include;$(SolutionDir)libunr\include\;$(ProjectDir)wxWidgets\include\msvc;$(ProjectDir)wxWidgets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include\;$(SolutionDir)libunr\include\;$(ProjectDir)wxWidgets\include\msvc;$(ProjectDir)wxWidgets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
       <PreprocessorDefinitions>__WXMSW__;wxNEEDS_DECL_BEFORE_TEMPLATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -146,7 +146,7 @@
   <ItemGroup>
     <ClInclude Include="include\Browsers.h" />
     <ClInclude Include="include\Components.h" />
-    <ClInclude Include="include\private\libunr-editor.h" />
+    <ClInclude Include="include\libunr-editor.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
