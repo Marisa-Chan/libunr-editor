@@ -34,6 +34,7 @@
 #include <wx/treectrl.h>
 #include <wx/listctrl.h>
 #include <wx/statline.h>
+#include <wx/dataview.h>
 
 #include "Components.h"
 
@@ -117,8 +118,10 @@ private:
         wxListCtrl* m_PackageInfo = NULL;
         wxListCtrl* m_PackageFlags = NULL;
     wxListCtrl* m_NameTable = NULL;
-    wxWindow* m_ExportTable = NULL;
-    wxWindow* m_ImportTable = NULL;
+    wxListCtrl* m_ExportTable = NULL;
+    wxDataViewCtrl* m_ExportTree = NULL;
+    wxListCtrl* m_ImportTable = NULL;
+    wxDataViewCtrl* m_ImportTree = NULL;
     wxWindow* m_ViewPane = NULL; //Object preview tab
     wxSplitterWindow* m_MainSplitter = NULL; 
     wxComboBox* m_PackagesList = NULL;

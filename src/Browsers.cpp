@@ -172,17 +172,41 @@ ObjectConstruct:
                 m_NameTable = new wxListCtrl( m_TabWindow, wxID_ANY, 
                         wxDefaultPosition, wxSize( -1, -1 ), wxLC_REPORT );
                         
-                        m_NameTable->AppendColumn( "#", wxLIST_FORMAT_LEFT, 150 );
+                        m_NameTable->AppendColumn( "#", wxLIST_FORMAT_LEFT, 100 );
                         m_NameTable->AppendColumn( "Name", wxLIST_FORMAT_LEFT, 200 );
                         m_NameTable->AppendColumn( "Flags", wxLIST_FORMAT_LEFT, 450 );
                         
-                m_ExportTable = new wxWindow( m_TabWindow, wxID_ANY );
-                m_ImportTable = new wxWindow( m_TabWindow, wxID_ANY );
+                m_ExportTable = new wxListCtrl( m_TabWindow, wxID_ANY, 
+                        wxDefaultPosition, wxSize( -1, -1 ), wxLC_REPORT );
+                        
+                        m_ExportTable->AppendColumn( "#", wxLIST_FORMAT_LEFT, 100 );
+                        m_ExportTable->AppendColumn( "Group", wxLIST_FORMAT_LEFT, 200 );
+                        m_ExportTable->AppendColumn( "Name", wxLIST_FORMAT_LEFT, 200 );
+                        m_ExportTable->AppendColumn( "Class", wxLIST_FORMAT_LEFT, 150 );
+                        m_ExportTable->AppendColumn( "Super", wxLIST_FORMAT_LEFT, 150 );
+                        m_ExportTable->AppendColumn( "Size", wxLIST_FORMAT_LEFT, 50 );
+                        m_ExportTable->AppendColumn( "Offset", wxLIST_FORMAT_LEFT, 50 );
+                        m_ExportTable->AppendColumn( "Flags", wxLIST_FORMAT_LEFT, 450 );
+                        
+                m_ExportTree = new wxDataViewCtrl( m_TabWindow, wxID_ANY, wxDefaultPosition,
+                        wxSize( -1, -1 ), wxDV_MULTIPLE | wxDV_ROW_LINES | wxDV_VERT_RULES | wxDV_HORIZ_RULES );
+                        
+                m_ImportTable = new wxListCtrl( m_TabWindow, wxID_ANY, 
+                        wxDefaultPosition, wxSize( -1, -1 ), wxLC_REPORT );
+                        
+                        m_ImportTable->AppendColumn( "#", wxLIST_FORMAT_LEFT, 100 );
+                        m_ImportTable->AppendColumn( "Name", wxLIST_FORMAT_LEFT, 200 );
+                        m_ImportTable->AppendColumn( "Class", wxLIST_FORMAT_LEFT, 300 );
+                        
+                m_ImportTree = new wxDataViewCtrl( m_TabWindow, wxID_ANY, wxDefaultPosition,
+                        wxSize( -1, -1 ), wxDV_MULTIPLE | wxDV_ROW_LINES | wxDV_VERT_RULES | wxDV_HORIZ_RULES );
                 
                 m_TabWindow->AddPage( m_PackageHeader, "Package Header", true );
                 m_TabWindow->AddPage( m_NameTable, "Name Table", false );
                 m_TabWindow->AddPage( m_ExportTable, "Export Table", false );
+                m_TabWindow->AddPage( m_ExportTree, "Export Tree", false );
                 m_TabWindow->AddPage( m_ImportTable, "Import Table", false );
+                m_TabWindow->AddPage( m_ImportTree, "Import Tree", false );
                 
             m_ViewPane = new wxWindow( m_MainSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, 
                 wxBORDER_RAISED );
@@ -508,6 +532,7 @@ void EdBrowser::packageUpdate()
             m_PackageFlags->SetItem( 5, 1, "false" );
             
         //Name Table
+        m_NameTable->DeleteAllItems();
         TArray<FNameEntry>& nameTable = m_SelectedPackage->GetNameTable();
         
         for( size_t i = 0; i<nameTable.Size(); i++ )
@@ -602,9 +627,153 @@ void EdBrowser::packageUpdate()
             m_NameTable->SetItem( i, 2, flags );
         }
         
-        //Export Table
+        //Export Table/Tree
+        m_ExportTable->DeleteAllItems();
+        TArray<FExport>& exportTable = m_SelectedPackage->GetExportTable();
+        
+        for( size_t i = 0; i<exportTable.Size(); i++ )
+        {
+            size_t index = exportTable[i].Index;
+            
+            wxString num = std::to_string(index);
+            
+             size_t byteSize;
+                if( index > 0xFFFFFF )
+                    byteSize = 4;
+                else if( index > 0xFFFF )
+                    byteSize = 3;
+                else if( index > 0xFF )
+                    byteSize = 2;
+                else
+                    byteSize = 1;
+                    
+            num += wxString(" (0x");
+            
+            for( size_t j = 1; j<=byteSize; j++ )
+            {
+                num += wxString( hex_chars[ ( ( index >> (8*(byteSize-j)) ) & 0xF0 ) >> 4 ] );
+                num += wxString( hex_chars[ ( index >> (8*(byteSize-j)) ) & 0x0F ] );
+            }
+            num += wxString(")");
+            
+            //Table
+            m_ExportTable->InsertItem( i, num );
+            m_ExportTable->SetItem( i, 1, 
+                m_SelectedPackage->GetNameEntryByObjRef( exportTable[i].Group )->Data );
+            m_ExportTable->SetItem( i, 2, 
+                m_SelectedPackage->GetNameEntry( exportTable[i].ObjectName )->Data );
+            m_ExportTable->SetItem( i, 3, 
+                m_SelectedPackage->GetNameEntryByObjRef( exportTable[i].Class )->Data );
+            m_ExportTable->SetItem( i, 4, 
+                m_SelectedPackage->GetNameEntryByObjRef( exportTable[i].Super )->Data );
+            m_ExportTable->SetItem( i, 5, std::to_string( CINDEX(exportTable[i].SerialSize ).Value ) );
+            m_ExportTable->SetItem( i, 6, std::to_string( CINDEX(exportTable[i].SerialOffset).Value ) );
+            
+            wxString flags;
+            flags.Empty();
+            
+            if( exportTable[i].ObjectFlags & 0x00000001 )
+                flags += "RF_Transactional,";
+            if( exportTable[i].ObjectFlags & 0x00000002 )
+                flags += "RF_Unreachable,";
+            if( exportTable[i].ObjectFlags & 0x00000004 )
+                flags += "RF_Public,";
+            if( exportTable[i].ObjectFlags & 0x00000008 )
+                flags += "RF_TagImp,";
+            if( exportTable[i].ObjectFlags & 0x00000010 )
+                flags += "RF_TagExp,";
+            if( exportTable[i].ObjectFlags & 0x00000020 )
+                flags += "RF_SourceModified,";
+            if( exportTable[i].ObjectFlags & 0x00000040 )
+                flags += "RF_TagGarbage,";
+            if( exportTable[i].ObjectFlags & 0x00000200 )
+                flags += "RF_NeedLoad,";
+            if( exportTable[i].ObjectFlags & 0x00000400 )
+                flags += "RF_HighlightedName,";
+            if( exportTable[i].ObjectFlags & 0x00000800 )
+                flags += "RF_InSingularFunc,";
+            if( exportTable[i].ObjectFlags & 0x00001000 )
+                flags += "RF_Suppress,";
+            if( exportTable[i].ObjectFlags & 0x00002000 )
+                flags += "RF_InEndState,";
+            if( exportTable[i].ObjectFlags & 0x00004000 )
+                flags += "RF_Transient,";
+            if( exportTable[i].ObjectFlags & 0x00008000 )
+                flags += "RF_PreLoading,";
+            if( exportTable[i].ObjectFlags & 0x00010000 )
+                flags += "RF_LoadForClient,";
+            if( exportTable[i].ObjectFlags & 0x00020000 )
+                flags += "RF_LoadForServer,";
+            if( exportTable[i].ObjectFlags & 0x00040000 )
+                flags += "RF_LoadForEdit,";
+            if( exportTable[i].ObjectFlags & 0x00080000 )
+                flags += "RF_Standalone,";
+            if( exportTable[i].ObjectFlags & 0x00100000 )
+                flags += "RF_NotForClient,";
+            if( exportTable[i].ObjectFlags & 0x00200000 )
+                flags += "RF_NotForServer,";
+            if( exportTable[i].ObjectFlags & 0x00400000 )
+                flags += "RF_NotForEdit,";
+            if( exportTable[i].ObjectFlags & 0x00800000 )
+                flags += "RF_Destroyed,";
+            if( exportTable[i].ObjectFlags & 0x01000000 )
+                flags += "RF_NeedPostLoad,";
+            if( exportTable[i].ObjectFlags & 0x02000000 )
+                flags += "RF_HasStack,";
+            if( exportTable[i].ObjectFlags & 0x04000000 )
+                flags += "RF_Native,";
+            if( exportTable[i].ObjectFlags & 0x08000000 )
+                flags += "RF_Marked,";
+            if( exportTable[i].ObjectFlags & 0x10000000 )
+                flags += "RF_ErrorShutdown,";
+            if( exportTable[i].ObjectFlags & 0x20000000 )
+                flags += "RF_DebugPostLoad,";
+            if( exportTable[i].ObjectFlags & 0x40000000 )
+                flags += "RF_DebugSerialize,";
+            if( exportTable[i].ObjectFlags & 0x80000000 )
+                flags += "RF_DebugDestroy,";
+                
+            flags.RemoveLast(); //Remove last comma.
+            m_ExportTable->SetItem( i, 7, flags );
+            
+            //Tree
+        }
         
         //Import Table
+        m_ImportTable->DeleteAllItems();
+        TArray<FImport>& importTable = m_SelectedPackage->GetImportTable();
+        
+        for( size_t i = 0; i<importTable.Size(); i++ )
+        {
+            wxString num = std::to_string(i);
+            
+             size_t byteSize;
+                if( i > 0xFFFFFF )
+                    byteSize = 4;
+                else if( i > 0xFFFF )
+                    byteSize = 3;
+                else if( i > 0xFF )
+                    byteSize = 2;
+                else
+                    byteSize = 1;
+                    
+            num += wxString(" (0x");
+            
+            for( size_t j = 1; j<=byteSize; j++ )
+            {
+                num += wxString( hex_chars[ ( ( i >> (8*(byteSize-j)) ) & 0xF0 ) >> 4 ] );
+                num += wxString( hex_chars[ ( i >> (8*(byteSize-j)) ) & 0x0F ] );
+            }
+            num += wxString(")");
+            
+            m_ImportTable->InsertItem( i, num );
+            m_ImportTable->SetItem( i, 1,
+                m_SelectedPackage->ResolveNameFromIdx(importTable[i].ObjectName) );
+            m_ImportTable->SetItem( i, 2,
+                wxString( m_SelectedPackage->ResolveNameFromIdx(importTable[i].ClassPackage) ) +
+                wxString( "." ) +
+                wxString( m_SelectedPackage->ResolveNameFromIdx(importTable[i].ClassName) ) );
+        }
     }
 }
 
