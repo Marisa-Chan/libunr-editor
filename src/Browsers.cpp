@@ -151,7 +151,7 @@ ObjectConstruct:
                     wxBoxSizer* headerSizer = new wxBoxSizer( wxVERTICAL );
                     
                     m_PackageInfo = m_PackageFlags = new wxListCtrl( m_PackageHeader, wxID_ANY, 
-                        wxDefaultPosition, wxSize( -1, 180 ), wxLC_REPORT );
+                        wxDefaultPosition, wxSize( -1, 256 ), wxLC_REPORT );
                         m_PackageInfo->AppendColumn( "Item", wxLIST_FORMAT_LEFT, 200 );
                         m_PackageInfo->AppendColumn( "Value", wxLIST_FORMAT_LEFT, 450 );
                         headerSizer->Add( m_PackageInfo, 0, wxEXPAND | wxALIGN_LEFT );
@@ -164,12 +164,18 @@ ObjectConstruct:
                     m_PackageFlags = new wxListCtrl( m_PackageHeader, wxID_ANY, 
                         wxDefaultPosition, wxSize( -1, 164 ), wxLC_REPORT );
                         m_PackageFlags->AppendColumn( "Flag", wxLIST_FORMAT_LEFT, 200 );
-                        m_PackageFlags->AppendColumn( "Value" );
+                        m_PackageFlags->AppendColumn( "Value", wxLIST_FORMAT_LEFT, 450 );
                         headerSizer->Add( m_PackageFlags, 0, wxEXPAND | wxALIGN_LEFT );
                         
                     m_PackageHeader->SetSizer( headerSizer );
                     
-                m_NameTable = new wxWindow( m_TabWindow, wxID_ANY );
+                m_NameTable = new wxListCtrl( m_TabWindow, wxID_ANY, 
+                        wxDefaultPosition, wxSize( -1, -1 ), wxLC_REPORT );
+                        
+                        m_NameTable->AppendColumn( "#", wxLIST_FORMAT_LEFT, 150 );
+                        m_NameTable->AppendColumn( "Name", wxLIST_FORMAT_LEFT, 200 );
+                        m_NameTable->AppendColumn( "Flags", wxLIST_FORMAT_LEFT, 450 );
+                        
                 m_ExportTable = new wxWindow( m_TabWindow, wxID_ANY );
                 m_ImportTable = new wxWindow( m_TabWindow, wxID_ANY );
                 
@@ -403,10 +409,14 @@ void EdBrowser::packageUpdate()
         m_PackageInfo->InsertItem( 1, "File Size" );
         m_PackageInfo->InsertItem( 2, "Licensee Mode" );
         m_PackageInfo->InsertItem( 3, "Name Count" );
-        m_PackageInfo->InsertItem( 4, "Export Count" );
-        m_PackageInfo->InsertItem( 5, "Import Count" );
-        m_PackageInfo->InsertItem( 6, "Heritage Count" );
-        m_PackageInfo->InsertItem( 7, "GUID" );
+        m_PackageInfo->InsertItem( 4, "Name Offset" );
+        m_PackageInfo->InsertItem( 5, "Export Count" );
+        m_PackageInfo->InsertItem( 6, "Export Offset" );
+        m_PackageInfo->InsertItem( 7, "Import Count" );
+        m_PackageInfo->InsertItem( 8, "Import Offset" );
+        m_PackageInfo->InsertItem( 9, "Heritage Count" );
+        m_PackageInfo->InsertItem( 10, "Heritage Offset" );
+        m_PackageInfo->InsertItem( 11, "GUID" );
         
         m_PackageInfo->SetItem( 0, 1, 
             std::to_string( m_SelectedPackage->GetHeader()->PackageVersion ) );
@@ -423,12 +433,19 @@ void EdBrowser::packageUpdate()
         m_PackageInfo->SetItem( 3, 1, 
             std::to_string( m_SelectedPackage->GetHeader()->NameCount ) );
         m_PackageInfo->SetItem( 4, 1, 
-            std::to_string( m_SelectedPackage->GetHeader()->ExportCount ) );
+        std::to_string( m_SelectedPackage->GetHeader()->NameOffset ) );
         m_PackageInfo->SetItem( 5, 1, 
-            std::to_string( m_SelectedPackage->GetHeader()->ImportCount ) );
+            std::to_string( m_SelectedPackage->GetHeader()->ExportCount ) );
         m_PackageInfo->SetItem( 6, 1, 
+        std::to_string( m_SelectedPackage->GetHeader()->ExportOffset ) );
+        m_PackageInfo->SetItem( 7, 1, 
+            std::to_string( m_SelectedPackage->GetHeader()->ImportCount ) );
+        m_PackageInfo->SetItem( 8, 1, 
+        std::to_string( m_SelectedPackage->GetHeader()->ImportOffset ) );
+        m_PackageInfo->SetItem( 9, 1, 
             std::to_string( m_SelectedPackage->GetHeader()->HeritageCount ) );
-            
+        m_PackageInfo->SetItem( 10, 1, 
+        std::to_string( m_SelectedPackage->GetHeader()->HeritageOffset ) );
         
         wxString GUID;
         char const hex_chars[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
@@ -450,7 +467,7 @@ void EdBrowser::packageUpdate()
         }
         GUID += '}';
         
-        m_PackageInfo->SetItem( 7, 1, GUID );
+        m_PackageInfo->SetItem( 11, 1, GUID );
         
         m_PackageFlags->DeleteAllItems();
         
@@ -485,13 +502,106 @@ void EdBrowser::packageUpdate()
             m_PackageFlags->SetItem( 5, 1, "true" );
         else
             m_PackageFlags->SetItem( 5, 1, "false" );
+            
+        //Name Table
+        TArray<FNameEntry>& nameTable = m_SelectedPackage->GetNameTable();
+        
+        for( size_t i = 0; i<nameTable.Size(); i++ )
+        {
+            wxString num = std::to_string(i);
+            size_t byteSize;
+                if( i > 0xFFFFFF )
+                    byteSize = 4;
+                else if( i > 0xFFFF )
+                    byteSize = 3;
+                else if( i > 0xFF )
+                    byteSize = 2;
+                else
+                    byteSize = 1;
+            num += wxString(" (0x");
+            
+            for( size_t j = 1; j<=byteSize; j++ )
+            {
+                num += wxString( hex_chars[ ( ( i >> (8*(byteSize-j)) ) & 0xF0 ) >> 4 ] );
+                num += wxString( hex_chars[ ( i >> (8*(byteSize-j)) ) & 0x0F ] );
+            }
+            num += wxString(")");
+            
+            m_NameTable->InsertItem( i, num );
+            m_NameTable->SetItem( i, 1, nameTable[i].Data );
+            
+            wxString flags;
+            flags.Empty();
+            
+            if( nameTable[i].Flags & 0x00000001 )
+                flags += "RF_Transactional,";
+            if( nameTable[i].Flags & 0x00000002 )
+                flags += "RF_Unreachable,";
+            if( nameTable[i].Flags & 0x00000004 )
+                flags += "RF_Public,";
+            if( nameTable[i].Flags & 0x00000008 )
+                flags += "RF_TagImp,";
+            if( nameTable[i].Flags & 0x00000010 )
+                flags += "RF_TagExp,";
+            if( nameTable[i].Flags & 0x00000020 )
+                flags += "RF_SourceModified,";
+            if( nameTable[i].Flags & 0x00000040 )
+                flags += "RF_TagGarbage,";
+            if( nameTable[i].Flags & 0x00000200 )
+                flags += "RF_NeedLoad,";
+            if( nameTable[i].Flags & 0x00000400 )
+                flags += "RF_HighlightedName,";
+            if( nameTable[i].Flags & 0x00000800 )
+                flags += "RF_InSingularFunc,";
+            if( nameTable[i].Flags & 0x00001000 )
+                flags += "RF_Suppress,";
+            if( nameTable[i].Flags & 0x00002000 )
+                flags += "RF_InEndState,";
+            if( nameTable[i].Flags & 0x00004000 )
+                flags += "RF_Transient,";
+            if( nameTable[i].Flags & 0x00008000 )
+                flags += "RF_PreLoading,";
+            if( nameTable[i].Flags & 0x00010000 )
+                flags += "RF_LoadForClient,";
+            if( nameTable[i].Flags & 0x00020000 )
+                flags += "RF_LoadForServer,";
+            if( nameTable[i].Flags & 0x00040000 )
+                flags += "RF_LoadForEdit,";
+            if( nameTable[i].Flags & 0x00080000 )
+                flags += "RF_Standalone,";
+            if( nameTable[i].Flags & 0x00100000 )
+                flags += "RF_NotForClient,";
+            if( nameTable[i].Flags & 0x00200000 )
+                flags += "RF_NotForServer,";
+            if( nameTable[i].Flags & 0x00400000 )
+                flags += "RF_NotForEdit,";
+            if( nameTable[i].Flags & 0x00800000 )
+                flags += "RF_Destroyed,";
+            if( nameTable[i].Flags & 0x01000000 )
+                flags += "RF_NeedPostLoad,";
+            if( nameTable[i].Flags & 0x02000000 )
+                flags += "RF_HasStack,";
+            if( nameTable[i].Flags & 0x04000000 )
+                flags += "RF_Native,";
+            if( nameTable[i].Flags & 0x08000000 )
+                flags += "RF_Marked,";
+            if( nameTable[i].Flags & 0x10000000 )
+                flags += "RF_ErrorShutdown,";
+            if( nameTable[i].Flags & 0x20000000 )
+                flags += "RF_DebugPostLoad,";
+            if( nameTable[i].Flags & 0x40000000 )
+                flags += "RF_DebugSerialize,";
+            if( nameTable[i].Flags & 0x80000000 )
+                flags += "RF_DebugDestroy,";
+                
+            flags.RemoveLast(); //Remove last comma.
+            m_NameTable->SetItem( i, 2, flags );
+        }
+        
+        //Export Table
+        
+        //Import Table
     }
-    
-    //Name Table
-    
-    //Export Table
-    
-    //Import Table
 }
 
 void EdBrowser::classUpdate()

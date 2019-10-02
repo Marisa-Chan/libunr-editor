@@ -115,7 +115,7 @@ private:
     wxWindow* m_PackageHeader = NULL;
         wxListCtrl* m_PackageInfo = NULL;
         wxListCtrl* m_PackageFlags = NULL;
-    wxWindow* m_NameTable = NULL;
+    wxListCtrl* m_NameTable = NULL;
     wxWindow* m_ExportTable = NULL;
     wxWindow* m_ImportTable = NULL;
     wxWindow* m_ViewPane = NULL; //Object preview tab
