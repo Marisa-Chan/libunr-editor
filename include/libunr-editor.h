@@ -67,8 +67,8 @@ public:
     EdEditorFrame( const wxString& Title, const wxPoint& Pos, const wxSize& Size );
     ~EdEditorFrame();
     
-    static bool NewTool( const EdToolFrame* Tool );
-    static bool KillTool( const EdToolFrame* Tool );
+    static size_t NewTool( EdToolFrame* Tool );
+    static bool KillTool( size_t id );
     static void Editor_Log( const wxString& Msg );
     static EdEditorFrame* GetFrame();
     static TArray<UPackage*>* GetPackages();

@@ -225,6 +225,10 @@ Finish:
 
 }
 
+EdBrowser::~EdBrowser()
+{
+}
+
 void EdBrowser::SYS_NewPackages( size_t PackageStartIndex )
 {
     if( m_PackagesList != NULL )

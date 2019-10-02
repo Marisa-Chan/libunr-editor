@@ -69,6 +69,7 @@ public:
     //Browser mode flags.
     
 	EdBrowser( EBrowserType BrowserFlags, bool bDock = false );
+	~EdBrowser();
 	
 	virtual void SYS_NewPackages( size_t PackageStartIndex );
     virtual void SYS_NewObjects( size_t ObjectStartIndex );

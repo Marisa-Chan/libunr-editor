@@ -37,16 +37,16 @@ EdToolFrame::EdToolFrame( bool bStartDocked )
     
     SetSize( wxSize( screen.width/2, screen.height/2 ) );
     
-    EdEditor::NewTool(this);
+    m_MyID = EdEditor::NewTool(this);
 }
 
 EdToolFrame::~EdToolFrame()
 {
+    EdEditor::KillTool(m_MyID);
 }
 
 void EdToolFrame::OnExit( wxCommandEvent& event )
 {
-    EdEditor::KillTool(this);
     Close(true);
 }
 
@@ -114,14 +114,14 @@ void* EdEditor::GetFrame()
     return EdEditorFrame::GetFrame();
 }
 
-bool EdEditor::NewTool( const EdToolFrame* Tool )
+size_t EdEditor::NewTool( EdToolFrame* Tool )
 {
     return EdEditorFrame::NewTool( Tool );
 }
 
-bool EdEditor::KillTool( const EdToolFrame* Tool )
+bool EdEditor::KillTool( size_t id )
 {
-    return EdEditorFrame::KillTool( Tool );
+    return EdEditorFrame::KillTool( id );
 }
 
 TArray<UPackage*>* EdEditor::GetPackages()

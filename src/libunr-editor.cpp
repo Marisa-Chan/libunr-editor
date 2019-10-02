@@ -173,7 +173,7 @@ EdEditorFrame::~EdEditorFrame()
     
 }
 
-bool EdEditorFrame::NewTool( const EdToolFrame* Tool )
+size_t EdEditorFrame::NewTool( EdToolFrame* Tool )
 {
     if( sm_EmptySlots > 0 ) //A slot was freed earlier, find and use that slot.
     {
@@ -181,9 +181,9 @@ bool EdEditorFrame::NewTool( const EdToolFrame* Tool )
         {
             if( sm_ToolArray[i] == NULL )
             {
-                sm_ToolArray[i] = (EdToolFrame*)Tool; //Manual cast workaround for wx class.
+                sm_ToolArray[i] = Tool; //Manual cast workaround for wx class.
                 sm_EmptySlots--; //We used a slot.
-                return true;
+                return i;
             }
         }
         //None found? Something went wrong.
@@ -191,22 +191,19 @@ bool EdEditorFrame::NewTool( const EdToolFrame* Tool )
          Possible memory corruption and/or leak.\nPushing new tool to end of array...") ;
     }
     sm_ToolArray.PushBack( (EdToolFrame*)Tool );
-    return true;
+    return sm_ToolArray.Size()-1;
 }
 
-bool EdEditorFrame::KillTool( const EdToolFrame* Tool )
+bool EdEditorFrame::KillTool( size_t id )
 {
-    for( size_t i = 0; i < sm_ToolArray.Size(); i++ )
+    if( sm_ToolArray[id] != NULL )
     {
-        if( sm_ToolArray[i]==Tool )
-        {
-            sm_ToolArray[i] = NULL;
-            sm_EmptySlots++;
-            return true;
-        }
-        Editor_Log( "Error: EdEditor::UnRegTool() : Unregistered tool that does not exist in sm_ToolArray!") ;
-        return false;
+        sm_ToolArray[id] = NULL;
+        sm_EmptySlots++;
+        return true;
     }
+    Editor_Log( "Warning: EdEditor::UnRegTool() : Unregistered tool that does not exist in sm_ToolArray!") ;
+    return false;
 }
 
 void EdEditorFrame::Editor_Log( const wxString& Msg )
@@ -241,7 +238,10 @@ void EdEditorFrame::LoadPackages( const wxArrayString& Paths )
     {
         for( size_t i = 0; i<sm_ToolArray.Size(); i++ )
         {
-            sm_ToolArray[i]->SYS_NewPackages( packageStart );
+            if( sm_ToolArray[i] != NULL )
+            {
+                sm_ToolArray[i]->SYS_NewPackages( packageStart );
+            }
         }
     }
     
@@ -250,23 +250,16 @@ void EdEditorFrame::LoadPackages( const wxArrayString& Paths )
     {
         for( size_t i = 0; i<sm_ToolArray.Size(); i++ )
         {
-            sm_ToolArray[i]->SYS_NewObjects( objectStart );
+            if( sm_ToolArray[i] != NULL )
+            {
+                sm_ToolArray[i]->SYS_NewObjects( objectStart );
+            }
         }
     }
 }
 
 void EdEditorFrame::OnExit( wxCommandEvent& event )
 {
-    /*
-    for( size_t i = 0; i < sm_ToolArray.Size(); i++ )
-    {
-        if( sm_ToolArray[i] != NULL )
-        {
-            sm_ToolArray[i]->Close(true);
-        }
-    }
-    */
-    
     Close( true );
 }
 

@@ -47,6 +47,7 @@ public:
 
     bool m_bDocked = false;
     int m_ToolType = TOOL_Generic;
+    size_t m_MyID;
     
     virtual void OnExit( wxCommandEvent& event );
     
@@ -73,8 +74,8 @@ private:
 namespace EdEditor //Editor interface
 {
     void* GetFrame();
-    bool NewTool( const EdToolFrame* Tool );
-    bool KillTool( const EdToolFrame* Tool );
+    size_t NewTool( EdToolFrame* Tool );
+    bool KillTool( size_t id );
     void Editor_Log( const wxString& Msg );
     TArray<UPackage*>* GetPackages();
     void LoadPackages( const wxArrayString& Paths );
