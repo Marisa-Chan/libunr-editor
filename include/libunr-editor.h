@@ -34,6 +34,8 @@
 
 #include <libunr.h>
 
+#include <wx/display.h>
+
 #include "Components.h"
 #include "Browsers.h"
 

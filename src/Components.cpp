@@ -32,6 +32,11 @@ EdToolFrame::EdToolFrame( bool bStartDocked )
         wxSize(300,384), wxFRAME_FLOAT_ON_PARENT | wxMINIMIZE_BOX | wxCLOSE_BOX | wxMAXIMIZE_BOX 
             | wxFRAME_TOOL_WINDOW | wxRESIZE_BORDER )
 {
+    wxDisplay display( wxDisplay::GetFromWindow( (EdEditorFrame*)EdEditor::GetFrame() ) );
+    wxRect screen = display.GetClientArea();
+    
+    SetSize( wxSize( screen.width/2, screen.height/2 ) );
+    
     EdEditor::NewTool(this);
 }
 

@@ -29,9 +29,11 @@
 #include <wx/wx.h>
 
 #include <Core/UPackage.h>
+#include <wx/notebook.h>
 #include <wx/splitter.h>
 #include <wx/treectrl.h>
 #include <wx/listctrl.h>
+#include <wx/statline.h>
 
 #include "Components.h"
 
@@ -56,7 +58,8 @@ enum
     ID_PackageList,
     ID_Browser_Dock,
     ID_Browser_ShowPackage,
-    ID_ClassTree
+    ID_ClassTree,
+    ID_PackageTab
 };
 
 
@@ -96,27 +99,39 @@ private:
     void EVT_Browser_ShowPackage( wxCommandEvent& event );
     void EVT_ClassTree( wxCommandEvent& event );
     
-    void update(); //Update interface.
+    void update(); //Update interface (does not do rendering, call respective update below for that)
     
-    void objectUpdate( size_t ObjectStartIndex );
-    void classUpdate( size_t ObjectStartIndex );
+    void packageUpdate(); //Render view in Package mode.
+    void classUpdate(); //Render view in Class Tree mode.
         void recurseExpandPopulate( TArray<UClass*>& ExpandedAry, wxTreeItemId Parent, 
             wxTreeItemIdValue Cookie = 0 );
         wxTreeItemId addTreeItem( wxTreeItemId Parent, UClass* Obj );
         
-    void listUpdate( size_t ObjectStartIndex );
-    void tileUpdate( size_t ObjectStartIndex );
+    void listUpdate(); //Render view in List mode (Audio, Music )
+    void tileUpdate(); //Render view in Tile mode (Textures, Meshes, Levels)
     
-    wxTreeCtrl* m_ListView;
+    //Package mode
+    UPackage* m_SelectedPackage = NULL;
+    wxWindow* m_PackageHeader = NULL;
+        wxListCtrl* m_PackageInfo = NULL;
+        wxListCtrl* m_PackageFlags = NULL;
+    wxWindow* m_NameTable = NULL;
+    wxWindow* m_ExportTable = NULL;
+    wxWindow* m_ImportTable = NULL;
+    wxWindow* m_ViewPane = NULL; //Object preview tab
+    wxSplitterWindow* m_MainSplitter = NULL; 
+    wxComboBox* m_PackagesList = NULL;
+    wxNotebook* m_TabWindow = NULL;
+    
+    //Class/List Mode
+    wxTreeCtrl* m_ListView = NULL;
+    wxCheckBox* m_Check_ShowPackage = NULL;
     
     wxMenu* m_MenuFile = NULL;
     wxMenuBar* m_MenuBar = NULL;
     wxBoxSizer* m_WindowAreaSizer = NULL;
     wxPanel* m_OptionsBar = NULL;
     wxCheckBox* m_Check_Dock = NULL;
-    wxCheckBox* m_Check_ShowPackage = NULL;
-    wxSplitterWindow* m_MainSplitter = NULL;
-    wxChoice* m_PackagesList = NULL;
     
     wxDECLARE_EVENT_TABLE();
 };

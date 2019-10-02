@@ -67,7 +67,7 @@ EdBrowser::EdBrowser( EBrowserType BrowserType, bool bDock )
     
     SetMenuBar( m_MenuBar );
     
-    SetMinSize( wxSize(300,384) );
+    SetMinSize( wxSize(540,384) );
     
     m_WindowAreaSizer = new wxBoxSizer( wxVERTICAL );
     
@@ -135,9 +135,57 @@ EdBrowser::EdBrowser( EBrowserType BrowserType, bool bDock )
     }
     
 ObjectConstruct:
-    
-    
-    goto Finish;
+    {
+        m_PackagesList = new wxComboBox( m_OptionsBar, ID_PackageList, "",
+            wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_SORT );
+            
+            optionsSizer->Add( m_PackagesList, 0, wxALIGN_LEFT );
+        
+        m_MainSplitter = new wxSplitterWindow( this, wxID_ANY );
+        m_WindowAreaSizer->Add( m_MainSplitter, 1, wxEXPAND );
+        
+            m_TabWindow = new wxNotebook( m_MainSplitter, ID_PackageTab, wxDefaultPosition, wxDefaultSize, 
+                wxNB_TOP | wxNB_FIXEDWIDTH );
+                
+                m_PackageHeader = new wxWindow( m_TabWindow, wxID_ANY );
+                    wxBoxSizer* headerSizer = new wxBoxSizer( wxVERTICAL );
+                    
+                    m_PackageInfo = m_PackageFlags = new wxListCtrl( m_PackageHeader, wxID_ANY, 
+                        wxDefaultPosition, wxSize( -1, 180 ), wxLC_REPORT );
+                        m_PackageInfo->AppendColumn( "Item", wxLIST_FORMAT_LEFT, 200 );
+                        m_PackageInfo->AppendColumn( "Value", wxLIST_FORMAT_LEFT, 450 );
+                        headerSizer->Add( m_PackageInfo, 0, wxEXPAND | wxALIGN_LEFT );
+                    
+                    wxStaticLine* Line = new wxStaticLine( m_PackageHeader, wxID_ANY, wxDefaultPosition,
+                        wxSize( -1, 16 ) );
+                        
+                    headerSizer->Add( Line, 0, wxEXPAND | wxALIGN_LEFT );
+                         
+                    m_PackageFlags = new wxListCtrl( m_PackageHeader, wxID_ANY, 
+                        wxDefaultPosition, wxSize( -1, 164 ), wxLC_REPORT );
+                        m_PackageFlags->AppendColumn( "Flag", wxLIST_FORMAT_LEFT, 200 );
+                        m_PackageFlags->AppendColumn( "Value" );
+                        headerSizer->Add( m_PackageFlags, 0, wxEXPAND | wxALIGN_LEFT );
+                        
+                    m_PackageHeader->SetSizer( headerSizer );
+                    
+                m_NameTable = new wxWindow( m_TabWindow, wxID_ANY );
+                m_ExportTable = new wxWindow( m_TabWindow, wxID_ANY );
+                m_ImportTable = new wxWindow( m_TabWindow, wxID_ANY );
+                
+                m_TabWindow->AddPage( m_PackageHeader, "Package Header", true );
+                m_TabWindow->AddPage( m_NameTable, "Name Table", false );
+                m_TabWindow->AddPage( m_ExportTable, "Export Table", false );
+                m_TabWindow->AddPage( m_ImportTable, "Import Table", false );
+                
+            m_ViewPane = new wxWindow( m_MainSplitter, wxID_ANY, wxDefaultPosition, wxDefaultSize, 
+                wxBORDER_RAISED );
+        
+        m_MainSplitter->SetSashGravity(0.75);        
+        m_MainSplitter->SplitVertically( m_TabWindow, m_ViewPane );        
+        
+        goto Finish;
+    }
     
 ListContruct:
 
@@ -173,13 +221,14 @@ Finish:
 
 void EdBrowser::SYS_NewPackages( size_t PackageStartIndex )
 {
-    /*
-    for( size_t i = PackageStartIndex; i<(*UPackage::GetLoadedPackages()).Size(); i++ )
+    if( m_PackagesList != NULL )
     {
-        m_PackagesList->Append( (*UPackage::GetLoadedPackages())[i]->Name.Data(),
-            (*UPackage::GetLoadedPackages())[i] );
+        for( size_t i = PackageStartIndex; i<(*UPackage::GetLoadedPackages()).Size(); i++ )
+        {
+            m_PackagesList->Append( (*UPackage::GetLoadedPackages())[i]->Name.Data(),
+                (*UPackage::GetLoadedPackages())[i] );
+        }
     }
-    */
     
     update();
 }
@@ -190,27 +239,27 @@ void EdBrowser::SYS_NewObjects( size_t ObjectStartIndex )
     {
         case( BRWFLG_Class ):
         {
-            classUpdate( ObjectStartIndex );
+            classUpdate();
             break;
         }
         
         case( BRWFLG_Audio ):
         case( BRWFLG_Music ):
         {
-            listUpdate( ObjectStartIndex );
+            listUpdate();
             break;
         }
         case( BRWFLG_Texture ):
         case( BRWFLG_Mesh ):
         case( BRWFLG_Level ):
         {
-            tileUpdate( ObjectStartIndex );
+            tileUpdate();
             break;
         }
         
         case( BRWFLG_Package ):
         {
-            objectUpdate( ObjectStartIndex );
+            packageUpdate();
             break;
         }
     }
@@ -220,15 +269,16 @@ void EdBrowser::SYS_NewObjects( size_t ObjectStartIndex )
 
 void EdBrowser::SYS_PackagesRemoved()
 {
-    /*
-    m_PackagesList->Clear();
-    
-    for( size_t i = 0; i<(*UPackage::GetLoadedPackages()).Size(); i++ )
+    if( m_PackagesList != NULL )
     {
-        m_PackagesList->Append( (*UPackage::GetLoadedPackages())[i]->Name.Data(),
-            (*UPackage::GetLoadedPackages())[i] );
+        m_PackagesList->Clear();
+        
+        for( size_t i = 0; i<(*UPackage::GetLoadedPackages()).Size(); i++ )
+        {
+            m_PackagesList->Append( (*UPackage::GetLoadedPackages())[i]->Name.Data(),
+                (*UPackage::GetLoadedPackages())[i] );
+        }
     }
-    */
     
     update();
 }
@@ -239,14 +289,14 @@ void EdBrowser::SYS_ObjectsRemoved()
     {
         case( BRWFLG_Class ):
         {
-            classUpdate( 0 );
+            classUpdate();
             break;
         }
         
         case( BRWFLG_Audio ):
         case( BRWFLG_Music ):
         {
-            listUpdate( 0 );
+            listUpdate();
             break;
         }
         
@@ -254,13 +304,13 @@ void EdBrowser::SYS_ObjectsRemoved()
         case( BRWFLG_Mesh ):
         case( BRWFLG_Level ):
         {
-            tileUpdate( 0 );
+            tileUpdate();
             break;
         }
         
         case( BRWFLG_Package ):
         {
-            objectUpdate( 0 );
+            packageUpdate();
             break;
         }
     }
@@ -306,7 +356,11 @@ void EdBrowser::EVT_BrowserExport( wxCommandEvent& event )
 
 void EdBrowser::EVT_PackageList( wxCommandEvent& event )
 {
-    update();
+    //TODO: Detect if package is unloaded somehow, otherwise this will surely cause
+    //a segfault.
+    m_SelectedPackage = (UPackage*)event.GetClientData();
+    
+    packageUpdate();
 }
 
 void EdBrowser::EVT_Browser_Dock( wxCommandEvent& event )
@@ -320,7 +374,7 @@ void EdBrowser::EVT_Browser_ShowPackage( wxCommandEvent& event )
 {
     m_bShowPackage = !m_bShowPackage;
     
-    classUpdate(0);
+    classUpdate();
     update();
 }
 
@@ -337,11 +391,110 @@ void EdBrowser::update()
     m_Check_Dock->SetValue( m_bDocked );
 }
 
-void EdBrowser::objectUpdate( size_t ObjectStartIndex )
+void EdBrowser::packageUpdate()
 {
+    
+    //Package Header
+    if( m_SelectedPackage != NULL )
+    {
+        m_PackageInfo->DeleteAllItems();
+        
+        m_PackageInfo->InsertItem( 0, "Package Version" );
+        m_PackageInfo->InsertItem( 1, "File Size" );
+        m_PackageInfo->InsertItem( 2, "Licensee Mode" );
+        m_PackageInfo->InsertItem( 3, "Name Count" );
+        m_PackageInfo->InsertItem( 4, "Export Count" );
+        m_PackageInfo->InsertItem( 5, "Import Count" );
+        m_PackageInfo->InsertItem( 6, "Heritage Count" );
+        m_PackageInfo->InsertItem( 7, "GUID" );
+        
+        m_PackageInfo->SetItem( 0, 1, 
+            std::to_string( m_SelectedPackage->GetHeader()->PackageVersion ) );
+            
+        //Get Package filesize, preserving original seek value just in case it was being used by something.
+        size_t where = m_SelectedPackage->GetStream()->Tell();
+        m_SelectedPackage->GetStream()->Seek( 0, End );
+        m_PackageInfo->SetItem( 1, 1, 
+            std::to_string( m_SelectedPackage->GetStream()->Tell() ) );
+        m_SelectedPackage->GetStream()->Seek( where, Begin );
+        
+        m_PackageInfo->SetItem( 2, 1, 
+            std::to_string( m_SelectedPackage->GetHeader()->LicenseMode ) );
+        m_PackageInfo->SetItem( 3, 1, 
+            std::to_string( m_SelectedPackage->GetHeader()->NameCount ) );
+        m_PackageInfo->SetItem( 4, 1, 
+            std::to_string( m_SelectedPackage->GetHeader()->ExportCount ) );
+        m_PackageInfo->SetItem( 5, 1, 
+            std::to_string( m_SelectedPackage->GetHeader()->ImportCount ) );
+        m_PackageInfo->SetItem( 6, 1, 
+            std::to_string( m_SelectedPackage->GetHeader()->HeritageCount ) );
+            
+        
+        wxString GUID;
+        char const hex_chars[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+        
+        GUID += '{';
+        for( size_t i = 0; i<16; i++ )
+        {
+            GUID += hex_chars[ (m_SelectedPackage->GetHeader()->GUID[i] & 0xF0) >> 4 ];
+            GUID += hex_chars[ (m_SelectedPackage->GetHeader()->GUID[i] & 0x0F) >> 0 ];
+            
+            if( i == 4 )
+                GUID += '-';
+            if( i == 6 )
+                GUID += '-';
+            if( i == 8 )
+                GUID += '-';
+            if( i == 10 )
+                GUID += '-';
+        }
+        GUID += '}';
+        
+        m_PackageInfo->SetItem( 7, 1, GUID );
+        
+        m_PackageFlags->DeleteAllItems();
+        
+        m_PackageFlags->InsertItem( 0, "PKG_AllowDownload" );
+        m_PackageFlags->InsertItem( 1, "PKG_ClientOptional" );
+        m_PackageFlags->InsertItem( 2, "PKG_ServerSideOnly" );
+        m_PackageFlags->InsertItem( 3, "PKG_BrokenLinks" );
+        m_PackageFlags->InsertItem( 4, "PKG_Unsecure" );
+        m_PackageFlags->InsertItem( 5, "PKG_Need" );
+        
+        if( m_SelectedPackage->GetHeader()->PackageFlags & 0x0001 )
+            m_PackageFlags->SetItem( 0, 1, "true" );
+        else
+            m_PackageFlags->SetItem( 0, 1, "false" );
+        if( m_SelectedPackage->GetHeader()->PackageFlags & 0x0002 )
+            m_PackageFlags->SetItem( 1, 1, "true" );
+        else
+            m_PackageFlags->SetItem( 1, 1, "false" );
+        if( m_SelectedPackage->GetHeader()->PackageFlags & 0x0004 )
+            m_PackageFlags->SetItem( 2, 1, "true" );
+        else
+            m_PackageFlags->SetItem( 2, 1, "false" );
+        if( m_SelectedPackage->GetHeader()->PackageFlags & 0x0008 )
+            m_PackageFlags->SetItem( 3, 1, "true" );
+        else
+            m_PackageFlags->SetItem( 3, 1, "false" );
+        if( m_SelectedPackage->GetHeader()->PackageFlags & 0x0010 )
+            m_PackageFlags->SetItem( 4, 1, "true" );
+        else
+            m_PackageFlags->SetItem( 4, 1, "false" );
+        if( m_SelectedPackage->GetHeader()->PackageFlags & 0x8000 )
+            m_PackageFlags->SetItem( 5, 1, "true" );
+        else
+            m_PackageFlags->SetItem( 5, 1, "false" );
+    }
+    
+    //Name Table
+    
+    //Export Table
+    
+    //Import Table
 }
 
-void EdBrowser::classUpdate( size_t ObjectStartIndex )
+void EdBrowser::classUpdate()
 {
     TArray<UClass*> expandedObjects; //Previously Expanded UObjects.
     TArray<wxTreeItemId> toExpand;
@@ -457,7 +610,7 @@ wxTreeItemId EdBrowser::addTreeItem( wxTreeItemId Parent, UClass* Obj )
     }
 }
 
-void EdBrowser::listUpdate( size_t ObjectStartIndex )
+void EdBrowser::listUpdate()
 {
     UClass* CompareType; //The Type to compare against.
     TArray<wxTreeItemId> packages;
@@ -542,7 +695,7 @@ void EdBrowser::listUpdate( size_t ObjectStartIndex )
     }
 }
 
-void EdBrowser::tileUpdate( size_t ObjectStartIndex )
+void EdBrowser::tileUpdate()
 {
 }
 
@@ -555,5 +708,5 @@ wxBEGIN_EVENT_TABLE(EdBrowser, wxFrame)
     EVT_MENU(ID_BrowserExport,   EdBrowser::EVT_BrowserExport)
     EVT_CHECKBOX(ID_Browser_ShowPackage, EdBrowser::EVT_Browser_ShowPackage)
     EVT_CHECKBOX(ID_Browser_Dock,   EdBrowser::EVT_Browser_Dock)
-    EVT_CHECKLISTBOX( ID_PackageList, EdBrowser::EVT_PackageList )
+    EVT_COMBOBOX( ID_PackageList, EdBrowser::EVT_PackageList )
 wxEND_EVENT_TABLE()
