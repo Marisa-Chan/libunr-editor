@@ -36,7 +36,7 @@ print_help()
   echo "   -s  Configure makefile with debug symbols"
   echo "   -m  Configure makefile with 32-bit"
   echo "   -c  Configure makefile to use a specified compiler"
-  echo "   -l  Configure makefile to find libunr library"
+  echo "   -L  Configure makefile to find libunr library"
   echo "   -H  Configure makefile to find libunr library"
   echo "   -i  Configure makefile to install to specified directory"
   echo "   -v  Configure makefile with verbose output"
@@ -47,15 +47,15 @@ print_help()
 # Main
 #################################################
 OPTIND=1
-while getopts "hdsc:vim" opt; do
+while getopts "H:l:dhsc:vi:m" opt; do
   case "$opt" in
   h) print_help; exit 0 ;;
   d) BUILD_DEBUG=1 ;;
   s) BUILD_SYMBOLS=1 ;;
   m) BUILD_32BIT=1 ;;
   c) BUILD_COMPILER="$OPTARG" ;;
-  l) BUILD_LIBUNR_PATH="$OPTARG" ;;
-  h) BUILD_LIBUNR_HEADER_PATH="$OPTARG" ;;
+  L) BUILD_LIBUNR_PATH="$OPTARG" ;;
+  H) BUILD_LIBUNR_HEADER_PATH="$OPTARG" ;;
   i) BUILD_LIBUNR_EDITOR_INSTALL_PATH="$OPTARG" ;;
   v) BUILD_VERBOSE=1 ;;
   esac
