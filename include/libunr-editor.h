@@ -73,6 +73,8 @@ public:
     static EdEditorFrame* GetFrame();
     static TArray<UPackage*>* GetPackages();
     static void LoadPackages( const wxArrayString& Paths );
+
+	static wxSize GetFrameSize();
     
     //Events
     void OnExit( wxCommandEvent& event );

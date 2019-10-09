@@ -69,7 +69,7 @@ class EdBrowser : public EdToolFrame
 public:
     //Browser mode flags.
     
-	EdBrowser( EBrowserType BrowserFlags, bool bDock = false );
+	EdBrowser( EBrowserType BrowserFlags, bool bDock = false, wxSize Size = EdToolFrame::GetFrameSize() );
 	~EdBrowser();
 	
 	virtual void SYS_NewPackages( size_t PackageStartIndex );

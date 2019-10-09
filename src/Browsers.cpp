@@ -34,8 +34,8 @@ struct wxObjectItemData : public wxTreeItemData
     UObject* m_Obj = NULL;
 };
 
-EdBrowser::EdBrowser( EBrowserType BrowserType, bool bDock ) 
-    : EdToolFrame(bDock), m_Mode(BrowserType)
+EdBrowser::EdBrowser( EBrowserType BrowserType, bool bDock, wxSize Size ) 
+    : EdToolFrame( bDock, Size ), m_Mode(BrowserType)
 {
     m_ToolType = TOOL_Browser;    
     
@@ -246,6 +246,9 @@ Finish:
     SYS_NewObjects( 0 );
     
     Show(true);
+
+	Refresh();
+	Update();
 
 }
 

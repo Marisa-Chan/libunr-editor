@@ -288,32 +288,32 @@ void EdEditorFrame::EVT_Preferences( wxCommandEvent& event ){}
 
 void EdEditorFrame::EVT_BrowserPackage( wxCommandEvent& event )
 {
-    new EdBrowser( BRWFLG_Package, false );
+    new EdBrowser( BRWFLG_Package, false, EdToolFrame::GetFrameSize() );
 }
 
 void EdEditorFrame::EVT_BrowserClass( wxCommandEvent& event )
 {
-    new EdBrowser( BRWFLG_Class, false );
+    new EdBrowser( BRWFLG_Class, false, EdToolFrame::GetFrameSize() );
 }
 
 void EdEditorFrame::EVT_BrowserAudio( wxCommandEvent& event )
 {
-    new EdBrowser( BRWFLG_Audio, false );
+    new EdBrowser( BRWFLG_Audio, false, EdToolFrame::GetFrameSize() );
 }
 
 void EdEditorFrame::EVT_BrowserMusic( wxCommandEvent& event )
 {
-    new EdBrowser( BRWFLG_Music, false );
+    new EdBrowser( BRWFLG_Music, false, EdToolFrame::GetFrameSize() );
 }
 
 void EdEditorFrame::EVT_BrowserGraphics( wxCommandEvent& event )
 {
-    new EdBrowser( BRWFLG_Texture, false );
+    new EdBrowser( BRWFLG_Texture, false, EdToolFrame::GetFrameSize() );
 }
 
 void EdEditorFrame::EVT_BrowserMesh( wxCommandEvent& event )
 {
-    new EdBrowser( BRWFLG_Mesh, false );
+    new EdBrowser( BRWFLG_Mesh, false, EdToolFrame::GetFrameSize() );
 }
 
 void EdEditorFrame::EVT_ViewLog( wxCommandEvent& event ){}

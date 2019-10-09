@@ -27,16 +27,10 @@
 #include "libunr-editor.h"
 #include "Components.h"
 
-EdToolFrame::EdToolFrame( bool bStartDocked ) 
+EdToolFrame::EdToolFrame( bool bStartDocked, wxSize Size ) 
       : wxFrame( (EdEditorFrame*)EdEditor::GetFrame(), -1, "Editor Tool", wxDefaultPosition, 
-        wxSize(300,384), wxFRAME_FLOAT_ON_PARENT | wxMINIMIZE_BOX | wxCLOSE_BOX | wxMAXIMIZE_BOX 
-            | wxFRAME_TOOL_WINDOW | wxRESIZE_BORDER )
+        Size )
 {
-    wxDisplay display( wxDisplay::GetFromWindow( (EdEditorFrame*)EdEditor::GetFrame() ) );
-    wxRect screen = display.GetClientArea();
-    
-    SetSize( wxSize( screen.width/2, screen.height/2 ) );
-    
     m_MyID = EdEditor::NewTool(this);
 }
 
@@ -49,6 +43,15 @@ void EdToolFrame::OnExit( wxCommandEvent& event )
 {
     Close(true);
 }
+
+wxSize EdToolFrame::GetFrameSize()
+{
+	wxDisplay display(wxDisplay::GetFromWindow((EdEditorFrame*)EdEditor::GetFrame()));
+	wxRect screen = display.GetClientArea();
+
+	return wxSize(screen.width / 2, screen.height / 2);
+}
+
 
 EdAbout::EdAbout( wxWindow* parent, bool* Switch )
 : wxFrame( parent, -1, "About", wxDefaultPosition, wxSize(420,400) ), m_Switch(Switch)

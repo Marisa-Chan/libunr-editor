@@ -41,7 +41,7 @@ enum
 class EdToolFrame : public wxFrame
 {
 public:
-    EdToolFrame( bool bStartDocked = false );
+    EdToolFrame( bool bStartDocked = false, wxSize Size = GetFrameSize() );
 
     ~EdToolFrame();
 
@@ -50,6 +50,8 @@ public:
     size_t m_MyID;
     
     virtual void OnExit( wxCommandEvent& event );
+
+	static wxSize GetFrameSize(); //Return the default framesize for toolframe.
     
     //Sysytem notifications, called by EdEditorFrame for all tools when nessecary.
     //Get a list of new packages loaded.
