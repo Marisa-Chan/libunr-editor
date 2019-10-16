@@ -25,6 +25,7 @@
 */
 
 #include "libunr-editor.h"
+#include "Editor/UEditorEngine.h"
 
 EdEditorFrame* EdEditorFrame::sm_Frame;
 TArray<EdToolFrame*> EdEditorFrame::sm_ToolArray;
@@ -483,7 +484,28 @@ bool WXAPP_EdEditor::OnInit()
     EdBrowser::m_icoMesh = wxIcon(wxT("res/bitmap/MeshBrowser.png"));
     
     if( LibunrInit( GamePromptHandler, NULL, true ) == false )
-        return true;
+        return false;
+
+    UPackage* EditorPkg = UPackage::StaticLoadPackage( "Editor" );
+    if ( !EditorPkg )
+    {
+        GLogf( LOG_CRIT, "Required package 'Editor' is missing" );
+        return false;
+    }
+
+    UClass* EditorEngineClass = (UClass*)UObject::StaticLoadObject( EditorPkg, "EditorEngine", UClass::StaticClass(), NULL, true );
+    if ( !EditorEngineClass )
+    {
+        GLogf( LOG_CRIT, "Failed to load EditorEngine class" );
+        return false;
+    }
+
+    GEngine = (UEngine*)EditorEngineClass->CreateObject();
+    if ( !GEngine->Init() )
+    {
+      GLogf( LOG_CRIT, "Editor Engine init failed" );
+      return false;
+    }
 
     for( size_t i = 0; i<UPackage::GetLoadedPackages()->Size(); i++ )
     {

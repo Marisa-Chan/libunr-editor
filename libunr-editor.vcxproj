@@ -112,7 +112,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir)include\;$(SolutionDir)libunr\include\;$(ProjectDir)wxWidgets\include\msvc;$(ProjectDir)wxWidgets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
-      <PreprocessorDefinitions>__WXMSW__;wxNEEDS_DECL_BEFORE_TEMPLATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>__WXMSW__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
