@@ -68,7 +68,7 @@ public:
   bool m_bShowPackage = true; //Show package after object name
 
   // Runtime Variables
-  UClass* Type; // The object type this browser displays
+  UClass* m_Type; // The object type this browser displays
     
   static wxIcon m_icoPackage;
   static wxIcon m_icoClass;
