@@ -19,7 +19,7 @@
 
 /*========================================================================
  * Browsers.cpp - View browser implementations
- *
+ *b
  * written by Jesse 'Hyzoran' Kowalik
 *========================================================================
 */
@@ -35,7 +35,7 @@ struct wxObjectItemData : public wxTreeItemData
 };
 
 EdBrowser::EdBrowser( UClass* InType, bool bDock, wxSize Size )
-  : EdToolFrame( bDock, Size ), Type( InType )
+  : EdToolFrame( bDock, Size ), m_Type( InType )
 {
   m_ToolType = TOOL_Browser;
   wxMenu* menuFile = new wxMenu();
@@ -705,7 +705,7 @@ void EdBrowser::listUpdate()
         continue;
 
       //Object Type match, check against existing groups for this package and populate.
-      if ( currentExport->Obj->IsA( Type ) )
+      if ( currentExport->Obj->IsA( m_Type ) )
       {
         bool bFoundGroup = false;
 
