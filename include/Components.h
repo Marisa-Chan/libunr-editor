@@ -34,31 +34,31 @@
 
 enum
 {
-    TOOL_Generic = 0,
-    TOOL_Browser = 1
+  TOOL_Generic = 0,
+  TOOL_Browser = 1
 };
 
 class EdToolFrame : public wxFrame
 {
 public:
-    EdToolFrame( bool bStartDocked = false, wxSize Size = GetFrameSize() );
+  EdToolFrame( bool bStartDocked = false, wxSize Size = GetFrameSize() );
 
-    ~EdToolFrame();
+  ~EdToolFrame();
 
-    bool m_bDocked = false;
-    int m_ToolType = TOOL_Generic;
-    size_t m_MyID;
+  bool m_bDocked = false;
+  int m_ToolType = TOOL_Generic;
+  size_t m_MyID;
     
-    virtual void OnExit( wxCommandEvent& event );
+  virtual void OnExit( wxCommandEvent& event );
 
-	static wxSize GetFrameSize(); //Return the default framesize for toolframe.
+  static wxSize GetFrameSize(); //Return the default framesize for toolframe.
     
-    //Sysytem notifications, called by EdEditorFrame for all tools when nessecary.
-    //Get a list of new packages loaded.
-    virtual void SYS_NewPackages( size_t PackageStartIndex ) = 0;
-    virtual void SYS_NewObjects( size_t ObjectStartIndex ) = 0;
-    virtual void SYS_PackagesRemoved() = 0; //A Package was removed, please re-process all packages
-    virtual void SYS_ObjectsRemoved() = 0; //Objects were removed, please re-process all objects.
+  //Sysytem notifications, called by EdEditorFrame for all tools when nessecary.
+  //Get a list of new packages loaded.
+  virtual void NewPackages( size_t PackageStartIndex ) = 0;
+  virtual void ObjectsAdded() = 0;
+  virtual void PackagesRemoved() = 0; //A Package was removed, please re-process all packages
+  virtual void ObjectsRemoved() = 0; //Objects were removed, please re-process all objects.
 };
 
 class EdAbout : public wxFrame
@@ -70,17 +70,16 @@ public:
 	void CloseAbout( wxCommandEvent& event );
     
 private:
-    bool* m_Switch;
+  bool* m_Switch;
 };
 
 namespace EdEditor //Editor interface
 {
-    void* GetFrame();
-    size_t NewTool( EdToolFrame* Tool );
-    bool KillTool( size_t id );
-    void Editor_Log( const wxString& Msg );
-    TArray<UPackage*>* GetPackages();
-    void LoadPackages( const wxArrayString& Paths );
+  void* GetFrame();
+  size_t NewTool( EdToolFrame* Tool );
+  bool KillTool( size_t id );
+  TArray<UPackage*>* GetPackages();
+  void LoadPackages( const wxArrayString& Paths );
     
-    bool IsPackageModified( size_t I ); //Has the package of this index been modified in memory?
+  bool IsPackageModified( size_t I ); //Has the package of this index been modified in memory?
 };

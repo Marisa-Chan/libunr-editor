@@ -18,9 +18,9 @@
 \*===========================================================================*/
 
 /*========================================================================
- * Browsers.h - Browser class, for parsing Packages and their contents.
+ * Browsers.h - Browser class definitions
  * 
- * written by Jesse 'Hyzoran' Kowalik, designed berated by Adam 'Xaleros' Smith
+ * written by Jesse 'Hyzoran' Kowalik & Adam 'Xaleros' Smith
  *========================================================================
 */
 #pragma once
@@ -38,104 +38,166 @@
 
 #include "Components.h"
 
-enum EBrowserType
-{
-    BRWFLG_Class = 0,
-    BRWFLG_Audio = 1,
-    BRWFLG_Music = 2,
-    BRWFLG_Texture = 3,
-    BRWFLG_Mesh = 4,
-    BRWFLG_Level = 5,
-    BRWFLG_Package = 6
-};
-
 enum
 {
-    ID_BrowserNew,
-    ID_BrowserOpen,
-    ID_BrowserSave,
-    ID_BrowserImport,
-    ID_BrowserExport,
-    ID_PackageList,
-    ID_Browser_Dock,
-    ID_Browser_ShowPackage,
-    ID_ClassTree,
-    ID_PackageTab
+  ID_BrowserNew,
+  ID_BrowserOpen,
+  ID_BrowserSave,
+  ID_BrowserImport,
+  ID_BrowserExport,
+  ID_PackageList,
+  ID_Browser_Dock,
+  ID_Browser_ShowPackage,
+  ID_ClassTree,
+  ID_PackageTab
 };
 
 
 class EdBrowser : public EdToolFrame
 {
-public:
-    //Browser mode flags.
-    
-	EdBrowser( EBrowserType BrowserFlags, bool bDock = false, wxSize Size = EdToolFrame::GetFrameSize() );
+public: 
+	EdBrowser( UClass* InType, bool bDock = false, wxSize Size = EdToolFrame::GetFrameSize() );
 	~EdBrowser();
 	
-	virtual void SYS_NewPackages( size_t PackageStartIndex );
-    virtual void SYS_NewObjects( size_t ObjectStartIndex );
-    virtual void SYS_PackagesRemoved();
-    virtual void SYS_ObjectsRemoved();
+	virtual void NewPackages( size_t PackageStartIndex );
+  virtual void ObjectsAdded();
+  virtual void PackagesRemoved();
+  virtual void ObjectsRemoved();
     
-    //View Preferences
-    EBrowserType m_Mode;
-    bool m_bShowPackage = true; //Show package after object name
+  // View Preferences
+  bool m_bShowPackage = true; //Show package after object name
+
+  // Runtime Variables
+  UClass* Type; // The object type this browser displays
     
-    static wxIcon m_icoPackage;
-    static wxIcon m_icoClass;
-    static wxIcon m_icoAudio;
-    static wxIcon m_icoMusic;
-    static wxIcon m_icoGraphics;
-    static wxIcon m_icoMesh;
+  static wxIcon m_icoPackage;
+  static wxIcon m_icoClass;
+  static wxIcon m_icoSound;
+  static wxIcon m_icoMusic;
+  static wxIcon m_icoGraphics;
+  static wxIcon m_icoMesh;
     
+protected:
+  virtual void ListConstruct();
+  virtual void TileConstruct();
+  virtual void FinishConstruct();
+  void update(); //Update interface (does not do rendering, call respective update below for that)
+
+  void listUpdate(); //Render view in List mode (Audio, Music )
+  void tileUpdate(); //Render view in Tile mode (Textures, Meshes, Levels)
+  void packageUpdate(); //Render view in Package mode.
+  void classUpdate(); //Render view in Class Tree mode.
+  void recurseExpandPopulate( TArray<UClass*>& ExpandedAry, wxTreeItemId Parent, wxTreeItemIdValue Cookie = 0 );
+  wxTreeItemId addTreeItem( wxTreeItemId Parent, UClass* Obj );
+
+  wxBoxSizer* optionsSizer;
+
+  //Package mode
+  UPackage* m_SelectedPackage = NULL;
+  wxWindow* m_PackageHeader = NULL;
+  wxListCtrl* m_PackageInfo = NULL;
+  wxListCtrl* m_PackageFlags = NULL;
+  wxListCtrl* m_NameTable = NULL;
+  wxListCtrl* m_ExportTable = NULL;
+  wxDataViewCtrl* m_ExportTree = NULL;
+  wxListCtrl* m_ImportTable = NULL;
+  wxDataViewCtrl* m_ImportTree = NULL;
+  wxWindow* m_ViewPane = NULL; //Object preview tab
+  wxSplitterWindow* m_MainSplitter = NULL;
+  wxComboBox* m_PackagesList = NULL;
+  wxNotebook* m_TabWindow = NULL;
+
+  //Class/List Mode
+  wxTreeCtrl* m_ListView = NULL;
+  wxCheckBox* m_Check_ShowPackage = NULL;
+
+  wxMenu* m_MenuFile = NULL;
+  wxMenuBar* m_MenuBar = NULL;
+  wxBoxSizer* m_WindowAreaSizer = NULL;
+  wxPanel* m_OptionsBar = NULL;
+  wxCheckBox* m_Check_Dock = NULL;
+
 private:
+  void OnExit( wxCommandEvent& event );
+  void EVT_BrowserNew( wxCommandEvent& event );
+  void EVT_BrowserOpen( wxCommandEvent& event );
+  void EVT_BrowserSave( wxCommandEvent& event );
+  void EVT_BrowserImport( wxCommandEvent& event );
+  void EVT_BrowserExport( wxCommandEvent& event );
+  void EVT_PackageList( wxCommandEvent& event );
+  void EVT_Browser_Dock( wxCommandEvent& event );
+  void EVT_Browser_ShowPackage( wxCommandEvent& event );
+  void EVT_ClassTree( wxCommandEvent& event );
     
-    void OnExit( wxCommandEvent& event );
-    void EVT_BrowserNew( wxCommandEvent& event );
-    void EVT_BrowserOpen( wxCommandEvent& event );
-    void EVT_BrowserSave( wxCommandEvent& event );
-    void EVT_BrowserImport( wxCommandEvent& event );
-    void EVT_BrowserExport( wxCommandEvent& event );
-    void EVT_PackageList( wxCommandEvent& event );
-    void EVT_Browser_Dock( wxCommandEvent& event );
-    void EVT_Browser_ShowPackage( wxCommandEvent& event );
-    void EVT_ClassTree( wxCommandEvent& event );
-    
-    void update(); //Update interface (does not do rendering, call respective update below for that)
-    
-    void packageUpdate(); //Render view in Package mode.
-    void classUpdate(); //Render view in Class Tree mode.
-        void recurseExpandPopulate( TArray<UClass*>& ExpandedAry, wxTreeItemId Parent, 
-            wxTreeItemIdValue Cookie = 0 );
-        wxTreeItemId addTreeItem( wxTreeItemId Parent, UClass* Obj );
-        
-    void listUpdate(); //Render view in List mode (Audio, Music )
-    void tileUpdate(); //Render view in Tile mode (Textures, Meshes, Levels)
-    
-    //Package mode
-    UPackage* m_SelectedPackage = NULL;
-    wxWindow* m_PackageHeader = NULL;
-        wxListCtrl* m_PackageInfo = NULL;
-        wxListCtrl* m_PackageFlags = NULL;
-    wxListCtrl* m_NameTable = NULL;
-    wxListCtrl* m_ExportTable = NULL;
-    wxDataViewCtrl* m_ExportTree = NULL;
-    wxListCtrl* m_ImportTable = NULL;
-    wxDataViewCtrl* m_ImportTree = NULL;
-    wxWindow* m_ViewPane = NULL; //Object preview tab
-    wxSplitterWindow* m_MainSplitter = NULL; 
-    wxComboBox* m_PackagesList = NULL;
-    wxNotebook* m_TabWindow = NULL;
-    
-    //Class/List Mode
-    wxTreeCtrl* m_ListView = NULL;
-    wxCheckBox* m_Check_ShowPackage = NULL;
-    
-    wxMenu* m_MenuFile = NULL;
-    wxMenuBar* m_MenuBar = NULL;
-    wxBoxSizer* m_WindowAreaSizer = NULL;
-    wxPanel* m_OptionsBar = NULL;
-    wxCheckBox* m_Check_Dock = NULL;
-    
-    wxDECLARE_EVENT_TABLE();
+  wxDECLARE_EVENT_TABLE();
+};
+
+class EdClassBrowser : public EdBrowser
+{
+public:
+  EdClassBrowser( bool bDock = false, wxSize Size = EdToolFrame::GetFrameSize() );
+  ~EdClassBrowser();
+
+  virtual void ObjectsAdded();
+  virtual void ObjectsRemoved();
+};
+
+class EdTextureBrowser : public EdBrowser
+{
+public:
+  EdTextureBrowser( bool bDock = false, wxSize Size = EdToolFrame::GetFrameSize() );
+  ~EdTextureBrowser();
+
+  virtual void ObjectsAdded();
+  virtual void ObjectsRemoved();
+};
+
+class EdMeshBrowser : public EdBrowser
+{
+public:
+  EdMeshBrowser( bool bDock = false, wxSize Size = EdToolFrame::GetFrameSize() );
+  ~EdMeshBrowser();
+
+  virtual void ObjectsAdded();
+  virtual void ObjectsRemoved();
+};
+
+class EdLevelBrowser : public EdBrowser
+{
+public:
+  EdLevelBrowser( bool bDock = false, wxSize Size = EdToolFrame::GetFrameSize() );
+  ~EdLevelBrowser();
+
+  virtual void ObjectsAdded();
+  virtual void ObjectsRemoved();
+};
+
+class EdSoundBrowser : public EdBrowser
+{
+public:
+  EdSoundBrowser( bool bDock = false, wxSize Size = EdToolFrame::GetFrameSize() );
+  ~EdSoundBrowser();
+
+  virtual void ObjectsAdded();
+  virtual void ObjectsRemoved();
+};
+
+class EdMusicBrowser : public EdBrowser
+{
+public:
+  EdMusicBrowser( bool bDock = false, wxSize Size = EdToolFrame::GetFrameSize() );
+  ~EdMusicBrowser();
+
+  virtual void ObjectsAdded();
+  virtual void ObjectsRemoved();
+};
+
+class EdPackageBrowser : public EdBrowser
+{
+public:
+  EdPackageBrowser( bool bDock = false, wxSize Size = EdToolFrame::GetFrameSize() );
+  ~EdPackageBrowser();
+
+  virtual void ObjectsAdded();
+  virtual void ObjectsRemoved();
 };

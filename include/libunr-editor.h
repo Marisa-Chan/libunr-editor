@@ -64,53 +64,52 @@ enum
 class EdEditorFrame : public wxFrame
 {
 public:
-    EdEditorFrame( const wxString& Title, const wxPoint& Pos, const wxSize& Size );
-    ~EdEditorFrame();
+  EdEditorFrame( const wxString& Title, const wxPoint& Pos, const wxSize& Size );
+  ~EdEditorFrame();
     
-    static size_t NewTool( EdToolFrame* Tool );
-    static bool KillTool( size_t id );
-    static void Editor_Log( const wxString& Msg );
-    static EdEditorFrame* GetFrame();
-    static TArray<UPackage*>* GetPackages();
-    static void LoadPackages( const wxArrayString& Paths );
+  static size_t NewTool( EdToolFrame* Tool );
+  static bool KillTool( size_t id );
+  static EdEditorFrame* GetFrame();
+  static TArray<UPackage*>* GetPackages();
+  static void LoadPackages( const wxArrayString& Paths );
 
-	static wxSize GetFrameSize();
+static wxSize GetFrameSize();
     
-    //Events
-    void OnExit( wxCommandEvent& event );
-    void OnAbout( wxCommandEvent& event );
-    void EVT_New( wxCommandEvent& event );
-    void EVT_Open( wxCommandEvent& event );
-    void EVT_Save( wxCommandEvent& event );
-    void EVT_Import( wxCommandEvent& event );
-    void EVT_Export( wxCommandEvent& event );
-    void EVT_Preferences( wxCommandEvent& event );
-    void EVT_BrowserPackage( wxCommandEvent& event );
-    void EVT_BrowserClass( wxCommandEvent& event );
-    void EVT_BrowserAudio( wxCommandEvent& event );
-    void EVT_BrowserMusic( wxCommandEvent& event );
-    void EVT_BrowserGraphics( wxCommandEvent& event );
-    void EVT_BrowserMesh( wxCommandEvent& event );
-    void EVT_ViewLog( wxCommandEvent& event );
-    void EVT_ActiveTools( wxCommandEvent& event );
-    void EVT_MapEditor( wxCommandEvent& event );
-    void EVT_MeshEditor( wxCommandEvent& event );
-    void EVT_Manual( wxCommandEvent& event );
+  //Events
+  void OnExit( wxCommandEvent& event );
+  void OnAbout( wxCommandEvent& event );
+  void EVT_New( wxCommandEvent& event );
+  void EVT_Open( wxCommandEvent& event );
+  void EVT_Save( wxCommandEvent& event );
+  void EVT_Import( wxCommandEvent& event );
+  void EVT_Export( wxCommandEvent& event );
+  void EVT_Preferences( wxCommandEvent& event );
+  void EVT_BrowserPackage( wxCommandEvent& event );
+  void EVT_BrowserClass( wxCommandEvent& event );
+  void EVT_BrowserSound( wxCommandEvent& event );
+  void EVT_BrowserMusic( wxCommandEvent& event );
+  void EVT_BrowserTexture( wxCommandEvent& event );
+  void EVT_BrowserMesh( wxCommandEvent& event );
+  void EVT_ViewLog( wxCommandEvent& event );
+  void EVT_ActiveTools( wxCommandEvent& event );
+  void EVT_MapEditor( wxCommandEvent& event );
+  void EVT_MeshEditor( wxCommandEvent& event );
+  void EVT_Manual( wxCommandEvent& event );
     
-    static wxIcon m_File;
-    static wxIcon m_Dir;
-    static wxIcon m_Save;
+  static wxIcon m_File;
+  static wxIcon m_Dir;
+  static wxIcon m_Save;
     
-    wxDECLARE_EVENT_TABLE();
+  wxDECLARE_EVENT_TABLE();
     
 private:
     
-    static EdEditorFrame* sm_Frame; //Reference to the one instance of EdEditorFrame.
-    static TArray<EdToolFrame*> sm_ToolArray;
-    static size_t sm_EmptySlots;
-    static TArray<UPackage*> sm_Packages;
+  static EdEditorFrame* sm_Frame; //Reference to the one instance of EdEditorFrame.
+  static TArray<EdToolFrame*> sm_ToolArray;
+  static size_t sm_EmptySlots;
+  static TArray<UPackage*> sm_Packages;
     
-    bool m_bAboutUp; //Is there already an about instance?
+  bool m_bAboutUp; //Is there already an about instance?
     
 };
 
@@ -125,47 +124,47 @@ enum
 class EdGamePrompt : public wxDialog
 {
 public:
-    EdGamePrompt( TArray<char*>* Names );
+  EdGamePrompt( TArray<char*>* Names );
     
-    int GetSelected();
+  int GetSelected();
     
-    wxDECLARE_EVENT_TABLE();
-    
-private:
-    wxListBox* m_ChoiceBox;
+  wxDECLARE_EVENT_TABLE();
     
 private:
-    void EVT_ChoiceSelect( wxCommandEvent& event );
-    void EVT_NewGame( wxCommandEvent& event );
+  wxListBox* m_ChoiceBox;
     
-    int m_GameSelect = -1;
-    TArray<char*>* m_Names;
-    size_t m_GameSize;
+private:
+  void EVT_ChoiceSelect( wxCommandEvent& event );
+  void EVT_NewGame( wxCommandEvent& event );
+    
+  int m_GameSelect = -1;
+  TArray<char*>* m_Names;
+  size_t m_GameSize;
 };
 
 class EdNewGameDialog : public wxDialog
 {
 public:
-    EdNewGameDialog( size_t NewIndex, int* ChoiceOut );
+  EdNewGameDialog( size_t NewIndex, int* ChoiceOut );
     
-    wxDECLARE_EVENT_TABLE();
-    
-private:
-    wxTextCtrl* m_NameField;
-    wxTextCtrl* m_ExeField;
-    wxTextCtrl* m_PathField;
-    
-    int m_GameSize;
+  wxDECLARE_EVENT_TABLE();
     
 private:
-    void EVT_Confirm( wxCommandEvent& event );
-    void EVT_DirDialog( wxCommandEvent& event );
+  wxTextCtrl* m_NameField;
+  wxTextCtrl* m_ExeField;
+  wxTextCtrl* m_PathField;
+    
+  int m_GameSize;
+    
+private:
+  void EVT_Confirm( wxCommandEvent& event );
+  void EVT_DirDialog( wxCommandEvent& event );
 };
 
 class WXAPP_EdEditor : public wxApp
 {
 public:
-    virtual bool OnInit();
+  virtual bool OnInit();
     
-    static int GamePromptHandler( TArray<char*>* Names );
+  static int GamePromptHandler( TArray<char*>* Names );
 };
