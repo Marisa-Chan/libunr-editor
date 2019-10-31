@@ -49,7 +49,8 @@ enum
   ID_ListView,
   ID_PackageTab,
   ID_ShowListView,
-  ID_ShowTileView
+  ID_ShowTileView,
+  ID_FullPackageLoad
 };
 
 struct wxObjectItemData : public wxTreeItemData
@@ -77,6 +78,7 @@ protected:
   virtual void ListUpdate();
   virtual void TileUpdate();
 
+  virtual void ConstructPackageButtons();
   virtual void ListConstruct(); 
   virtual void TileConstruct();
   virtual void FinishConstruct(); // Generic constructor finalizer for all browser types
@@ -91,6 +93,11 @@ protected:
   wxButton* m_ShowListView = NULL;
   wxButton* m_ShowTileView = NULL;
   wxButton* m_Dock = NULL;
+
+  // Optional buttons that child classes may opt to use
+  wxButton* m_OpenPackage;
+  wxButton* m_SavePackage;
+  wxButton* m_LoadFullPackage;
 
 private:
   void OnExit( wxCommandEvent& event );

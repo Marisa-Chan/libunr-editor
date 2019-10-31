@@ -32,4 +32,8 @@ public:
   ~EdSoundBrowser();
 
   virtual void Update();
+
+protected:
+  wxButton* m_PlaySound;
+  wxButton* m_StopSound;
 };

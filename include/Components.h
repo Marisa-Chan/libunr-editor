@@ -29,6 +29,11 @@
 #include <wx/wx.h>
 #include <wx/wrapsizer.h>
 
+#define C_BUTTONSIZE 34
+#define C_BUTTONCOLOUR wxColour( 130, 130, 130 )
+
+#define C_TOOLBUTTONSIZE 28
+
 enum
 {
   TOOL_Generic = 0,

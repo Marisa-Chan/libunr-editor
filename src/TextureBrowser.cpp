@@ -32,6 +32,9 @@ EdTextureBrowser::EdTextureBrowser( bool bDock, wxSize Size )
 {
   SetLabel( wxString( "Texture Browser" ) );
   SetIcon( EdEditorFrame::sm_icoGraphics );
+
+  ConstructPackageButtons();
+
   TileConstruct();
 }
 

@@ -83,7 +83,7 @@ EdEditorFrame::EdEditorFrame( const wxString& Title, const wxPoint& Pos, const w
 
   menuView->Append( ID_BrowserPackage, "&Package Browser...", "Open a Package browser instance" );
   menuView->Append( ID_BrowserClass, "&Class Browser...", "Open an Class browser instance" );
-  menuView->Append( ID_BrowserAudio, "&Audio Browser...", "Open an Audio browser instance" );
+  menuView->Append( ID_BrowserSound, "&Sound Browser...", "Open a Sound browser instance" );
   menuView->Append( ID_BrowserMusic, "&Music Browser...", "Open a Music browser instance" );
   menuView->Append( ID_BrowserGraphics, "&Graphics Browser...", "Open a Graphics browser instance" );
   menuView->Append( ID_BrowserMesh, "&Mesh Browser...", "Open a mesh browser instance" );
@@ -120,9 +120,6 @@ EdEditorFrame::EdEditorFrame( const wxString& Title, const wxPoint& Pos, const w
 
   wxBoxSizer* buttonSizer = new wxBoxSizer( wxHORIZONTAL );
 
-  #define C_BUTTONSIZE 34
-  #define C_BUTTONCOLOUR wxColour( 130, 130, 130 )
-
   wxBitmapButton* button_NewMap = new wxBitmapButton( toolBar, ID_New, EdEditorFrame::sm_icoNew, wxDefaultPosition, wxSize( C_BUTTONSIZE, C_BUTTONSIZE ) );
   buttonSizer->Add( button_NewMap, 0, wxALIGN_CENTRE_VERTICAL );
 
@@ -140,8 +137,8 @@ EdEditorFrame::EdEditorFrame( const wxString& Title, const wxPoint& Pos, const w
   wxBitmapButton* button_ClassBrowser = new wxBitmapButton( toolBar, ID_BrowserClass, EdEditorFrame::sm_icoClass, wxDefaultPosition, wxSize( C_BUTTONSIZE, C_BUTTONSIZE ) );
   buttonSizer->Add( button_ClassBrowser, 0, wxALIGN_CENTRE_VERTICAL );
 
-  wxBitmapButton* button_AudioBrowser = new wxBitmapButton( toolBar, ID_BrowserAudio, EdEditorFrame::sm_icoSound, wxDefaultPosition, wxSize( C_BUTTONSIZE, C_BUTTONSIZE ) );
-  buttonSizer->Add( button_AudioBrowser, 0, wxALIGN_CENTRE_VERTICAL );
+  wxBitmapButton* button_SoundBrowser = new wxBitmapButton( toolBar, ID_BrowserSound, EdEditorFrame::sm_icoSound, wxDefaultPosition, wxSize( C_BUTTONSIZE, C_BUTTONSIZE ) );
+  buttonSizer->Add( button_SoundBrowser, 0, wxALIGN_CENTRE_VERTICAL );
 
   wxBitmapButton* button_MusicBrowser = new wxBitmapButton( toolBar, ID_BrowserMusic, EdEditorFrame::sm_icoMusic, wxDefaultPosition, wxSize( C_BUTTONSIZE, C_BUTTONSIZE ) );
   buttonSizer->Add( button_MusicBrowser, 0, wxALIGN_CENTRE_VERTICAL );
@@ -170,7 +167,7 @@ EdEditorFrame::EdEditorFrame( const wxString& Title, const wxPoint& Pos, const w
   SetSizer( contentSizer );
 
   CreateStatusBar();
-  SetStatusText( "Welcome to OpenUE-Editor!" );
+  SetStatusText( "Welcome to OpenUEd!" );
 }
 
 EdEditorFrame::~EdEditorFrame()
@@ -218,16 +215,15 @@ EdEditorFrame* EdEditorFrame::GetMainFrame()
 void EdEditorFrame::LoadPackages( const wxArrayString& Paths )
 {
   size_t packageStart = (*UPackage::GetLoadedPackages()).Size(); //Index of new packages to load.
-  size_t objectStart = UObject::ObjectPool.Size(); //Index of new objects to load.
+  size_t objectStart = UObject::GetGlobalObjectPool()->Size(); //Index of new objects to load.
 
   for ( size_t i = 0; i < Paths.GetCount(); i++ )
   {
     UPackage* p = UPackage::StaticLoadPackage( Paths[i], false );
-
     p->LoadEditableTypes();
   }
 
-  //Check to make sure packages were actually loaded.
+  // Check to make sure packages were actually loaded.
   if ( (*UPackage::GetLoadedPackages()).Size() > packageStart )
   {
     for ( size_t i = 0; i < sm_ToolArray.Size(); i++ )
@@ -237,8 +233,8 @@ void EdEditorFrame::LoadPackages( const wxArrayString& Paths )
     }
   }
 
-  //Check to make sure objects were actually loaded.
-  if ( UObject::ObjectPool.Size() > objectStart )
+  // Check to make sure objects were actually loaded.
+  if ( UObject::GetGlobalObjectPool()->Size() > objectStart )
   {
     for ( size_t i = 0; i < sm_ToolArray.Size(); i++ )
     {
@@ -351,7 +347,7 @@ void EdEditorFrame::EVT_Manual( wxCommandEvent& event )
 }
 
 EdGamePrompt::EdGamePrompt( TArray<char*>* Names )
-  : wxDialog( NULL, wxID_ANY, "Select Game", wxDefaultPosition, wxSize( 420, 400 ) )
+  : wxDialog( NULL, wxID_ANY, "Select Game", wxDefaultPosition, wxSize( 300, 300 ) )
 {
   wxBoxSizer* vsizer = new wxBoxSizer( wxVERTICAL );
 
@@ -362,9 +358,9 @@ EdGamePrompt::EdGamePrompt( TArray<char*>* Names )
   for ( size_t i = 0; i < m_GameSize; i++ )
     strNames[i] = wxString::FromAscii( (*Names)[i] );
 
-  m_ChoiceBox = new wxListBox( this, ID_GameChoice, wxDefaultPosition, wxSize( 420, -1 ), m_GameSize, strNames, wxLB_SINGLE | wxLB_NEEDED_SB );
+  m_ChoiceBox = new wxListBox( this, ID_GameChoice, wxDefaultPosition, wxSize( 300, -1 ), m_GameSize, strNames, wxLB_SINGLE | wxLB_NEEDED_SB );
 
-  vsizer->Add( m_ChoiceBox, 1, wxEXPAND );
+  vsizer->Add( m_ChoiceBox, 1, wxEXPAND, 64 );
 
   wxPanel* endPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize );
 
@@ -372,12 +368,14 @@ EdGamePrompt::EdGamePrompt( TArray<char*>* Names )
   wxButton* confirmB = new wxButton( endPanel, ID_NewGameChoice, "Add" );
   wxButton* cancelB = new wxButton( endPanel, wxID_CANCEL, "Cancel" );
 
-  hsizer->Add( confirmB, 0, wxALIGN_LEFT, 4 );
-  hsizer->Add( cancelB, 0, wxALIGN_LEFT, 4 );
+  hsizer->Add( confirmB, 0, 0 );
+  hsizer->AddStretchSpacer();
+  hsizer->Add( cancelB, 0, 0 );
   endPanel->SetSizer( hsizer );
 
-  vsizer->Add( endPanel );
+  vsizer->Add( endPanel, 0, 0, 8 );
 
+  CentreOnScreen();
   SetSizer( vsizer );
   delete[] strNames;
 }
@@ -495,7 +493,7 @@ bool EditorApp::OnInit()
   EdEditorFrame::sm_icoSave = wxIcon( wxT( "res/bitmap/Save.png" ) );
   EdEditorFrame::sm_icoPackage = wxIcon( wxT( "res/bitmap/PackageBrowser.png" ) );
   EdEditorFrame::sm_icoClass = wxIcon( wxT( "res/bitmap/ClassBrowser.png" ) );
-  EdEditorFrame::sm_icoSound = wxIcon( wxT( "res/bitmap/AudioBrowser.png" ) );
+  EdEditorFrame::sm_icoSound = wxIcon( wxT( "res/bitmap/SoundBrowser.png" ) );
   EdEditorFrame::sm_icoMusic = wxIcon( wxT( "res/bitmap/MusicBrowser.png" ) );
   EdEditorFrame::sm_icoGraphics = wxIcon( wxT( "res/bitmap/GraphicsBrowser.png" ) );
   EdEditorFrame::sm_icoMesh = wxIcon( wxT( "res/bitmap/MeshBrowser.png" ) );
@@ -529,6 +527,7 @@ bool EditorApp::OnInit()
 
   EdEditorFrame* frame = new EdEditorFrame( "libunr-editor", wxPoint( -1, -1 ),
     wxSize( wxSystemSettings::GetMetric( wxSYS_SCREEN_X ), wxSystemSettings::GetMetric( wxSYS_SCREEN_Y ) ) );
+  frame->Maximize();
   frame->Show( true );
   return true;
 }
@@ -546,8 +545,8 @@ wxBEGIN_EVENT_TABLE( EdEditorFrame, wxFrame )
   EVT_BUTTON( ID_BrowserPackage, EdEditorFrame::EVT_BrowserPackage )
   EVT_MENU( ID_BrowserClass, EdEditorFrame::EVT_BrowserClass )
   EVT_BUTTON( ID_BrowserClass, EdEditorFrame::EVT_BrowserClass )
-  EVT_MENU( ID_BrowserAudio, EdEditorFrame::EVT_BrowserSound )
-  EVT_BUTTON( ID_BrowserAudio, EdEditorFrame::EVT_BrowserSound )
+  EVT_MENU( ID_BrowserSound, EdEditorFrame::EVT_BrowserSound )
+  EVT_BUTTON( ID_BrowserSound, EdEditorFrame::EVT_BrowserSound )
   EVT_MENU( ID_BrowserMusic, EdEditorFrame::EVT_BrowserMusic )
   EVT_BUTTON( ID_BrowserMusic, EdEditorFrame::EVT_BrowserMusic )
   EVT_MENU( ID_BrowserGraphics, EdEditorFrame::EVT_BrowserTexture )

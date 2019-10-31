@@ -44,7 +44,7 @@ EdClassBrowser::~EdClassBrowser()
 
 wxTreeItemId EdClassBrowser::AddTreeItem( wxTreeItemId Parent, UClass* Obj )
 {
-  if ( m_bShowPackage )
+  if ( m_CheckShowPackage->GetValue() )
   {
     return m_ListView->AppendItem( Parent, wxString( Obj->Name.Data() )
       + wxString( " (" ) + wxString( Obj->Pkg->Name.Data() ) + wxString( ") " ),
@@ -109,9 +109,10 @@ void EdClassBrowser::Update()
     //For each Object in the classpool, we compare it against each parent, if true, then 
     //nest it beneath the parent and add it to the list of new parents.
     //If we ever find a class to add, we tell the loop to proceed again.
-    for ( size_t i = 0; i < UObject::ClassPool.Size(); i++ )
+    TArray<UClass*>* GClassPool = UObject::GetGlobalClassPool();
+    for ( size_t i = 0; i < GClassPool->Size(); i++ )
     {
-      UClass* currentClass = UObject::ClassPool[i];
+      UClass* currentClass = (*GClassPool)[i];
       currentClass = currentClass;
 
       for ( size_t j = 0; j < parents.Size(); j++ )
@@ -147,8 +148,6 @@ void EdClassBrowser::Update()
   //Remember Expanded
   for ( size_t i = 0; i < toExpand.Size(); i++ )
     m_ListView->Expand( toExpand[i] );
-
-  Update();
 }
 
 void EdClassBrowser::OnClassTree( wxCommandEvent& event )
@@ -158,7 +157,6 @@ void EdClassBrowser::OnClassTree( wxCommandEvent& event )
 
 void EdClassBrowser::OnBrowserShowPackage( wxCommandEvent& event )
 {
-  m_bShowPackage = !m_bShowPackage;
   Update();
   event.Skip();
 }

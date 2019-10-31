@@ -45,7 +45,7 @@ enum
 	ID_Preferences,
 	ID_BrowserPackage,
 	ID_BrowserClass,
-	ID_BrowserAudio,
+	ID_BrowserSound,
     ID_BrowserMusic,
 	ID_BrowserGraphics,
 	ID_BrowserMesh,

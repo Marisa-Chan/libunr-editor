@@ -32,6 +32,9 @@ EdMeshBrowser::EdMeshBrowser( bool bDock, wxSize Size )
 {
   SetLabel( wxString( "Mesh Browser" ) );
   SetIcon( EdEditorFrame::sm_icoMesh );
+
+  ConstructPackageButtons();
+
   TileConstruct();
 }
 

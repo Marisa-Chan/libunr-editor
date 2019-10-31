@@ -36,8 +36,7 @@ protected:
   void RecurseExpandPopulate( TArray<UClass*>& ExpandedAry, wxTreeItemId Parent, wxTreeItemIdValue Cookie = 0 );
   wxTreeItemId AddTreeItem( wxTreeItemId Parent, UClass* Obj );
 
-  wxCheckBox* m_CheckShowPackage = NULL;
-  bool m_bShowPackage = true;
+  wxCheckBox* m_CheckShowPackage;
 
 private:
   void OnClassTree( wxCommandEvent& event );

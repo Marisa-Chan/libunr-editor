@@ -33,6 +33,8 @@ EdSoundBrowser::EdSoundBrowser( bool bDock, wxSize Size )
   SetLabel( wxString( "Sound Browser" ) );
   SetIcon( EdEditorFrame::sm_icoSound );
   
+  ConstructPackageButtons();
+
   // TODO: Support multiple view types for browsers that could make use of them
   ListConstruct();
 }

@@ -52,13 +52,13 @@ EdBrowser::EdBrowser( UClass* InType, bool bDock, wxSize Size, bool bShowViewBut
   SetMenuBar( m_MenuBar );
   SetMinSize( wxSize( 540, 384 ) );
   m_WindowAreaSizer = new wxBoxSizer( wxVERTICAL );
-  m_OptionsBar = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( -1, 24 ), wxBORDER_SIMPLE );
+  m_OptionsBar = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( -1, C_TOOLBUTTONSIZE ), wxBORDER_SIMPLE );
   m_OptionsSizer = new wxBoxSizer( wxHORIZONTAL );
 
   if ( bShowViewButtons )
   {
-    m_ShowListView = new wxButton( m_OptionsBar, ID_ShowListView, "List", wxDefaultPosition, wxSize( 24, 24 ) );
-    m_ShowTileView = new wxButton( m_OptionsBar, ID_ShowTileView, "Tile", wxDefaultPosition, wxSize( 24, 24 ) );
+    m_ShowListView = new wxButton( m_OptionsBar, ID_ShowListView, "List", wxDefaultPosition, wxSize( C_TOOLBUTTONSIZE, C_TOOLBUTTONSIZE ) );
+    m_ShowTileView = new wxButton( m_OptionsBar, ID_ShowTileView, "Tile", wxDefaultPosition, wxSize( C_TOOLBUTTONSIZE, C_TOOLBUTTONSIZE ) );
 
     m_OptionsSizer->Add( m_ShowListView, 0, wxALIGN_LEFT );
     m_OptionsSizer->Add( m_ShowTileView, 0, wxALIGN_LEFT );
@@ -153,6 +153,21 @@ void EdBrowser::TileUpdate()
   EdBrowser::Update();
 }
 
+void EdBrowser::ConstructPackageButtons()
+{
+  m_OptionsSizer->AddSpacer( C_TOOLBUTTONSIZE );
+
+  m_OpenPackage = new wxBitmapButton( m_OptionsBar, ID_BrowserOpen, EdEditorFrame::sm_icoDir, wxDefaultPosition, wxSize( C_TOOLBUTTONSIZE, C_TOOLBUTTONSIZE ) );
+  m_SavePackage = new wxBitmapButton( m_OptionsBar, ID_BrowserSave, EdEditorFrame::sm_icoSave, wxDefaultPosition, wxSize( C_TOOLBUTTONSIZE, C_TOOLBUTTONSIZE ) );
+  m_LoadFullPackage = new wxButton( m_OptionsBar, ID_FullPackageLoad, "", wxDefaultPosition, wxSize( C_TOOLBUTTONSIZE, C_TOOLBUTTONSIZE ) );
+
+  m_OptionsSizer->Add( m_OpenPackage, 0, 0 );
+  m_OptionsSizer->Add( m_SavePackage, 0, 0 );
+  m_OptionsSizer->Add( m_LoadFullPackage, 0, 0 );
+
+  m_OptionsSizer->AddSpacer( C_TOOLBUTTONSIZE );
+}
+
 void EdBrowser::ListConstruct()
 {
   m_ListView = new wxTreeCtrl( this, ID_ListView, wxDefaultPosition, wxDefaultSize, wxTR_MULTIPLE | wxTR_HIDE_ROOT | wxTR_HAS_BUTTONS );
@@ -215,7 +230,7 @@ void EdBrowser::OnBrowserNew( wxCommandEvent& event )
 
 void EdBrowser::OnBrowserOpen( wxCommandEvent& event )
 {
-  wxFileDialog openFileDialog( this, "Open UPackage", "", "", "UE Package Files (*.u, *.utx, *.uax\
+  wxFileDialog openFileDialog( this, "Open Unreal Package", "", "", "UE Package Files (*.u, *.utx, *.uax\
     , *.umx, *.usm, *.unr)|*.u;*.u;*.utx;*.uax;*.umx;*.usm;*.unr", wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE );
 
   if ( openFileDialog.ShowModal() == wxID_CANCEL )
