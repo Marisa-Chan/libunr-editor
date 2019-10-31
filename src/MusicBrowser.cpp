@@ -17,54 +17,29 @@
 \*===========================================================================*/
 
 /*========================================================================
- * Components.h - Various internal components of the editor
- * 
- * written by Jesse 'Hyzoran' Kowalik
+ * MusicBrowser.h - Music browser definition
+ *
+ * written by Jesse 'Hyzoran' Kowalik & Adam 'Xaleros' Smith
  *========================================================================
 */
 
-#pragma once
+#include "EditorMain.h"
+#include "MusicBrowser.h"
+#include <Engine/UMusic.h>
 
-#include <wx/wxprec.h>
-#include <wx/wx.h>
-#include <wx/wrapsizer.h>
-
-enum
+EdMusicBrowser::EdMusicBrowser( bool bDock, wxSize Size )
+  : EdBrowser( UMusic::StaticClass(), bDock, Size )
 {
-  TOOL_Generic = 0,
-  TOOL_Browser = 1
-};
+  SetLabel( wxString( "Music Browser" ) );
+  SetIcon( EdEditorFrame::sm_icoSound );
+  ListConstruct();
+}
 
-class EdToolFrame : public wxFrame
+EdMusicBrowser::~EdMusicBrowser()
 {
-public:
-  EdToolFrame( bool bStartDocked = false, wxSize Size = GetFrameSize() );
-  ~EdToolFrame();
+}
 
-  bool m_bDocked = false;
-  int m_ToolType = TOOL_Generic;
-  size_t m_MyID;
-    
-  virtual void OnExit( wxCommandEvent& event );
-
-  static wxSize GetFrameSize(); //Return the default framesize for toolframe.
-    
-  //Sysytem notifications, called by EdEditorFrame for all tools when nessecary.
-  virtual void PackagesAdded( size_t PackageStartIndex ) = 0;
-  virtual void PackagesRemoved() = 0;
-  virtual void ObjectsAdded() = 0;
-  virtual void ObjectsRemoved() = 0;
-};
-
-class EdAbout : public wxFrame
+void EdMusicBrowser::Update()
 {
-public:
-	EdAbout( wxWindow* parent );
-	
-	void OnClose( wxCommandEvent& event );
-  
-  static bool IsOpened();
-
-private:
-  static bool sm_IsOpen;
-};
+  ListUpdate();
+}

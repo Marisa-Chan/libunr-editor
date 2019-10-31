@@ -1,6 +1,5 @@
 /*===========================================================================*\
 |*  libunr-editor - An open source development suite for Unreal Engine 1     *|
-|*  games and libunr                                                         *|
 |*  Copyright (C) 2018-2019  Adam W.E. Smith                                 *|
 |*                                                                           *|
 |*  This program is free software: you can redistribute it and/or modify     *|
@@ -18,7 +17,7 @@
 \*===========================================================================*/
 
 /*========================================================================
- * libunr-editor.h - Editor executable.
+ * libunr-editor.h - Main editor frame
  * 
  * written by Jesse 'Hyzoran' Kowalik
  *========================================================================
@@ -27,17 +26,14 @@
 
 #include <wx/wxprec.h>
 #include <wx/wx.h>
-
 #include <wx/aui/aui.h>
-
 #include <wx/statline.h>
+#include <wx/display.h>
 
 #include <libunr.h>
 
-#include <wx/display.h>
-
 #include "Components.h"
-#include "Browsers.h"
+#include "Browser.h"
 
 enum
 {
@@ -67,13 +63,10 @@ public:
   EdEditorFrame( const wxString& Title, const wxPoint& Pos, const wxSize& Size );
   ~EdEditorFrame();
     
-  static size_t NewTool( EdToolFrame* Tool );
-  static bool KillTool( size_t id );
-  static EdEditorFrame* GetFrame();
-  static TArray<UPackage*>* GetPackages();
+  static size_t RegisterTool( EdToolFrame* Tool );
+  static bool UnregisterTool( size_t id );
+  static EdEditorFrame* GetMainFrame();
   static void LoadPackages( const wxArrayString& Paths );
-
-static wxSize GetFrameSize();
     
   //Events
   void OnExit( wxCommandEvent& event );
@@ -90,27 +83,30 @@ static wxSize GetFrameSize();
   void EVT_BrowserMusic( wxCommandEvent& event );
   void EVT_BrowserTexture( wxCommandEvent& event );
   void EVT_BrowserMesh( wxCommandEvent& event );
+  void EVT_BrowserGroup( wxCommandEvent& event );
   void EVT_ViewLog( wxCommandEvent& event );
   void EVT_ActiveTools( wxCommandEvent& event );
   void EVT_MapEditor( wxCommandEvent& event );
   void EVT_MeshEditor( wxCommandEvent& event );
   void EVT_Manual( wxCommandEvent& event );
     
-  static wxIcon m_File;
-  static wxIcon m_Dir;
-  static wxIcon m_Save;
+  static wxIcon sm_icoNew;
+  static wxIcon sm_icoDir;
+  static wxIcon sm_icoSave;
+  static wxIcon sm_icoPackage;
+  static wxIcon sm_icoClass;
+  static wxIcon sm_icoSound;
+  static wxIcon sm_icoMusic;
+  static wxIcon sm_icoGraphics;
+  static wxIcon sm_icoMesh;
+  static wxIcon sm_icoGroup;
     
   wxDECLARE_EVENT_TABLE();
     
 private:
-    
-  static EdEditorFrame* sm_Frame; //Reference to the one instance of EdEditorFrame.
+  static EdEditorFrame* sm_Frame; // Reference to the one instance of EdEditorFrame.
   static TArray<EdToolFrame*> sm_ToolArray;
   static size_t sm_EmptySlots;
-  static TArray<UPackage*> sm_Packages;
-    
-  bool m_bAboutUp; //Is there already an about instance?
-    
 };
 
 enum
@@ -161,7 +157,7 @@ private:
   void EVT_DirDialog( wxCommandEvent& event );
 };
 
-class WXAPP_EdEditor : public wxApp
+class EditorApp : public wxApp
 {
 public:
   virtual bool OnInit();

@@ -1,6 +1,5 @@
 /*===========================================================================*\
 |*  libunr-editor - An open source development suite for Unreal Engine 1     *|
-|*  games and libunr                                                         *|
 |*  Copyright (C) 2018-2019  Adam W.E. Smith                                 *|
 |*                                                                           *|
 |*  This program is free software: you can redistribute it and/or modify     *|
@@ -24,115 +23,87 @@
  *========================================================================
 */
 
-#include "libunr-editor.h"
+#include "EditorMain.h"
 #include "Components.h"
 
-EdToolFrame::EdToolFrame( bool bStartDocked, wxSize Size ) 
-      : wxFrame( (EdEditorFrame*)EdEditor::GetFrame(), -1, "Editor Tool", wxDefaultPosition, 
-        Size )
+bool EdAbout::sm_IsOpen = false;
+
+EdToolFrame::EdToolFrame( bool bStartDocked, wxSize Size )
+  : wxFrame( EdEditorFrame::GetMainFrame(), -1, "Editor Tool", wxDefaultPosition, Size )
 {
-    m_MyID = EdEditor::NewTool(this);
+  m_MyID = EdEditorFrame::RegisterTool( this );
 }
 
 EdToolFrame::~EdToolFrame()
 {
-    EdEditor::KillTool(m_MyID);
+  EdEditorFrame::UnregisterTool( m_MyID );
 }
 
 void EdToolFrame::OnExit( wxCommandEvent& event )
 {
-    Close(true);
+  Close( true );
 }
 
 wxSize EdToolFrame::GetFrameSize()
 {
-	wxDisplay display(wxDisplay::GetFromWindow((EdEditorFrame*)EdEditor::GetFrame()));
-	wxRect screen = display.GetClientArea();
+  wxDisplay display( wxDisplay::GetFromWindow( EdEditorFrame::GetMainFrame() ) );
+  wxRect screen = display.GetClientArea();
 
-	return wxSize(screen.width / 2, screen.height / 2);
+  return wxSize( screen.width / 2, screen.height / 2 );
 }
 
-
-EdAbout::EdAbout( wxWindow* parent, bool* Switch )
-: wxFrame( parent, -1, "About", wxDefaultPosition, wxSize(420,400) ), m_Switch(Switch)
+EdAbout::EdAbout( wxWindow* parent )
+  : wxFrame( parent, -1, "About", wxDefaultPosition, wxSize( 420, 400 ) )
 {
-    wxBoxSizer* ContentSizer = new wxBoxSizer( wxVERTICAL );
-    
-    wxStaticText* aboutlibunr = new wxStaticText( this, -1, "LIBUNR\nCopyright (C) 2018-2019\
-Adam W.E. Smith", wxDefaultPosition, wxDefaultSize );
-    ContentSizer->Add( aboutlibunr, 0, wxALL | wxALIGN_CENTRE_HORIZONTAL, 2 );
-    
-    wxStaticText* aboutlibunr2 = new wxStaticText( this, -1, "Open Source Re-Implementation of\
-Unreal Engine 1", wxDefaultPosition, wxDefaultSize );
-    ContentSizer->Add( aboutlibunr2, 0, wxALL | wxALIGN_CENTRE_HORIZONTAL, 2 );
-    aboutlibunr2->Wrap( 400 );
-    
-    wxTextCtrl* libunrlink = new wxTextCtrl
-    ( this, -1, "https://bitbucket.org/Xaleros/libunr/src/master/", wxDefaultPosition, wxSize( 
-400, 20 ), wxTE_READONLY );
-    ContentSizer->Add( libunrlink, 0, wxALL | wxALIGN_CENTRE_HORIZONTAL, 2 );
-    
-    
-    wxStaticText* aboutlibunreditor = new wxStaticText( this, -1, "LIBUNR-EDITOR\nCopyright (C)\
-2018-2019  Adam W.E. Smith\nWritten by Jesse \"Hyzoran\" Kowalik", wxDefaultPosition, wxDefaultSize 
-);
-    ContentSizer->Add( aboutlibunreditor, 0, wxALL | wxALIGN_CENTRE_HORIZONTAL, 2 );
-    
-    wxStaticText* aboutlibunreditor2 = new wxStaticText( this, -1, "Graphical Frontend and\
-Development suite for libunr", wxDefaultPosition, wxDefaultSize );
-    ContentSizer->Add( aboutlibunreditor2, 0, wxALL | wxALIGN_CENTRE_HORIZONTAL, 2 );
-    aboutlibunreditor2->Wrap( 400 );
-    
-    wxTextCtrl* libunrlink2 = new wxTextCtrl
-    ( this, -1, "https://bitbucket.org/Xaleros/libunr-editor/src/master/", wxDefaultPosition, 
-wxSize( 400, 20 ), wxTE_READONLY );
-    ContentSizer->Add( libunrlink2, 0, wxALL | wxALIGN_CENTRE_HORIZONTAL, 2 );
-    
-    wxPanel* padding = new wxPanel( this );
-    ContentSizer->Add( padding, 1, wxALL, 0 );
-    
-    wxButton* closeb = new wxButton(this, wxID_OK , "Ok" );
-    ContentSizer->Add( closeb, 0, wxALIGN_BOTTOM | wxALIGN_CENTRE_HORIZONTAL );
-    
-    Connect( wxID_OK , wxEVT_COMMAND_BUTTON_CLICKED, 
-wxCommandEventHandler(EdAbout::CloseAbout) );
-    
-    SetSizer(ContentSizer);
-    
-    closeb->SetFocus();
-    Centre();
-    
-    SetMinSize( wxSize(420,400) );
-    Show(true);
+  wxBoxSizer* ContentSizer = new wxBoxSizer( wxVERTICAL );
+
+  wxStaticText* aboutlibunr = new wxStaticText( this, -1, "LIBUNR\nCopyright (C) 2018-2019 Adam Smith", wxDefaultPosition, wxDefaultSize );
+  ContentSizer->Add( aboutlibunr, 0, wxALL | wxALIGN_CENTRE_HORIZONTAL, 2 );
+
+  wxStaticText* aboutlibunr2 = new wxStaticText( this, -1, "Open Source Re-Implementation of Unreal Engine 1", wxDefaultPosition, wxDefaultSize );
+  ContentSizer->Add( aboutlibunr2, 0, wxALL | wxALIGN_CENTRE_HORIZONTAL, 2 );
+  aboutlibunr2->Wrap( 400 );
+
+  wxTextCtrl* libunrlink = new wxTextCtrl ( this, -1, "https://bitbucket.org/Xaleros/libunr/src/master/", wxDefaultPosition, wxSize( 400, 20 ), wxTE_READONLY );
+  ContentSizer->Add( libunrlink, 0, wxALL | wxALIGN_CENTRE_HORIZONTAL, 2 );
+
+  wxStaticText* aboutlibunreditor = new wxStaticText( this, -1, "LIBUNR-EDITOR\nCopyright (C) 2018-2019 Adam Smith\nWritten by Jesse \"Hyzoran\" Kowalik", wxDefaultPosition, wxDefaultSize );
+  ContentSizer->Add( aboutlibunreditor, 0, wxALL | wxALIGN_CENTRE_HORIZONTAL, 2 );
+
+  wxStaticText* aboutlibunreditor2 = new wxStaticText( this, -1, "Graphical Frontend and Development suite for libunr", wxDefaultPosition, wxDefaultSize );
+  ContentSizer->Add( aboutlibunreditor2, 0, wxALL | wxALIGN_CENTRE_HORIZONTAL, 2 );
+  aboutlibunreditor2->Wrap( 400 );
+
+  wxTextCtrl* openuelink = new wxTextCtrl( this, -1, "https://bitbucket.org/Xaleros/OpenUE/", wxDefaultPosition, wxSize( 400, 20 ), wxTE_READONLY );
+  ContentSizer->Add( openuelink, 0, wxALL | wxALIGN_CENTRE_HORIZONTAL, 2 );
+
+  wxPanel* padding = new wxPanel( this );
+  ContentSizer->Add( padding, 1, wxALL, 0 );
+
+  wxButton* closeb = new wxButton( this, wxID_OK, "Ok" );
+  ContentSizer->Add( closeb, 0, wxALIGN_BOTTOM | wxALIGN_CENTRE_HORIZONTAL );
+
+  Connect( wxID_OK, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( EdAbout::OnClose ) );
+
+  SetSizer( ContentSizer );
+
+  closeb->SetFocus();
+  Centre();
+
+  sm_IsOpen = true;
+
+  SetMinSize( wxSize( 420, 400 ) );
+  Show( true );
 }
 
-void EdAbout::CloseAbout( wxCommandEvent& event )
+void EdAbout::OnClose( wxCommandEvent& event )
 {
-    *m_Switch = false;
-    Close(true);
+  sm_IsOpen = false;
+  Close( true );
 }
 
-void* EdEditor::GetFrame()
+bool EdAbout::IsOpened()
 {
-    return EdEditorFrame::GetFrame();
+  return sm_IsOpen;
 }
 
-size_t EdEditor::NewTool( EdToolFrame* Tool )
-{
-    return EdEditorFrame::NewTool( Tool );
-}
-
-bool EdEditor::KillTool( size_t id )
-{
-    return EdEditorFrame::KillTool( id );
-}
-
-TArray<UPackage*>* EdEditor::GetPackages()
-{
-    return EdEditorFrame::GetPackages();
-}
-
-void EdEditor::LoadPackages( const wxArrayString& Paths )
-{
-    EdEditorFrame::LoadPackages( Paths );
-}

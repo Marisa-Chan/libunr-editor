@@ -17,54 +17,44 @@
 \*===========================================================================*/
 
 /*========================================================================
- * Components.h - Various internal components of the editor
- * 
- * written by Jesse 'Hyzoran' Kowalik
+ * PackageBrowser.h - Package Browser code
+ *
+ * written by Jesse 'Hyzoran' Kowalik & Adam 'Xaleros' Smith
  *========================================================================
 */
 
-#pragma once
+#include "Browser.h"
 
-#include <wx/wxprec.h>
-#include <wx/wx.h>
-#include <wx/wrapsizer.h>
-
-enum
-{
-  TOOL_Generic = 0,
-  TOOL_Browser = 1
-};
-
-class EdToolFrame : public wxFrame
+class EdPackageBrowser : public EdBrowser
 {
 public:
-  EdToolFrame( bool bStartDocked = false, wxSize Size = GetFrameSize() );
-  ~EdToolFrame();
+  EdPackageBrowser( bool bDock = false, wxSize Size = EdToolFrame::GetFrameSize() );
+  ~EdPackageBrowser();
 
-  bool m_bDocked = false;
-  int m_ToolType = TOOL_Generic;
-  size_t m_MyID;
-    
-  virtual void OnExit( wxCommandEvent& event );
+  virtual void PackagesAdded( size_t PackageStartIndex );
+  virtual void PackagesRemoved();
 
-  static wxSize GetFrameSize(); //Return the default framesize for toolframe.
-    
-  //Sysytem notifications, called by EdEditorFrame for all tools when nessecary.
-  virtual void PackagesAdded( size_t PackageStartIndex ) = 0;
-  virtual void PackagesRemoved() = 0;
-  virtual void ObjectsAdded() = 0;
-  virtual void ObjectsRemoved() = 0;
-};
+  virtual void ObjectsAdded();
+  virtual void ObjectsRemoved();
 
-class EdAbout : public wxFrame
-{
-public:
-	EdAbout( wxWindow* parent );
-	
-	void OnClose( wxCommandEvent& event );
-  
-  static bool IsOpened();
+protected:
+  virtual void Update();
+
+  UPackage* m_SelectedPackage = NULL;
+  wxWindow* m_PackageHeader = NULL;
+  wxListCtrl* m_PackageInfo = NULL;
+  wxListCtrl* m_PackageFlags = NULL;
+  wxListCtrl* m_NameTable = NULL;
+  wxListCtrl* m_ExportTable = NULL;
+  wxDataViewCtrl* m_ExportTree = NULL;
+  wxListCtrl* m_ImportTable = NULL;
+  wxDataViewCtrl* m_ImportTree = NULL;
+  wxWindow* m_ViewPane = NULL; //Object preview tab
+  wxSplitterWindow* m_MainSplitter = NULL;
+  wxComboBox* m_PackagesList = NULL;
+  wxNotebook* m_TabWindow = NULL;
 
 private:
-  static bool sm_IsOpen;
+  void OnPackageList( wxCommandEvent& event );
+  wxDECLARE_EVENT_TABLE();
 };

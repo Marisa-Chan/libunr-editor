@@ -17,54 +17,24 @@
 \*===========================================================================*/
 
 /*========================================================================
- * Components.h - Various internal components of the editor
- * 
- * written by Jesse 'Hyzoran' Kowalik
+ * LevelBrowser.h - Level browser definition
+ *
+ * written by Jesse 'Hyzoran' Kowalik & Adam 'Xaleros' Smith
  *========================================================================
 */
 
-#pragma once
+#include "EditorMain.h"
+#include "LevelBrowser.h"
+#include <Engine/ULevel.h>
 
-#include <wx/wxprec.h>
-#include <wx/wx.h>
-#include <wx/wrapsizer.h>
-
-enum
+EdLevelBrowser::EdLevelBrowser( bool bDock, wxSize Size )
+  : EdBrowser( ULevel::StaticClass(), bDock, Size )
 {
-  TOOL_Generic = 0,
-  TOOL_Browser = 1
-};
+  SetLabel( wxString( "Level Browser" ) );
+  SetIcon( EdEditorFrame::sm_icoMesh );
+  TileConstruct();
+}
 
-class EdToolFrame : public wxFrame
+EdLevelBrowser::~EdLevelBrowser()
 {
-public:
-  EdToolFrame( bool bStartDocked = false, wxSize Size = GetFrameSize() );
-  ~EdToolFrame();
-
-  bool m_bDocked = false;
-  int m_ToolType = TOOL_Generic;
-  size_t m_MyID;
-    
-  virtual void OnExit( wxCommandEvent& event );
-
-  static wxSize GetFrameSize(); //Return the default framesize for toolframe.
-    
-  //Sysytem notifications, called by EdEditorFrame for all tools when nessecary.
-  virtual void PackagesAdded( size_t PackageStartIndex ) = 0;
-  virtual void PackagesRemoved() = 0;
-  virtual void ObjectsAdded() = 0;
-  virtual void ObjectsRemoved() = 0;
-};
-
-class EdAbout : public wxFrame
-{
-public:
-	EdAbout( wxWindow* parent );
-	
-	void OnClose( wxCommandEvent& event );
-  
-  static bool IsOpened();
-
-private:
-  static bool sm_IsOpen;
-};
+}

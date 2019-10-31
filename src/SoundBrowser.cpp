@@ -17,54 +17,31 @@
 \*===========================================================================*/
 
 /*========================================================================
- * Components.h - Various internal components of the editor
- * 
- * written by Jesse 'Hyzoran' Kowalik
+ * SoundBrowser.h - Sound browser definition
+ *
+ * written by Jesse 'Hyzoran' Kowalik & Adam 'Xaleros' Smith
  *========================================================================
 */
 
-#pragma once
+#include "EditorMain.h"
+#include "SoundBrowser.h"
+#include <Engine/USound.h>
 
-#include <wx/wxprec.h>
-#include <wx/wx.h>
-#include <wx/wrapsizer.h>
-
-enum
+EdSoundBrowser::EdSoundBrowser( bool bDock, wxSize Size )
+  : EdBrowser( USound::StaticClass(), bDock, Size )
 {
-  TOOL_Generic = 0,
-  TOOL_Browser = 1
-};
-
-class EdToolFrame : public wxFrame
-{
-public:
-  EdToolFrame( bool bStartDocked = false, wxSize Size = GetFrameSize() );
-  ~EdToolFrame();
-
-  bool m_bDocked = false;
-  int m_ToolType = TOOL_Generic;
-  size_t m_MyID;
-    
-  virtual void OnExit( wxCommandEvent& event );
-
-  static wxSize GetFrameSize(); //Return the default framesize for toolframe.
-    
-  //Sysytem notifications, called by EdEditorFrame for all tools when nessecary.
-  virtual void PackagesAdded( size_t PackageStartIndex ) = 0;
-  virtual void PackagesRemoved() = 0;
-  virtual void ObjectsAdded() = 0;
-  virtual void ObjectsRemoved() = 0;
-};
-
-class EdAbout : public wxFrame
-{
-public:
-	EdAbout( wxWindow* parent );
-	
-	void OnClose( wxCommandEvent& event );
+  SetLabel( wxString( "Sound Browser" ) );
+  SetIcon( EdEditorFrame::sm_icoSound );
   
-  static bool IsOpened();
+  // TODO: Support multiple view types for browsers that could make use of them
+  ListConstruct();
+}
 
-private:
-  static bool sm_IsOpen;
-};
+EdSoundBrowser::~EdSoundBrowser()
+{
+}
+
+void EdSoundBrowser::Update()
+{
+  ListUpdate();
+}

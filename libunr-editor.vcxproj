@@ -143,14 +143,28 @@
     <None Include=".gitignore" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Browsers.cpp" />
+    <ClCompile Include="src\Browser.cpp" />
+    <ClCompile Include="src\ClassBrowser.cpp" />
     <ClCompile Include="src\Components.cpp" />
-    <ClCompile Include="src\libunr-editor.cpp" />
+    <ClCompile Include="src\EditorMain.cpp" />
+    <ClCompile Include="src\LevelBrowser.cpp" />
+    <ClCompile Include="src\MeshBrowser.cpp" />
+    <ClCompile Include="src\MusicBrowser.cpp" />
+    <ClCompile Include="src\PackageBrowser.cpp" />
+    <ClCompile Include="src\SoundBrowser.cpp" />
+    <ClCompile Include="src\TextureBrowser.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Browsers.h" />
+    <ClInclude Include="include\Browser.h" />
+    <ClInclude Include="include\ClassBrowser.h" />
     <ClInclude Include="include\Components.h" />
-    <ClInclude Include="include\libunr-editor.h" />
+    <ClInclude Include="include\EditorMain.h" />
+    <ClInclude Include="include\LevelBrowser.h" />
+    <ClInclude Include="include\MeshBrowser.h" />
+    <ClInclude Include="include\MusicBrowser.h" />
+    <ClInclude Include="include\PackageBrowser.h" />
+    <ClInclude Include="include\SoundBrowser.h" />
+    <ClInclude Include="include\TextureBrowser.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

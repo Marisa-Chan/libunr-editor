@@ -17,30 +17,35 @@
 \*===========================================================================*/
 
 /*========================================================================
- * libunr-editor.cpp - Editor main.
+ * EditorMain.cpp - Main editor frame
  *
  * written by Jesse 'Hyzoran' Kowalik
  *========================================================================
 */
 
-#include "libunr-editor.h"
-#include "Editor/UEditorEngine.h"
+#include "EditorMain.h"
+#include "ClassBrowser.h"
+#include "LevelBrowser.h"
+#include "MeshBrowser.h"
+#include "MusicBrowser.h"
+#include "PackageBrowser.h"
+#include "SoundBrowser.h"
+#include "TextureBrowser.h"
+#include <Editor/UEditorEngine.h>
 
 EdEditorFrame* EdEditorFrame::sm_Frame;
 TArray<EdToolFrame*> EdEditorFrame::sm_ToolArray;
 size_t EdEditorFrame::sm_EmptySlots;
-TArray<UPackage*> EdEditorFrame::sm_Packages;
 
-wxIcon EdEditorFrame::m_File;
-wxIcon EdEditorFrame::m_Dir;
-wxIcon EdEditorFrame::m_Save;
-
-wxIcon EdBrowser::m_icoPackage;
-wxIcon EdBrowser::m_icoClass;
-wxIcon EdBrowser::m_icoSound;
-wxIcon EdBrowser::m_icoMusic;
-wxIcon EdBrowser::m_icoGraphics;
-wxIcon EdBrowser::m_icoMesh;
+wxIcon EdEditorFrame::sm_icoNew;
+wxIcon EdEditorFrame::sm_icoDir;
+wxIcon EdEditorFrame::sm_icoSave;
+wxIcon EdEditorFrame::sm_icoPackage;
+wxIcon EdEditorFrame::sm_icoClass;
+wxIcon EdEditorFrame::sm_icoSound;
+wxIcon EdEditorFrame::sm_icoMusic;
+wxIcon EdEditorFrame::sm_icoGraphics;
+wxIcon EdEditorFrame::sm_icoMesh;
 
 EdEditorFrame::EdEditorFrame( const wxString& Title, const wxPoint& Pos, const wxSize& Size )
   : wxFrame( NULL, wxID_ANY, Title, Pos, Size )
@@ -118,33 +123,33 @@ EdEditorFrame::EdEditorFrame( const wxString& Title, const wxPoint& Pos, const w
   #define C_BUTTONSIZE 34
   #define C_BUTTONCOLOUR wxColour( 130, 130, 130 )
 
-  wxBitmapButton* button_NewMap = new wxBitmapButton( toolBar, ID_New, EdEditorFrame::m_File, wxDefaultPosition, wxSize( C_BUTTONSIZE, C_BUTTONSIZE ) );
+  wxBitmapButton* button_NewMap = new wxBitmapButton( toolBar, ID_New, EdEditorFrame::sm_icoNew, wxDefaultPosition, wxSize( C_BUTTONSIZE, C_BUTTONSIZE ) );
   buttonSizer->Add( button_NewMap, 0, wxALIGN_CENTRE_VERTICAL );
 
-  wxBitmapButton* button_OpenMap = new wxBitmapButton( toolBar, ID_Open, EdEditorFrame::m_Dir, wxDefaultPosition, wxSize( C_BUTTONSIZE, C_BUTTONSIZE ) );
+  wxBitmapButton* button_OpenMap = new wxBitmapButton( toolBar, ID_Open, EdEditorFrame::sm_icoDir, wxDefaultPosition, wxSize( C_BUTTONSIZE, C_BUTTONSIZE ) );
   buttonSizer->Add( button_OpenMap, 0, wxALIGN_CENTRE_VERTICAL );
 
-  wxBitmapButton* button_Save = new wxBitmapButton( toolBar, ID_Save, EdEditorFrame::m_Save, wxDefaultPosition, wxSize( C_BUTTONSIZE, C_BUTTONSIZE ) );
+  wxBitmapButton* button_Save = new wxBitmapButton( toolBar, ID_Save, EdEditorFrame::sm_icoSave, wxDefaultPosition, wxSize( C_BUTTONSIZE, C_BUTTONSIZE ) );
   buttonSizer->Add( button_Save, 0, wxALIGN_CENTRE_VERTICAL );
 
   buttonSizer->AddSpacer( C_BUTTONSIZE );
 
-  wxBitmapButton* button_PackageBrowser = new wxBitmapButton( toolBar, ID_BrowserPackage, EdBrowser::m_icoPackage, wxDefaultPosition, wxSize( C_BUTTONSIZE, C_BUTTONSIZE ) );
+  wxBitmapButton* button_PackageBrowser = new wxBitmapButton( toolBar, ID_BrowserPackage, EdEditorFrame::sm_icoPackage, wxDefaultPosition, wxSize( C_BUTTONSIZE, C_BUTTONSIZE ) );
   buttonSizer->Add( button_PackageBrowser, 0, wxALIGN_CENTRE_VERTICAL );
 
-  wxBitmapButton* button_ClassBrowser = new wxBitmapButton( toolBar, ID_BrowserClass, EdBrowser::m_icoClass, wxDefaultPosition, wxSize( C_BUTTONSIZE, C_BUTTONSIZE ) );
+  wxBitmapButton* button_ClassBrowser = new wxBitmapButton( toolBar, ID_BrowserClass, EdEditorFrame::sm_icoClass, wxDefaultPosition, wxSize( C_BUTTONSIZE, C_BUTTONSIZE ) );
   buttonSizer->Add( button_ClassBrowser, 0, wxALIGN_CENTRE_VERTICAL );
 
-  wxBitmapButton* button_AudioBrowser = new wxBitmapButton( toolBar, ID_BrowserAudio, EdBrowser::m_icoSound, wxDefaultPosition, wxSize( C_BUTTONSIZE, C_BUTTONSIZE ) );
+  wxBitmapButton* button_AudioBrowser = new wxBitmapButton( toolBar, ID_BrowserAudio, EdEditorFrame::sm_icoSound, wxDefaultPosition, wxSize( C_BUTTONSIZE, C_BUTTONSIZE ) );
   buttonSizer->Add( button_AudioBrowser, 0, wxALIGN_CENTRE_VERTICAL );
 
-  wxBitmapButton* button_MusicBrowser = new wxBitmapButton( toolBar, ID_BrowserMusic, EdBrowser::m_icoMusic, wxDefaultPosition, wxSize( C_BUTTONSIZE, C_BUTTONSIZE ) );
+  wxBitmapButton* button_MusicBrowser = new wxBitmapButton( toolBar, ID_BrowserMusic, EdEditorFrame::sm_icoMusic, wxDefaultPosition, wxSize( C_BUTTONSIZE, C_BUTTONSIZE ) );
   buttonSizer->Add( button_MusicBrowser, 0, wxALIGN_CENTRE_VERTICAL );
 
-  wxBitmapButton* button_GraphicsBrowser = new wxBitmapButton( toolBar, ID_BrowserGraphics, EdBrowser::m_icoGraphics, wxDefaultPosition, wxSize( C_BUTTONSIZE, C_BUTTONSIZE ) );
+  wxBitmapButton* button_GraphicsBrowser = new wxBitmapButton( toolBar, ID_BrowserGraphics, EdEditorFrame::sm_icoGraphics, wxDefaultPosition, wxSize( C_BUTTONSIZE, C_BUTTONSIZE ) );
   buttonSizer->Add( button_GraphicsBrowser, 0, wxALIGN_CENTRE_VERTICAL );
 
-  wxBitmapButton* button_MeshBrowser = new wxBitmapButton( toolBar, ID_BrowserMesh, EdBrowser::m_icoMesh, wxDefaultPosition, wxSize( C_BUTTONSIZE, C_BUTTONSIZE ) );
+  wxBitmapButton* button_MeshBrowser = new wxBitmapButton( toolBar, ID_BrowserMesh, EdEditorFrame::sm_icoMesh, wxDefaultPosition, wxSize( C_BUTTONSIZE, C_BUTTONSIZE ) );
   buttonSizer->Add( button_MeshBrowser, 0, wxALIGN_CENTRE_VERTICAL );
 
   toolBar->SetSizer( buttonSizer );
@@ -172,7 +177,7 @@ EdEditorFrame::~EdEditorFrame()
 {
 }
 
-size_t EdEditorFrame::NewTool( EdToolFrame* Tool )
+size_t EdEditorFrame::RegisterTool( EdToolFrame* Tool )
 {
   if ( sm_EmptySlots > 0 ) //A slot was freed earlier, find and use that slot.
   {
@@ -186,14 +191,14 @@ size_t EdEditorFrame::NewTool( EdToolFrame* Tool )
       }
     }
     //None found? Something went wrong.
-    GLogf( LOG_WARN, "EdEditorFrame::NewTool : sm_EmptySlots > 0, but none found in sm_ToolArray!" );
+    GLogf( LOG_WARN, "EdEditorFrame::RegTool() : sm_EmptySlots > 0, but none found in sm_ToolArray!" );
     GLogf( LOG_WARN, "Possible memory corruption and/or leak. Pushing new tool to end of array..." );
   }
   sm_ToolArray.PushBack( (EdToolFrame*)Tool );
   return sm_ToolArray.Size() - 1;
 }
 
-bool EdEditorFrame::KillTool( size_t id )
+bool EdEditorFrame::UnregisterTool( size_t id )
 {
   if ( sm_ToolArray[id] != NULL )
   {
@@ -201,18 +206,13 @@ bool EdEditorFrame::KillTool( size_t id )
     sm_EmptySlots++;
     return true;
   }
-  GLogf( LOG_WARN, "EdEditor::UnRegTool() : Unregistered tool that does not exist in sm_ToolArray!" );
+  GLogf( LOG_WARN, "EdEditor::UnregisterTool() : Unregistered tool that does not exist in sm_ToolArray!" );
   return false;
 }
 
-EdEditorFrame* EdEditorFrame::GetFrame()
+EdEditorFrame* EdEditorFrame::GetMainFrame()
 {
   return sm_Frame;
-}
-
-TArray<UPackage*>* EdEditorFrame::GetPackages()
-{
-  return &sm_Packages;
 }
 
 void EdEditorFrame::LoadPackages( const wxArrayString& Paths )
@@ -233,7 +233,7 @@ void EdEditorFrame::LoadPackages( const wxArrayString& Paths )
     for ( size_t i = 0; i < sm_ToolArray.Size(); i++ )
     {
       if ( sm_ToolArray[i] != NULL )
-        sm_ToolArray[i]->NewPackages( packageStart );
+        sm_ToolArray[i]->PackagesAdded( packageStart );
     }
   }
 
@@ -255,57 +255,100 @@ void EdEditorFrame::OnExit( wxCommandEvent& event )
 
 void EdEditorFrame::OnAbout( wxCommandEvent& event )
 {
-  if ( m_bAboutUp )
-    return;
-  else
-  {
-    new EdAbout( this, &m_bAboutUp );
-    m_bAboutUp = true;
-  }
+  if ( !EdAbout::IsOpened() )
+    new EdAbout( this );
 }
 
-void EdEditorFrame::EVT_New( wxCommandEvent& event ) {}
-void EdEditorFrame::EVT_Open( wxCommandEvent& event ) {}
-void EdEditorFrame::EVT_Save( wxCommandEvent& event ) {}
-void EdEditorFrame::EVT_Import( wxCommandEvent& event ) {}
-void EdEditorFrame::EVT_Export( wxCommandEvent& event ) {}
-void EdEditorFrame::EVT_Preferences( wxCommandEvent& event ) {}
+void EdEditorFrame::EVT_New( wxCommandEvent& event ) 
+{
+  event.Skip();
+}
+
+void EdEditorFrame::EVT_Open( wxCommandEvent& event ) 
+{
+  event.Skip();
+}
+
+void EdEditorFrame::EVT_Save( wxCommandEvent& event ) 
+{
+  event.Skip();
+}
+
+void EdEditorFrame::EVT_Import( wxCommandEvent& event ) 
+{
+  event.Skip();
+}
+
+void EdEditorFrame::EVT_Export( wxCommandEvent& event ) 
+{
+  event.Skip();
+}
+
+void EdEditorFrame::EVT_Preferences( wxCommandEvent& event ) 
+{
+  event.Skip();
+}
 
 void EdEditorFrame::EVT_BrowserPackage( wxCommandEvent& event )
 {
   new EdPackageBrowser();
+  event.Skip();
 }
 
 void EdEditorFrame::EVT_BrowserClass( wxCommandEvent& event )
 {
   new EdClassBrowser();
+  event.Skip();
 }
 
 void EdEditorFrame::EVT_BrowserSound( wxCommandEvent& event )
 {
   new EdSoundBrowser();
+  event.Skip();
 }
 
 void EdEditorFrame::EVT_BrowserMusic( wxCommandEvent& event )
 {
   new EdMusicBrowser();
+  event.Skip();
 }
 
 void EdEditorFrame::EVT_BrowserTexture( wxCommandEvent& event )
 {
   new EdTextureBrowser();
+  event.Skip();
 }
 
 void EdEditorFrame::EVT_BrowserMesh( wxCommandEvent& event )
 {
   new EdMeshBrowser();
+  event.Skip();
 }
 
-void EdEditorFrame::EVT_ViewLog( wxCommandEvent& event ) {}
-void EdEditorFrame::EVT_ActiveTools( wxCommandEvent& event ) {}
-void EdEditorFrame::EVT_MapEditor( wxCommandEvent& event ) {}
-void EdEditorFrame::EVT_MeshEditor( wxCommandEvent& event ) {}
-void EdEditorFrame::EVT_Manual( wxCommandEvent& event ) {}
+void EdEditorFrame::EVT_ViewLog( wxCommandEvent& event ) 
+{
+  event.Skip();
+}
+
+void EdEditorFrame::EVT_ActiveTools( wxCommandEvent& event ) 
+{
+  event.Skip();
+}
+
+void EdEditorFrame::EVT_MapEditor( wxCommandEvent& event ) 
+{
+  event.Skip();
+}
+
+void EdEditorFrame::EVT_MeshEditor( wxCommandEvent& event ) 
+{
+  event.Skip();
+}
+
+void EdEditorFrame::EVT_Manual( wxCommandEvent& event ) 
+{
+  event.Skip();
+}
 
 EdGamePrompt::EdGamePrompt( TArray<char*>* Names )
   : wxDialog( NULL, wxID_ANY, "Select Game", wxDefaultPosition, wxSize( 420, 400 ) )
@@ -354,13 +397,13 @@ void EdGamePrompt::EVT_NewGame( wxCommandEvent& event )
 {
   EdNewGameDialog newGamePrompt( m_GameSize, &m_GameSelect );
 
-  if ( newGamePrompt.ShowModal() == wxID_CANCEL )
-    return;
-  else
+  if ( newGamePrompt.ShowModal() != wxID_CANCEL )
   {
     m_GameSelect = m_GameSize;
     EndModal( 0 );
   }
+
+  event.Skip();
 }
 
 EdNewGameDialog::EdNewGameDialog( size_t NewIndex, int* ChoiceOut )
@@ -436,29 +479,26 @@ void EdNewGameDialog::EVT_DirDialog( wxCommandEvent& event )
     m_PathField->ChangeValue( file.GetPath() );
 }
 
-int WXAPP_EdEditor::GamePromptHandler( TArray<char*>* Names )
+int EditorApp::GamePromptHandler( TArray<char*>* Names )
 {
   EdGamePrompt gamePrompt( Names );
-
   gamePrompt.ShowModal();
-
   return gamePrompt.GetSelected();
 }
 
-bool WXAPP_EdEditor::OnInit()
+bool EditorApp::OnInit()
 {
   wxInitAllImageHandlers();
 
-  EdEditorFrame::m_File = wxIcon( wxString( "res/bitmap/New.png" ) );
-  EdEditorFrame::m_Dir = wxIcon( wxT( "res/bitmap/Open.png" ) );
-  EdEditorFrame::m_Save = wxIcon( wxT( "res/bitmap/Save.png" ) );
-
-  EdBrowser::m_icoPackage = wxIcon( wxT( "res/bitmap/PackageBrowser.png" ) );
-  EdBrowser::m_icoClass = wxIcon( wxT( "res/bitmap/ClassBrowser.png" ) );
-  EdBrowser::m_icoSound = wxIcon( wxT( "res/bitmap/AudioBrowser.png" ) );
-  EdBrowser::m_icoMusic = wxIcon( wxT( "res/bitmap/MusicBrowser.png" ) );
-  EdBrowser::m_icoGraphics = wxIcon( wxT( "res/bitmap/GraphicsBrowser.png" ) );
-  EdBrowser::m_icoMesh = wxIcon( wxT( "res/bitmap/MeshBrowser.png" ) );
+  EdEditorFrame::sm_icoNew = wxIcon( wxT( "res/bitmap/New.png" ) );
+  EdEditorFrame::sm_icoDir = wxIcon( wxT( "res/bitmap/Open.png" ) );
+  EdEditorFrame::sm_icoSave = wxIcon( wxT( "res/bitmap/Save.png" ) );
+  EdEditorFrame::sm_icoPackage = wxIcon( wxT( "res/bitmap/PackageBrowser.png" ) );
+  EdEditorFrame::sm_icoClass = wxIcon( wxT( "res/bitmap/ClassBrowser.png" ) );
+  EdEditorFrame::sm_icoSound = wxIcon( wxT( "res/bitmap/AudioBrowser.png" ) );
+  EdEditorFrame::sm_icoMusic = wxIcon( wxT( "res/bitmap/MusicBrowser.png" ) );
+  EdEditorFrame::sm_icoGraphics = wxIcon( wxT( "res/bitmap/GraphicsBrowser.png" ) );
+  EdEditorFrame::sm_icoMesh = wxIcon( wxT( "res/bitmap/MeshBrowser.png" ) );
 
   if ( LibunrInit( GamePromptHandler, NULL, true ) == false )
     return false;
@@ -531,4 +571,4 @@ wxBEGIN_EVENT_TABLE( EdNewGameDialog, wxDialog )
   EVT_BUTTON( ID_Confirm, EdNewGameDialog::EVT_Confirm )
 wxEND_EVENT_TABLE()
 
-wxIMPLEMENT_APP( WXAPP_EdEditor );
+wxIMPLEMENT_APP( EditorApp );

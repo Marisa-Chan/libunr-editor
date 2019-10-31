@@ -17,54 +17,19 @@
 \*===========================================================================*/
 
 /*========================================================================
- * Components.h - Various internal components of the editor
- * 
- * written by Jesse 'Hyzoran' Kowalik
+ * MusicBrowser.h - Music browser definition
+ *
+ * written by Jesse 'Hyzoran' Kowalik & Adam 'Xaleros' Smith
  *========================================================================
 */
 
-#pragma once
+#include "Browser.h"
 
-#include <wx/wxprec.h>
-#include <wx/wx.h>
-#include <wx/wrapsizer.h>
-
-enum
-{
-  TOOL_Generic = 0,
-  TOOL_Browser = 1
-};
-
-class EdToolFrame : public wxFrame
+class EdMusicBrowser : public EdBrowser
 {
 public:
-  EdToolFrame( bool bStartDocked = false, wxSize Size = GetFrameSize() );
-  ~EdToolFrame();
+  EdMusicBrowser( bool bDock = false, wxSize Size = EdToolFrame::GetFrameSize() );
+  ~EdMusicBrowser();
 
-  bool m_bDocked = false;
-  int m_ToolType = TOOL_Generic;
-  size_t m_MyID;
-    
-  virtual void OnExit( wxCommandEvent& event );
-
-  static wxSize GetFrameSize(); //Return the default framesize for toolframe.
-    
-  //Sysytem notifications, called by EdEditorFrame for all tools when nessecary.
-  virtual void PackagesAdded( size_t PackageStartIndex ) = 0;
-  virtual void PackagesRemoved() = 0;
-  virtual void ObjectsAdded() = 0;
-  virtual void ObjectsRemoved() = 0;
-};
-
-class EdAbout : public wxFrame
-{
-public:
-	EdAbout( wxWindow* parent );
-	
-	void OnClose( wxCommandEvent& event );
-  
-  static bool IsOpened();
-
-private:
-  static bool sm_IsOpen;
+  virtual void Update();
 };
