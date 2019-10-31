@@ -27,7 +27,7 @@
 #include "PackageBrowser.h"
 
 EdPackageBrowser::EdPackageBrowser( bool bDock, wxSize Size )
-  : EdBrowser( UPackage::StaticClass(), bDock, Size )
+  : EdBrowser( UPackage::StaticClass(), bDock, Size, false )
 {
   SetLabel( wxString( "Package Browser" ) );
   SetIcon( EdEditorFrame::sm_icoPackage );

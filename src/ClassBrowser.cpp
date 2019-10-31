@@ -27,7 +27,7 @@
 #include "ClassBrowser.h"
 
 EdClassBrowser::EdClassBrowser( bool bDock, wxSize Size )
-  : EdBrowser( UClass::StaticClass(), bDock, Size )
+  : EdBrowser( UClass::StaticClass(), bDock, Size, false )
 {
   SetLabel( wxString( "Class Browser" ) );
   SetIcon( EdEditorFrame::sm_icoClass );
