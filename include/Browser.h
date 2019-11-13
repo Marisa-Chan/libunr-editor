@@ -55,7 +55,7 @@ enum
 
 struct wxObjectItemData : public wxTreeItemData
 {
-  wxObjectItemData( UObject* Obj ) : m_Obj( Obj ) {}
+  wxObjectItemData( UObject* Obj = NULL ) : m_Obj( Obj ) {}
   UObject* m_Obj = NULL;
 };
 
@@ -71,7 +71,8 @@ public:
   virtual void ObjectsRemoved();
 
   // Runtime Variables
-  UClass* m_Type; // The object type this browser displays
+  UClass* m_Type; // The object type this browser displays.
+  wxString* m_subDirType; //default subdir to use based on type.
     
 protected:
   virtual void Update(); // Updates the view of this browser
@@ -83,8 +84,14 @@ protected:
   virtual void TileConstruct();
   virtual void FinishConstruct(); // Generic constructor finalizer for all browser types
 
+  //UI Operations
+  virtual void ObjectMenu( UObject* Obj ); //Open context menu for given object (Right click)
+  virtual void ObjectActivate( UObject* Obj ); //"Activate" an object in the UI. (Double-left click, enter)
+  virtual void ObjectProperties( UObject* Obj ); //Spawn Object Properties Dialog for given Object.
+
   wxBoxSizer* m_OptionsSizer;
   wxTreeCtrl* m_ListView;
+  wxTreeItemId m_MenuItem; //Item used to open context menu;
 
   wxMenu* m_MenuFile = NULL;
   wxMenuBar* m_MenuBar = NULL;
@@ -107,6 +114,9 @@ private:
   void OnBrowserImport( wxCommandEvent& event );
   void OnBrowserExport( wxCommandEvent& event );
   void OnBrowserDock( wxCommandEvent& event );
+  void OnObjectMenu( wxTreeEvent& event );
+  void OnObjectActiavte( wxTreeEvent& event );
+  void OnObjectActiavte( wxCommandEvent& event );
     
   wxDECLARE_EVENT_TABLE();
 };

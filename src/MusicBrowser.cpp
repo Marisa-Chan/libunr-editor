@@ -33,6 +33,9 @@ EdMusicBrowser::EdMusicBrowser( bool bDock, wxSize Size )
   SetLabel( wxString( "Music Browser" ) );
   SetIcon( EdEditorFrame::sm_icoSound );
 
+  m_subDirType = (wxString*)&EdEditorFrame::csm_SubDir_UMX;
+
+
   ConstructPackageButtons();
 
   ListConstruct();

@@ -39,21 +39,25 @@ enum
 {
 	ID_New,
 	ID_Open,
-    ID_Save,
+  ID_Save,
 	ID_Import,
-    ID_Export,
+  ID_Export,
 	ID_Preferences,
 	ID_BrowserPackage,
 	ID_BrowserClass,
 	ID_BrowserSound,
-    ID_BrowserMusic,
+  ID_BrowserMusic,
 	ID_BrowserGraphics,
 	ID_BrowserMesh,
 	ID_ViewLog,
 	ID_ActiveTools,
 	ID_MapEditor,
 	ID_MeshEditor,
-	ID_Manual
+	ID_Manual,
+  ID_ObjectOpen,
+  ID_ObjectMenu,
+  ID_ObjectActivate,
+  ID_ObjectExport
 };
 
 //There should only ever be one EdEditor Frame
@@ -67,6 +71,13 @@ public:
   static bool UnregisterTool( size_t id );
   static EdEditorFrame* GetMainFrame();
   static void LoadPackages( const wxArrayString& Paths );
+
+  //Object Interaction
+  void ObjectMenu( UObject* Obj );
+  void ObjectPlay( UObject* Obj );
+  void ObjectProperties( UObject* Obj );
+
+  wxString GetGameDir();
     
   //Events
   void OnExit( wxCommandEvent& event );
@@ -89,7 +100,18 @@ public:
   void EVT_MapEditor( wxCommandEvent& event );
   void EVT_MeshEditor( wxCommandEvent& event );
   void EVT_Manual( wxCommandEvent& event );
-    
+
+  static wxBitmap sm_bmpNew;
+  static wxBitmap sm_bmpDir;
+  static wxBitmap sm_bmpSave;
+  static wxBitmap sm_bmpPackage;
+  static wxBitmap sm_bmpClass;
+  static wxBitmap sm_bmpSound;
+  static wxBitmap sm_bmpMusic;
+  static wxBitmap sm_bmpGraphics;
+  static wxBitmap sm_bmpMesh;
+  static wxBitmap sm_bmpGroup;
+
   static wxIcon sm_icoNew;
   static wxIcon sm_icoDir;
   static wxIcon sm_icoSave;
@@ -100,6 +122,15 @@ public:
   static wxIcon sm_icoGraphics;
   static wxIcon sm_icoMesh;
   static wxIcon sm_icoGroup;
+
+  //subdir suffix for different package types.
+  static wxString csm_SubDir_U;
+  static wxString csm_SubDir_UAX;
+  static wxString csm_SubDir_UMX;
+  static wxString csm_SubDir_UTX;
+  static wxString csm_SubDir_UNR;
+  static wxString csm_SubDir_USM;
+  static wxString csm_SubDir_USA;
     
   wxDECLARE_EVENT_TABLE();
     
@@ -163,4 +194,5 @@ public:
   virtual bool OnInit();
     
   static int GamePromptHandler( TArray<char*>* Names );
+  static int sm_SelectedGame;
 };

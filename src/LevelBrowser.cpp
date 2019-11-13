@@ -32,6 +32,9 @@ EdLevelBrowser::EdLevelBrowser( bool bDock, wxSize Size )
 {
   SetLabel( wxString( "Level Browser" ) );
   SetIcon( EdEditorFrame::sm_icoMesh );
+
+  m_subDirType = (wxString*)&EdEditorFrame::csm_SubDir_UNR;
+
   TileConstruct();
 }
 

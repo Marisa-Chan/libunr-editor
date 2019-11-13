@@ -32,6 +32,8 @@ EdClassBrowser::EdClassBrowser( bool bDock, wxSize Size )
   SetLabel( wxString( "Class Browser" ) );
   SetIcon( EdEditorFrame::sm_icoClass );
 
+  m_subDirType = (wxString*)&EdEditorFrame::csm_SubDir_U;
+
   m_CheckShowPackage = new wxCheckBox( m_OptionsBar, ID_BrowserShowPackage, "Show Package" );
   m_OptionsSizer->Add( m_CheckShowPackage, 0, wxALIGN_LEFT );
 

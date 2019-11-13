@@ -32,6 +32,9 @@ EdPackageBrowser::EdPackageBrowser( bool bDock, wxSize Size )
   SetLabel( wxString( "Package Browser" ) );
   SetIcon( EdEditorFrame::sm_icoPackage );
 
+  m_subDirType = (wxString*)&EdEditorFrame::csm_SubDir_U;
+
+
   m_PackagesList = new wxComboBox( m_OptionsBar, ID_PackageList, "", wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_SORT );
   m_OptionsSizer->Add( m_PackagesList, 0, wxALIGN_LEFT );
 

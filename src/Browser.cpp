@@ -125,7 +125,7 @@ void EdBrowser::ListUpdate()
         if ( !bFoundGroup )
         {
           groupIDs.PushBack( m_ListView->AppendItem( packages[i],
-            currentPackage->GetNameEntryByObjRef( currentExport->Group )->Data ) );
+            currentPackage->GetNameEntryByObjRef( currentExport->Group )->Data, -1, -1, new wxObjectItemData() ) );
 
           groups.PushBack( currentExport->Group );
 
@@ -157,8 +157,8 @@ void EdBrowser::ConstructPackageButtons()
 {
   m_OptionsSizer->AddSpacer( C_TOOLBUTTONSIZE );
 
-  m_OpenPackage = new wxBitmapButton( m_OptionsBar, ID_BrowserOpen, EdEditorFrame::sm_icoDir, wxDefaultPosition, wxSize( C_TOOLBUTTONSIZE, C_TOOLBUTTONSIZE ) );
-  m_SavePackage = new wxBitmapButton( m_OptionsBar, ID_BrowserSave, EdEditorFrame::sm_icoSave, wxDefaultPosition, wxSize( C_TOOLBUTTONSIZE, C_TOOLBUTTONSIZE ) );
+  m_OpenPackage = new wxBitmapButton( m_OptionsBar, ID_BrowserOpen, EdEditorFrame::sm_bmpDir, wxDefaultPosition, wxSize( C_TOOLBUTTONSIZE, C_TOOLBUTTONSIZE ) );
+  m_SavePackage = new wxBitmapButton( m_OptionsBar, ID_BrowserSave, EdEditorFrame::sm_bmpSave, wxDefaultPosition, wxSize( C_TOOLBUTTONSIZE, C_TOOLBUTTONSIZE ) );
   m_LoadFullPackage = new wxButton( m_OptionsBar, ID_FullPackageLoad, "", wxDefaultPosition, wxSize( C_TOOLBUTTONSIZE, C_TOOLBUTTONSIZE ) );
 
   m_OptionsSizer->Add( m_OpenPackage, 0, 0 );
@@ -200,6 +200,22 @@ void EdBrowser::FinishConstruct()
   Update();
 }
 
+void EdBrowser::ObjectMenu( UObject* Obj )
+{
+  EdEditorFrame::GetMainFrame()->ObjectMenu( Obj );
+}
+
+void EdBrowser::ObjectActivate( UObject* Obj )
+{
+
+  EdEditorFrame::GetMainFrame()->ObjectPlay( Obj );
+}
+
+void EdBrowser::ObjectProperties( UObject* Obj )
+{
+  EdEditorFrame::GetMainFrame()->ObjectProperties( Obj );
+}
+
 void EdBrowser::PackagesAdded( size_t PackageStartIndex )
 {
 }
@@ -230,7 +246,8 @@ void EdBrowser::OnBrowserNew( wxCommandEvent& event )
 
 void EdBrowser::OnBrowserOpen( wxCommandEvent& event )
 {
-  wxFileDialog openFileDialog( this, "Open Unreal Package", "", "", "UE Package Files (*.u, *.utx, *.uax\
+  wxString subdir = wxString( GLibunrConfig->ReadString( "Game", "Path", EditorApp::sm_SelectedGame ) ) + *m_subDirType;
+  wxFileDialog openFileDialog( this, "Open Unreal Package", subdir, "", "UE Package Files (*.u, *.utx, *.uax\
     , *.umx, *.usm, *.unr)|*.u;*.u;*.utx;*.uax;*.umx;*.usm;*.unr", wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE );
 
   if ( openFileDialog.ShowModal() == wxID_CANCEL )
@@ -265,6 +282,54 @@ void EdBrowser::OnBrowserDock( wxCommandEvent& event )
   event.Skip();
 }
 
+void EdBrowser::OnObjectMenu( wxTreeEvent& event )
+{
+  m_MenuItem = event.GetItem();
+
+  wxObjectItemData* ItemData = ((wxObjectItemData*)m_ListView->GetItemData( event.GetItem() ));
+
+  if ( ItemData->m_Obj == NULL )
+    return;
+
+  ObjectMenu( ItemData->m_Obj );
+}
+
+void EdBrowser::OnObjectActiavte( wxTreeEvent& event )
+{
+  wxObjectItemData* ItemData = ((wxObjectItemData*)m_ListView->GetItemData( event.GetItem() ));
+
+  if( m_ListView->ItemHasChildren( event.GetItem() ) )
+  {
+    if ( m_ListView->IsExpanded( event.GetItem() ) )
+      m_ListView->Collapse( event.GetItem() );
+    else
+      m_ListView->Expand( event.GetItem() );
+
+    return;
+  }
+
+  if ( ItemData->m_Obj == NULL ) //Likely a group, or something has went wrong.
+  {
+    m_ListView->Expand( event.GetItem() );
+  }
+  else
+  {
+    UObject* Obj = ItemData->m_Obj;
+
+    ObjectActivate( Obj );
+  }
+}
+
+void EdBrowser::OnObjectActiavte( wxCommandEvent& event )
+{
+  wxObjectItemData* ItemData = ((wxObjectItemData*)m_ListView->GetItemData( m_MenuItem ));
+
+  if ( ItemData->m_Obj == NULL )
+    return;
+
+  ObjectActivate( ItemData->m_Obj );
+}
+
 wxBEGIN_EVENT_TABLE( EdBrowser, wxFrame )
   EVT_MENU( wxID_EXIT, EdBrowser::OnExit )
   EVT_MENU( ID_BrowserNew, EdBrowser::OnBrowserNew )
@@ -272,5 +337,8 @@ wxBEGIN_EVENT_TABLE( EdBrowser, wxFrame )
   EVT_MENU( ID_BrowserSave, EdBrowser::OnBrowserSave )
   EVT_MENU( ID_BrowserImport, EdBrowser::OnBrowserImport )
   EVT_MENU( ID_BrowserExport, EdBrowser::OnBrowserExport )
+  EVT_MENU( ID_ListView, EdBrowser::OnObjectActiavte )
+  EVT_TREE_ITEM_ACTIVATED( ID_ListView, EdBrowser::OnObjectActiavte )
+  EVT_TREE_ITEM_RIGHT_CLICK( ID_ListView, EdBrowser::OnObjectMenu )
   EVT_CHECKBOX( ID_BrowserDock, EdBrowser::OnBrowserDock )
 wxEND_EVENT_TABLE()
