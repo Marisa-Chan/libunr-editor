@@ -265,6 +265,8 @@ void EdEditorFrame::LoadPackages( const wxArrayString& Paths )
 
 void EdEditorFrame::ObjectMenu( UObject* Obj )
 {
+  lastMenuObject = Obj;
+
   //TODO: Does a popped-up menu get automatically destroyed when closed? If not, memory leak. :<
   wxMenu* Popup = new wxMenu();
 
@@ -292,12 +294,12 @@ void EdEditorFrame::ObjectMenu( UObject* Obj )
   Popup->Append( ID_ObjectExport, "Export Object..." );
 
   Popup->AppendSeparator();
-  Popup->Append( ID_ObjectMenu, "Properties" );
+  Popup->Append( ID_ObjectProperties, "Properties" );
 
   PopupMenu( Popup );
 }
 
-void EdEditorFrame::ObjectPlay( UObject* Obj )
+void EdEditorFrame::ObjectActivate( UObject* Obj )
 {
   FVector Ass;
   Ass.X = 0;
@@ -317,9 +319,25 @@ void EdEditorFrame::ObjectPlay( UObject* Obj )
   }
 }
 
+void EdEditorFrame::EVT_ObjectActivate( wxCommandEvent& event )
+{
+  ObjectActivate( lastMenuObject );
+}
+
 void EdEditorFrame::ObjectProperties( UObject* Obj )
 {
-  //Spawn properties dialog.
+  if ( Obj == NULL )
+  {
+    return;
+  }
+
+  new EdObjectViewer( lastMenuObject );
+}
+
+void EdEditorFrame::EVT_ObjectProperties( wxCommandEvent& event )
+{
+  ObjectProperties( lastMenuObject );
+  event.Skip();
 }
 
 wxString EdEditorFrame::GetGameDir()
@@ -663,6 +681,8 @@ wxBEGIN_EVENT_TABLE( EdEditorFrame, wxFrame )
   EVT_MENU( ID_MapEditor, EdEditorFrame::EVT_MapEditor )
   EVT_MENU( ID_MeshEditor, EdEditorFrame::EVT_MeshEditor )
   EVT_MENU( ID_Manual, EdEditorFrame::EVT_Manual )
+  EVT_MENU( ID_ObjectProperties, EdEditorFrame::EVT_ObjectProperties )
+  EVT_MENU( ID_ObjectActivate, EdEditorFrame::EVT_ObjectActivate )
 wxEND_EVENT_TABLE()
 
 wxBEGIN_EVENT_TABLE( EdGamePrompt, wxDialog )

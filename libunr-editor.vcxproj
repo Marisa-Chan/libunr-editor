@@ -157,6 +157,7 @@
     <ClCompile Include="src\LevelBrowser.cpp" />
     <ClCompile Include="src\MeshBrowser.cpp" />
     <ClCompile Include="src\MusicBrowser.cpp" />
+    <ClCompile Include="src\ObjectViewer.cpp" />
     <ClCompile Include="src\PackageBrowser.cpp" />
     <ClCompile Include="src\SoundBrowser.cpp" />
     <ClCompile Include="src\TextureBrowser.cpp" />
@@ -169,6 +170,7 @@
     <ClInclude Include="include\LevelBrowser.h" />
     <ClInclude Include="include\MeshBrowser.h" />
     <ClInclude Include="include\MusicBrowser.h" />
+    <ClInclude Include="include\ObjectViewer.h" />
     <ClInclude Include="include\PackageBrowser.h" />
     <ClInclude Include="include\SoundBrowser.h" />
     <ClInclude Include="include\TextureBrowser.h" />

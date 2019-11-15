@@ -33,6 +33,7 @@
 #include <libunr.h>
 
 #include "Components.h"
+#include "ObjectViewer.h"
 #include "Browser.h"
 
 enum
@@ -57,7 +58,8 @@ enum
   ID_ObjectOpen,
   ID_ObjectMenu,
   ID_ObjectActivate,
-  ID_ObjectExport
+  ID_ObjectExport,
+  ID_ObjectProperties
 };
 
 //There should only ever be one EdEditor Frame
@@ -74,8 +76,11 @@ public:
 
   //Object Interaction
   void ObjectMenu( UObject* Obj );
-  void ObjectPlay( UObject* Obj );
+  void ObjectActivate( UObject* Obj );
+  void EVT_ObjectActivate( wxCommandEvent& event );
   void ObjectProperties( UObject* Obj );
+  void EVT_ObjectProperties( wxCommandEvent& event );
+  UObject* lastMenuObject;
 
   wxString GetGameDir();
     

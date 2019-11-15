@@ -208,7 +208,7 @@ void EdBrowser::ObjectMenu( UObject* Obj )
 void EdBrowser::ObjectActivate( UObject* Obj )
 {
 
-  EdEditorFrame::GetMainFrame()->ObjectPlay( Obj );
+  EdEditorFrame::GetMainFrame()->ObjectActivate( Obj );
 }
 
 void EdBrowser::ObjectProperties( UObject* Obj )
@@ -337,7 +337,6 @@ wxBEGIN_EVENT_TABLE( EdBrowser, wxFrame )
   EVT_MENU( ID_BrowserSave, EdBrowser::OnBrowserSave )
   EVT_MENU( ID_BrowserImport, EdBrowser::OnBrowserImport )
   EVT_MENU( ID_BrowserExport, EdBrowser::OnBrowserExport )
-  EVT_MENU( ID_ListView, EdBrowser::OnObjectActiavte )
   EVT_TREE_ITEM_ACTIVATED( ID_ListView, EdBrowser::OnObjectActiavte )
   EVT_TREE_ITEM_RIGHT_CLICK( ID_ListView, EdBrowser::OnObjectMenu )
   EVT_CHECKBOX( ID_BrowserDock, EdBrowser::OnBrowserDock )

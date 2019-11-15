@@ -22,7 +22,6 @@
  * written by Jesse 'Hyzoran' Kowalik
  *========================================================================
 */
-
 #pragma once
 
 #include <wx/wxprec.h>
