@@ -24,7 +24,7 @@
 */
 #pragma once
 
-#include <wx/dataview.h>7
+#include <wx/dataview.h>
 #include <wx/splitter.h>
 #include "EditorMain.h"
 
