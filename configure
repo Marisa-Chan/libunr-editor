@@ -37,7 +37,7 @@ print_help()
   echo "   -m  Configure makefile with 32-bit"
   echo "   -c  Configure makefile to use a specified compiler"
   echo "   -L  Configure makefile to find libunr library"
-  echo "   -H  Configure makefile to find libunr library"
+  echo "   -H  Configure makefile to find libunr library headers"
   echo "   -i  Configure makefile to install to specified directory"
   echo "   -v  Configure makefile with verbose output"
   echo
@@ -71,8 +71,8 @@ echo "BUILD_32BIT="$BUILD_32BIT
 echo "BUILD_VERBOSE="$BUILD_VERBOSE
 echo "BUILD_COMPILER="$BUILD_COMPILER
 echo "BUILD_LIBUNR_PATH="$BUILD_LIBUNR_PATH
-echo "BUILD_LIBUNR_EDITOR_INSTALL_PATH="$BUILD_LIBUNR_EDITOR_INSTALL_PATH
 echo "BUILD_LIBUNR_HEADER_PATH="$BUILD_LIBUNR_HEADER_PATH
+echo "BUILD_LIBUNR_EDITOR_INSTALL_PATH="$BUILD_LIBUNR_EDITOR_INSTALL_PATH
 
 CONFIG_CFLAGS=""
 
@@ -101,7 +101,8 @@ $BUILD_WXLIB_LIBRARIES -DINSTALL_PREFIX=\\\"$BUILD_LIBUNR_EDITOR_INSTALL_PATH\\\
 fi
 
 # Create build output directories
-mkdir build/objs
+[ ! -d "./build" ] && mkdir build
+[ ! -d "./build/objs" ] && mkdir build/objs
 
 # Create makefile
 echo "#################################################" > Makefile
@@ -109,7 +110,7 @@ echo "# Begin generated Makefile" >> Makefile
 echo "#################################################" >> Makefile
 echo "CC="$BUILD_COMPILER >> Makefile
 echo "CFLAGS="$CONFIG_CFLAGS >> Makefile
-echo "INSTALL_PREFIX="$BUILD_INSTALL_PATH >> Makefile
+echo "INSTALL_PREFIX="$BUILD_LIBUNR_EDITOR_INSTALL_PATH >> Makefile
 echo "LDFLAGS=-ldl" >> Makefile
 echo "BUILDDIR=build" >> Makefile
 echo "SRCDIR=src" >> Makefile
