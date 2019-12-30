@@ -197,7 +197,12 @@ class EditorApp : public wxApp
 {
 public:
   virtual bool OnInit();
+  void DoTick( wxIdleEvent& event );
     
   static int GamePromptHandler( TArray<char*>* Names );
   static int sm_SelectedGame;
+
+private:
+  double CurrentTime;
+  double LastTime;
 };

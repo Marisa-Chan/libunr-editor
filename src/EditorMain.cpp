@@ -301,22 +301,18 @@ void EdEditorFrame::ObjectMenu( UObject* Obj )
 
 void EdEditorFrame::ObjectActivate( UObject* Obj )
 {
-  FVector Ass;
-  Ass.X = 0;
-  Ass.Y = 0;
-  Ass.Z = 0;
+  FVector ZeroVec;
+  ZeroVec.X = 0;
+  ZeroVec.Y = 0;
+  ZeroVec.Z = 0;
 
   //Sounds
   if ( Obj->IsA( USound::StaticClass() ) )
-  {
-    GEngine->Audio->PlaySound( NULL, (USound*)Obj, Ass, 1, 1, 1 );
-  }
+    GEngine->Audio->PlaySound( NULL, (USound*)Obj, ZeroVec, 1, 1, 1 );
 
   //Music
   if ( Obj->IsA( UMusic::StaticClass() ) )
-  {
-    //TODO: Playsound code here.
-  }
+    GEngine->Audio->PlayMusic( (UMusic*)Obj, 0, MTRAN_Instant );
 }
 
 void EdEditorFrame::EVT_ObjectActivate( wxCommandEvent& event )
@@ -620,7 +616,7 @@ bool EditorApp::OnInit()
   EdEditorFrame::sm_icoGraphics.CopyFromBitmap( EdEditorFrame::sm_bmpGraphics );
   EdEditorFrame::sm_icoMesh.CopyFromBitmap( EdEditorFrame::sm_bmpMesh );
 
-  if ( LibunrInit( GamePromptHandler, NULL, true ) == false )
+  if ( LibunrInit( GamePromptHandler, NULL, true, false ) == false )
     return false;
 
   UPackage* EditorPkg = UPackage::StaticLoadPackage( "Editor" );
@@ -647,12 +643,29 @@ bool EditorApp::OnInit()
   for ( size_t i = 0; i < UPackage::GetLoadedPackages()->Size(); i++ )
     (*UPackage::GetLoadedPackages())[i]->LoadEditableTypes();
 
+  // Start ticking loop
+  LastTime = USystem::GetSeconds();
+  Connect( wxID_ANY, wxEVT_IDLE, wxIdleEventHandler( EditorApp::DoTick ) );
+
   EdEditorFrame* frame = new EdEditorFrame( "libunr-editor", wxPoint( -1, -1 ),
     wxSize( wxSystemSettings::GetMetric( wxSYS_SCREEN_X ), wxSystemSettings::GetMetric( wxSYS_SCREEN_Y ) ) );
 
   frame->Maximize();
   frame->Show( true );
+
   return true;
+}
+
+void EditorApp::DoTick( wxIdleEvent& event )
+{
+  CurrentTime = USystem::GetSeconds();
+
+  double DeltaTime = CurrentTime - LastTime;
+  GEngine->Tick( DeltaTime );
+
+  LastTime = CurrentTime;
+
+  event.RequestMore();
 }
 
 wxBEGIN_EVENT_TABLE( EdEditorFrame, wxFrame )
