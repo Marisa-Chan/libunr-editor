@@ -32,4 +32,14 @@ public:
   ~EdMusicBrowser();
 
   virtual void Update();
+
+  wxButton*   m_PlayMusicButton;
+  wxButton*   m_StopMusicButton;
+  wxTextCtrl* m_SongSectionBox;
+
+private:
+  void OnPlayMusic( wxCommandEvent& event );
+  void OnStopMusic( wxCommandEvent& event );
+
+  wxDECLARE_EVENT_TABLE();
 };

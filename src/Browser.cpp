@@ -315,7 +315,6 @@ void EdBrowser::OnObjectActiavte( wxTreeEvent& event )
   else
   {
     UObject* Obj = ItemData->m_Obj;
-
     ObjectActivate( Obj );
   }
 }
@@ -330,6 +329,16 @@ void EdBrowser::OnObjectActiavte( wxCommandEvent& event )
   ObjectActivate( ItemData->m_Obj );
 }
 
+void EdBrowser::OnObjectSelect( wxTreeEvent& event )
+{
+  wxTreeItemId TreeNode = event.GetItem();
+  wxObjectItemData* ItemData = ((wxObjectItemData*)m_ListView->GetItemData( TreeNode ));
+
+  if ( !m_ListView->ItemHasChildren( TreeNode ) )
+    if ( ItemData->m_Obj != NULL )
+      m_SelectedObject = ItemData->m_Obj;
+}
+
 wxBEGIN_EVENT_TABLE( EdBrowser, wxFrame )
   EVT_MENU( wxID_EXIT, EdBrowser::OnExit )
   EVT_MENU( ID_BrowserNew, EdBrowser::OnBrowserNew )
@@ -338,6 +347,8 @@ wxBEGIN_EVENT_TABLE( EdBrowser, wxFrame )
   EVT_MENU( ID_BrowserImport, EdBrowser::OnBrowserImport )
   EVT_MENU( ID_BrowserExport, EdBrowser::OnBrowserExport )
   EVT_TREE_ITEM_ACTIVATED( ID_ListView, EdBrowser::OnObjectActiavte )
+  EVT_TREE_SEL_CHANGED( ID_ListView, EdBrowser::OnObjectSelect )
   EVT_TREE_ITEM_RIGHT_CLICK( ID_ListView, EdBrowser::OnObjectMenu )
   EVT_CHECKBOX( ID_BrowserDock, EdBrowser::OnBrowserDock )
+
 wxEND_EVENT_TABLE()

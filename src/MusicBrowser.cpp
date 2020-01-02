@@ -35,8 +35,18 @@ EdMusicBrowser::EdMusicBrowser( bool bDock, wxSize Size )
 
   m_subDirType = (wxString*)&EdEditorFrame::csm_SubDir_UMX;
 
-
   ConstructPackageButtons();
+
+  // Add play and stop buttons
+  m_PlayMusicButton = new wxButton( m_OptionsBar, ID_PlayMusic, "Play", wxDefaultPosition, wxSize( C_TOOLBUTTONSIZE, C_TOOLBUTTONSIZE ) );
+  m_StopMusicButton = new wxButton( m_OptionsBar, ID_StopMusic, "Stop", wxDefaultPosition, wxSize( C_TOOLBUTTONSIZE, C_TOOLBUTTONSIZE ) );
+
+  m_OptionsSizer->Add( m_PlayMusicButton, 0, wxALIGN_LEFT );
+  m_OptionsSizer->Add( m_StopMusicButton, 0, wxALIGN_LEFT );
+
+  // Add section box
+  m_SongSectionBox = new wxTextCtrl( m_OptionsBar, ID_SongSection, "", wxDefaultPosition, wxSize( C_TOOLBUTTONSIZE, C_TOOLBUTTONSIZE ) );
+  m_OptionsSizer->Add( m_SongSectionBox, 0, wxALIGN_LEFT );
 
   ListConstruct();
 }
@@ -49,3 +59,21 @@ void EdMusicBrowser::Update()
 {
   ListUpdate();
 }
+
+void EdMusicBrowser::OnPlayMusic( wxCommandEvent& event )
+{
+  unsigned long SongSection;
+  m_SongSectionBox->GetValue().ToULong( &SongSection );
+  GEngine->Audio->PlayMusic( (UMusic*)m_SelectedObject, SongSection, MTRAN_Instant );
+}
+
+void EdMusicBrowser::OnStopMusic( wxCommandEvent& event )
+{
+  // TODO: Maybe make this configurable as to how quickly the user wants the music to stop
+  GEngine->Audio->StopMusic( MTRAN_SlowFade );
+}
+
+wxBEGIN_EVENT_TABLE( EdMusicBrowser, EdBrowser )
+  EVT_BUTTON( ID_PlayMusic, EdMusicBrowser::OnPlayMusic )
+  EVT_BUTTON( ID_StopMusic, EdMusicBrowser::OnStopMusic )
+wxEND_EVENT_TABLE()

@@ -51,7 +51,10 @@ enum
   ID_PackageTab,
   ID_ShowListView,
   ID_ShowTileView,
-  ID_FullPackageLoad
+  ID_FullPackageLoad,
+  ID_PlayMusic,
+  ID_StopMusic,
+  ID_SongSection,
 };
 
 struct wxObjectItemData : public wxTreeItemData
@@ -72,6 +75,7 @@ public:
   virtual void ObjectsRemoved();
 
   // Runtime Variables
+  UObject* m_SelectedObject; // The object currently selected in the browser
   UClass* m_Type; // The object type this browser displays.
   wxString* m_subDirType; //default subdir to use based on type.
     
@@ -118,6 +122,7 @@ private:
   void OnObjectMenu( wxTreeEvent& event );
   void OnObjectActiavte( wxTreeEvent& event );
   void OnObjectActiavte( wxCommandEvent& event );
+  void OnObjectSelect( wxTreeEvent& event );
     
   wxDECLARE_EVENT_TABLE();
 };

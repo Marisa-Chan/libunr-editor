@@ -59,7 +59,7 @@ enum
   ID_ObjectMenu,
   ID_ObjectActivate,
   ID_ObjectExport,
-  ID_ObjectProperties
+  ID_ObjectProperties,
 };
 
 //There should only ever be one EdEditor Frame
