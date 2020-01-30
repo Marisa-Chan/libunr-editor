@@ -17,35 +17,31 @@
 \*===========================================================================*/
 
 /*========================================================================
- * SoundBrowser.h - Sound browser definition
+ * EdToolFrame.h - Editor tool objects - root class.
  *
- * written by Jesse 'Hyzoran' Kowalik & Adam 'Xaleros' Smith
+ * written by Jesse 'Hyzoran' Kowalik
  *========================================================================
 */
+#pragma once
 
-#include "EditorMain.h"
-#include "SoundBrowser.h"
-#include <Engine/USound.h>
+#include "EdMain.h"
 
-EdSoundBrowser::EdSoundBrowser( bool bDock, wxSize Size )
-  : EdBrowser( USound::StaticClass(), bDock, Size )
-{
-  SetLabel( wxString( "Sound Browser" ) );
-  SetIcon( EdEditorFrame::sm_icoSound );
+#define C_MINTOOLSIZE_X 512
+#define C_MINTOOLSIZE_Y 384
 
-  m_subDirType = (wxString*)&EdEditorFrame::csm_SubDir_UAX;
+class EdToolFrame : public wxFrame
+(
+public:
+    EdToolFrame( wxString& Title = "", bool bStartDocked = false, EdGamePrompt* ModalWindow );
+    ~EdToolFrame();
 
-  ConstructPackageButtons();
+    static wxSize DefaultFrameSize();
 
-  // TODO: Support multiple view types for browsers that could make use of them
-  ListConstruct();
-}
+  //Event Handlers
+    virtual void OnExit( wxCommandEvent& event );
 
-EdSoundBrowser::~EdSoundBrowser()
-{
-}
-
-void EdSoundBrowser::Update()
-{
-  ListUpdate();
-}
+protected:
+    wxWindow* m_ModalWindow;
+    bool m_bDocked;
+    int m_MyID;
+);

@@ -17,29 +17,58 @@
 \*===========================================================================*/
 
 /*========================================================================
- * MusicBrowser.h - Music browser definition
+ * EdMain.cpp
  *
- * written by Jesse 'Hyzoran' Kowalik & Adam 'Xaleros' Smith
+ * written by Jesse 'Hyzoran' Kowalik
  *========================================================================
 */
 
-#include "Browser.h"
+#include "EdToolFrame.h"
 
-class EdMusicBrowser : public EdBrowser
+EdToolFrame::EdToolFrame( wxString& Title, bool bStartDocked, EdGamePrompt* ModalWindow )
+    : wxFrame( g_MainFrame, wxID_ANY, Title, wxDefaultPosition, DefaultFrameSize(), wxFRAME_FLOAT_ON_PARENT | wxFRAME_TOOL_WINDOW )
 {
-public:
-  EdMusicBrowser( bool bDock = false, wxSize Size = EdToolFrame::GetFrameSize() );
-  ~EdMusicBrowser();
+    m_ModalWindow = ModalWindow;
 
-  virtual void Update();
+    if( m_ModalWindow == NULL )
+    {
+      m_MyID = g_MainFrame->RegisterTool( this );
+    }
+    Show(true);
+}
 
-  wxButton*   m_PlayMusicButton;
-  wxButton*   m_StopMusicButton;
-  wxTextCtrl* m_SongSectionBox;
+EdToolFrame::~EdToolFrame()
+{
+  if( m_ModalWindow == NULL )
+  {
+    g_MainFrame->UnregisterTool( m_MyID );
+  }
+}
 
-private:
-  void OnPlayMusic( wxCommandEvent& event );
-  void OnStopMusic( wxCommandEvent& event );
+wxSize EdToolFrame::DefaultFrameSize()
+{
+    wxDisplay display (wxDisplay::GetFromWindow( EdEditorFrame::GetMainFrame() ) );
+    wxRect screen = display.GetClientArea();
+    int x, y;
 
-  wxDECLARE_EVENT_TABLE();
-};
+    x = screen.Width / 2;
+    y = screen.Height / 2;
+
+    if ( x < C_MINTOOLSIZE_X )
+        x = C_MINTOOLSIZE_X;
+    if ( y < C_MINTOOLSIZE_Y )
+        y = C_MINTOOLSIZE_Y;
+
+    return returnSize;
+}
+
+void EdToolFrame::OnExit( wxCommandEvent& event )
+{
+    if( m_ModalWindow != NULL )
+    {
+      m_ModalWindow->Enable();
+      m_ModalWindow->OnEnable();
+    }
+
+    Close(True);
+}

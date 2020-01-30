@@ -17,30 +17,42 @@
 \*===========================================================================*/
 
 /*========================================================================
- * MeshBrowser.h - Mesh browser definition
+ * EdGamePrompt.h - Game Prompt and configuration frontend.
  *
- * written by Jesse 'Hyzoran' Kowalik & Adam 'Xaleros' Smith
+ * written by Jesse 'Hyzoran' Kowalik
  *========================================================================
 */
+#pragma once
 
-#include "EditorMain.h"
-#include "MeshBrowser.h"
-#include <Engine/UMesh.h>
+#include "EdConfigFrame.h"
 
-EdMeshBrowser::EdMeshBrowser( bool bDock, wxSize Size )
-  : EdBrowser( UMesh::StaticClass(), bDock, Size )
+class EdGamePrompt : public wxDialog
 {
-  SetLabel( wxString( "Mesh Browser" ) );
-  SetIcon( EdEditorFrame::sm_icoMesh );
+public: 
+    EdGamePrompt( TArray<char*>* Names, int& OutGameIndex );
 
-  m_subDirType = (wxString*)&EdEditorFrame::csm_SubDir_USM;
+    void Refresh();
+    void Select( int Choice );
+    void OnEnable();
 
+//Events
+    enum
+    {
+      ID_Select,
+      ID_Edit,
+      ID_Cancel,
+      ID_ListBox
+    };
 
-  ConstructPackageButtons();
+//Event Handlers
 
-  TileConstruct();
-}
+    void EVT_Select( wxCommandEvent& event );
+    void EVT_Edit( wxCommandEvent& event );
+    void EVT_ListBox( wxCommandEvent& event );
+    void OnCancel( wxCommandEvent& event );
 
-EdMeshBrowser::~EdMeshBrowser()
-{
-}
+private:
+  wxBoxSizer* hsizer;
+  wxListBox* m_Ctrl;
+  int* m_OutGameIndex;
+};
