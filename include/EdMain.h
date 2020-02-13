@@ -24,49 +24,25 @@
 */
 #pragma once
 
-#include <wx/wxprec.h>
-#include <wx/wx.h>
-#include <wx/aui/aui.h>
-#include <wx/statline.h>
-#include <wx/display.h>
+#include "EdEditor.h"
 
-#include <libunr.h>
-
+#include "EdToolFrame.h"
 #include "EdConfigFrame.h"
 #include "EdGamePrompt.h"
-#include "EdToolFrame.h"
 #include "EdBrowsers.h"
 
 #define C_BUTTONSIZE 34
 #define C_BUTTONCOLOUR wxColour( 130, 130, 130 )
 #define C_TOOLBUTTONSIZE 28
 
-//EdEditorFrame - Forms the core of the Editor, and manages all Frontend-Level systems.
-//Most notably, tracks and manages all EdToolFrame instances.
+//EdEditorFrame - Central Editor window.
 class EdEditorFrame : public wxFrame
 {
 public:
-    EdEditorFrame(const wxString& Title, const wxPoint& Pos, const wxSize& Size);
+    EdEditorFrame( const wxString& Title, const wxPoint& Pos, const wxSize& Size );
     ~EdEditorFrame();
 
-//EdToolFrame management.
-    size_t RegisterTool(EdToolFrame* Tool);
-    bool UnregisterTool(size_t id);
-
-private:
-    static TArray<EdToolFrame*> m_ToolArray;
-    static size_t m_EmptySlots;
-
-public:
-//Libunr Interaction
-    void LoadPackages(const wxArrayString& Paths);
-
-//Object Interaction
-    void ObjectMenu(UObject* Obj);
-    void ObjectPlay(UObject* Obj);
-    void ObjectProperties(UObject* Obj);
-
-    wxString GetGameDir();
+    void DoTick( wxIdleEvent& event ) { EdEditor::DoTick( event ); }
 
 //Events
     enum
@@ -88,7 +64,11 @@ public:
         ID_MapEditor,
         ID_MeshEditor,
         ID_Manual,
-        ID_AdvancedOptions
+        ID_AdvancedOptions,
+        ID_ObjectPlay,
+        ID_ObjectOpen,
+        ID_ObjectProperties,
+        ID_ObjectExport
     };
 
 //Event Handlers
@@ -114,65 +94,20 @@ public:
     void EVT_Manual(wxCommandEvent& event);
     void EVT_AdvancedOptions( wxCommandEvent& event );
 
-//Static Resource references
-    static wxBitmap sm_bmpNew;
-    static wxBitmap sm_bmpDir;
-    static wxBitmap sm_bmpSave;
-    static wxBitmap sm_bmpPackage;
-    static wxBitmap sm_bmpClass;
-    static wxBitmap sm_bmpSound;
-    static wxBitmap sm_bmpMusic;
-    static wxBitmap sm_bmpGraphics;
-    static wxBitmap sm_bmpMesh;
-    static wxBitmap sm_bmpGroup;
-
-    static wxIcon sm_icoNew;
-    static wxIcon sm_icoDir;
-    static wxIcon sm_icoSave;
-    static wxIcon sm_icoPackage;
-    static wxIcon sm_icoClass;
-    static wxIcon sm_icoSound;
-    static wxIcon sm_icoMusic;
-    static wxIcon sm_icoGraphics;
-    static wxIcon sm_icoMesh;
-    static wxIcon sm_icoGroup;
-
-//subdir suffix for different package types.
-    static wxString csm_SubDir_U;
-    static wxString csm_SubDir_UAX;
-    static wxString csm_SubDir_UMX;
-    static wxString csm_SubDir_UTX;
-    static wxString csm_SubDir_UNR;
-    static wxString csm_SubDir_USM;
-    static wxString csm_SubDir_USA;
-
     wxDECLARE_EVENT_TABLE();
-};
-
-extern EdEditorFrame* g_MainFrame;
-
-class EdObjectPopup : public wxMenu
-{
-public:
-    EdObjectPopup(UObject* Obj);
 };
 
 class EdAbout : public wxFrame
 {
 public:
-    EdAbout();
+    EdAbout( wxWindow* Parent );
+
+    void OnClose( wxCommandEvent& event );
 };
 
 class EditorApp : public wxApp
 {
 public:
     virtual bool OnInit();
-    void DoTick(wxIdleEvent& event);
-
-    static int GamePromptHandler( TArray<char*>* Names );
-    int sm_SelectedGame;
-
-private:
-    double CurrentTime;
-    double LastTime;
+    
 };

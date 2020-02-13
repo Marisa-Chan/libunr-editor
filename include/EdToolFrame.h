@@ -17,31 +17,58 @@
 \*===========================================================================*/
 
 /*========================================================================
- * EdToolFrame.h - Editor tool objects - root class.
+ * EdToolFrame.h - Editor Tools.
  *
  * written by Jesse 'Hyzoran' Kowalik
  *========================================================================
 */
 #pragma once
 
-#include "EdMain.h"
+#include "EdEditor.h"
 
 #define C_MINTOOLSIZE_X 512
 #define C_MINTOOLSIZE_Y 384
 
+//========================================================================
+// EdToolFrame
+
 class EdToolFrame : public wxFrame
-(
+{
 public:
-    EdToolFrame( wxString& Title = "", bool bStartDocked = false, EdGamePrompt* ModalWindow );
+    EdToolFrame( wxWindow* Parent = EdEditor::sm_MainFrame, wxString Title = "EdToolFrame", bool bStartDocked = false );
     ~EdToolFrame();
 
-    static wxSize DefaultFrameSize();
+    static wxSize DefaultFrameSize( wxWindow* Parent );
 
-  //Event Handlers
+//Event Handlers
     virtual void OnExit( wxCommandEvent& event );
 
+//Static Interface
+
+    static TArray<EdToolFrame*>* GetTools();
+
+    wxDECLARE_EVENT_TABLE();
+
 protected:
-    wxWindow* m_ModalWindow;
+
+    wxWindow* m_Parent;
+    
+//UObject Interface
+
+    void ObjectMenu( UObject* Obj );
+    void ObjectPlay( UObject* Obj );
+    void ObjectExport( UObject* Obj );
+    void ObjectExport( TArray<UObject*>& Objs );
+    void ObjectProperties( UObject* Obj );
+
     bool m_bDocked;
+    bool m_bDockable = true; //This Tool class is dockable, e.g., shows up as a tool window and is registered in sm_Tools.
     int m_MyID;
-);
+
+//Statics - Tool Management
+
+    static size_t RegisterTool( EdToolFrame* Tool );
+    static bool UnregisterTool( size_t id );
+        static TArray<EdToolFrame*> sm_Tools;
+        static size_t sm_EmptySlots;
+};

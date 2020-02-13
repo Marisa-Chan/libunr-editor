@@ -116,7 +116,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)include\;$(SolutionDir)libunr\include\;$(ProjectDir)wxWidgets\include\msvc;$(ProjectDir)wxWidgets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)include\;$(SolutionDir)libunr\include\;$(ProjectDir)deps\wxWidgets\include\msvc;$(ProjectDir)deps\wxWidgets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
       <PreprocessorDefinitions>__WXMSW__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -125,7 +125,7 @@
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>$(SolutionDir)libunr\build\$(Configuration)\libunr.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <StackReserveSize>4194304</StackReserveSize>
-      <AdditionalLibraryDirectories>$(ProjectDir)wxWidgets\lib\vc_$(Platform)_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)deps\wxWidgets\lib\vc_$(Platform)_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy $(ProjectDir)build\$(Configuration)\$(TargetName).exe $(SolutionDir)dist\$(TargetName).exe</Command>
@@ -150,14 +150,17 @@
     <None Include=".gitignore" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\EdBrowsers.h" />
     <ClInclude Include="include\EdConfigFrame.h" />
-    <ClInclude Include="include\EdEvents.h" />
     <ClInclude Include="include\EdGamePrompt.h" />
+    <ClInclude Include="include\EdEditor.h" />
     <ClInclude Include="include\EdMain.h" />
     <ClInclude Include="include\EdToolFrame.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\EdBrowser.cpp" />
     <ClCompile Include="src\EdConfigFrame.cpp" />
+    <ClCompile Include="src\EdEditor.cpp" />
     <ClCompile Include="src\EdGamePrompt.cpp" />
     <ClCompile Include="src\EdMain.cpp" />
     <ClCompile Include="src\EdToolFrame.cpp" />

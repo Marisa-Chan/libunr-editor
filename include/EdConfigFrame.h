@@ -24,26 +24,30 @@
 */
 #pragma once
 
-#include "EdMain.h"
+#include <wx/treelist.h>
+
+#include "EdToolFrame.h"
+#include "EdGamePrompt.h"
 
 class EdConfigFrame : public EdToolFrame
 {
 public:
-    EdConfigFrame( FConfig* Config = NULL, wxString Section = "", bool bDock = false, EdGamePrompt* ModalWindow ); //If Empty Section string, then read all ini sections.
+    EdConfigFrame( wxWindow* Parent = EdEditor::sm_MainFrame, FConfig* Config = NULL, wxString Section = "", bool bDock = false, EdGamePrompt* ModalPrompt = NULL ); //If Empty Section string, then read all ini sections.
+    ~EdConfigFrame();
 
     //Multi-purpose class to store config-entry references in memory, as well as "Fake" ones, to be written.
-    struct ConfigDataItem
+    struct ConfigDataItem : public wxClientData
     {
     public:
-      ConfigDataItem( FConfig* Config, FConfigCategory* Category = NULL, FConfigEntry* Entry = NULL, int Index = -1, ConfigDataItem* Parent = NULL );
+      ConfigDataItem( FConfig* Config, FConfig::FConfigCategory* Category = NULL, FConfig::FConfigEntry* Entry = NULL, int Index = -1, ConfigDataItem* Parent = NULL );
       ConfigDataItem( wxString ConfigStr = "", wxString CategoryStr = "", wxString EntryStr = "", ConfigDataItem* Parent = NULL );
 
       wxString GetDataName();
       bool WriteConfig(); //If it is fake, it will become non-fake.
 
       FConfig* m_Config = NULL;
-      FConfigCategory* m_Category = NULL;
-      FConfigEntry* m_Entry = NULL;
+      FConfig::FConfigCategory* m_Category = NULL;
+      FConfig::FConfigEntry* m_Entry = NULL;
       int m_Index = -1;
       ConfigDataItem* m_Parent = NULL;
       bool m_bFake = false; //If this configdataitem is fake, it doesnt exist in ini yet.
@@ -74,7 +78,7 @@ public:
 
     void Apply(); //Commit config edits.
     void Refresh(); //Re-read ini and render. Nessecary when ini changes are applied.
-      void RecurseEntry( wxTreeListItem ParentItem, FConfigEntry* Entry, ConfigDataItem BaseData ); //Recursively add an entry and its components.
+      void RecurseEntry( wxTreeListItem ParentItem, FConfig::FConfigEntry* Entry, ConfigDataItem BaseData ); //Recursively add an entry and its components.
 
     //Upcoming functions:
     //void NewEntry( ConfigDataItem Parent );
@@ -96,12 +100,15 @@ public:
     void EVT_ObjectMenu( wxCommandEvent& event );
     void EVT_ObjectPlay( wxCommandEvent& event );
     void EVT_ObjectOpen( wxCommandEvent& event );
-    virtual void OnExit( wxCommandEvent& event );
+    virtual void OnExit();
+
+    wxDECLARE_EVENT_TABLE();
 
 protected:
-    FConfigCategory* m_Category;
+    EdGamePrompt* m_ModalPrompt = NULL;
+    FConfig::FConfigCategory* m_Category;
     FConfig* m_Config;
-    TArray<wxTreeListItem> m_Changed; //List of ConfigDataItems that have been changed.
+    TArray< wxTreeListItem > m_Changed; //List of ConfigDataItems that have been changed.
     wxTreeListCtrl* m_Ctrl;
 
 };

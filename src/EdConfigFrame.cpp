@@ -27,29 +27,35 @@
 
 //========================================================================
 // EdConfigFrame
-EdConfigFrame::EdConfigFrame( FConfig* Config, wxString Section, bool bDock, EdGamePrompt* ModalWindow )
-    :   EdToolFrame( wxString(" Configuration Editor [" + Section + wxString("]"), bDock, ModalWindow ), m_Section( Section ), m_bLockSection( bLockSection )
+EdConfigFrame::EdConfigFrame( wxWindow* Parent, FConfig* Config, wxString Section, bool bDock, EdGamePrompt* ModalPrompt )
+    :   EdToolFrame( Parent, wxString( wxString("Configuration Editor [") + Section + wxString("]") ), bDock ),
+    m_ModalPrompt( ModalPrompt )
 {
   m_Category = Config->GetCategoryFromName( Section.ToAscii() );
+  m_Config = Config;
 
-  wxBoxSizer* vsizer = new wxBoxSizer( wxVERTICAL );
+  wxBoxSizer* hsizer = new wxBoxSizer( wxHORIZONTAL );
 
-    m_Ctrl = new wxTreeListCtrl();
-      vsizer.Add( m_Ctrl, 1 );
+    m_Ctrl = new wxTreeListCtrl( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_SUNKEN );
+      hsizer->Add( m_Ctrl, 1, wxEXPAND );
 
-    wxPanel* panel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( -1, 48 ) );
-      vsizer.Add( panel, 0 );
+    wxPanel* panel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( 48, -1 ) );
+      hsizer->Add( panel, 0, wxEXPAND );
 
-    wxBoxSizer* hsizer = new wxBoxSizer( wxHORIZONTAL );
+    wxBoxSizer* vsizer = new wxBoxSizer( wxVERTICAL );
 
-      wxButton* buttonApply = new wxButton( panel, ID_Apply, "Apply", wxDefaultPosition, wxDefaultSize, wxBU_RIGHT );
-        hsizer.Add( buttonConfirm, 0, wxRIGHT | wxALIGN_RIGHT );
+      wxButton* buttonApply = new wxButton( panel, ID_Apply, "Apply", wxDefaultPosition, wxDefaultSize );
+        vsizer->Add( buttonApply, 0 );
 
-    panel->SetSizer(hsizer);
+    panel->SetSizer(vsizer);
 
-  SetSizer(vsizer);
+  SetSizer(hsizer);
+  Show(true);
+}
 
-  Refresh();
+EdConfigFrame::~EdConfigFrame()
+{
+    OnExit();
 }
 
 void EdConfigFrame::Apply()
@@ -58,16 +64,16 @@ void EdConfigFrame::Apply()
     return;
 
   TArray<wxTreeListItem> items; //Selected config data to update.
-  EdConfigConfirm confirmDialog( m_Changed, m_Ctrl, items );
+  EdConfigConfirm confirmDialog( this, m_Changed, m_Ctrl, items );
 
-  confirmDialog.ShowModal( true );
+  confirmDialog.ShowModal();
 
   if( items.IsEmpty() ) //We didn't select any or cancelled, do nothing.
     return;
 
   for ( size_t i = 0; i < items.Size(); i++ )
   {
-    ConfigDataItem* itemData = ConfigDataItem*( m_Ctrl->GetItemData( items[i] ) );
+    ConfigDataItem* itemData = (ConfigDataItem*)m_Ctrl->GetItemData( items[i] );
 
     itemData->WriteConfig();
   }
@@ -99,19 +105,18 @@ void EdConfigFrame::Refresh()
     //Populate Configs
     FConfig* currentConfig = Configs[i];
 
-    wxTreeListItem itemConfig = m_Ctrl->AppendItem( rootItem, currentConfig->GetName(), NO_IMAGE, NO_IMAGE, new ConfigDataItem( currentConfig ) );
-
+    wxTreeListItem itemConfig = m_Ctrl->AppendItem( rootItem, wxString( currentConfig->GetName() ), -1, -1, new ConfigDataItem( currentConfig ) );
     //Populate Categories
-    for( size_t i2 = 0; i2 < currentConfig->GetCategories()->Size(), i2++ )
+    for( size_t i2 = 0; i2 < currentConfig->GetCategories()->Size(); i2++ )
     {
-      FConfigCategory* currentCategory = currentConfig->(*GetCategories())[i2] );
+      FConfig::FConfigCategory* currentCategory = currentConfig->GetCategories()->operator[](i2);
 
-      wxTreeListItem itemCategory = m_Ctrl->AppendItem( itemConfig, currentCategory->Name, NO_IMAGE, NO_IMAGE, new ConfigDataItem( currentConfig, currentCategory ) );
+      wxTreeListItem itemCategory = m_Ctrl->AppendItem( itemConfig, currentCategory->Name, -1, -1, new ConfigDataItem( currentConfig, currentCategory ) );
 
       //Populate Entries
-      for (size_t i3 = 0; i3 < currentCategory->Entries->Size(), i3++ )
+      for ( size_t i3 = 0; i3 < currentCategory->Entries->Size(); i3++ )
       {
-        FConfigEntry* currentEntry = currentCategory->(*Entries)[i3];
+        FConfig::FConfigEntry* currentEntry = currentCategory->Entries->operator[](i3);
 
         RecurseEntry( itemCategory, currentEntry, ConfigDataItem( currentConfig, currentCategory, currentEntry ) );
       }
@@ -119,24 +124,24 @@ void EdConfigFrame::Refresh()
   }
 }
 
-void EdConfigFrame::RecurseEntry( wxTreeListItem ParentItem, FConfigEntry* Entry, ConfigDataItem BaseData )
+void EdConfigFrame::RecurseEntry( wxTreeListItem ParentItem, FConfig::FConfigEntry* Entry, ConfigDataItem BaseData )
 {
   wxTreeListItem newItem;
 
-  if( Entry->StructVars.IsEmpty() )
+  if( Entry->StructVars->IsEmpty() )
   {
-    for( size_t i = 0; i < Entry->Values.Size(); i++ )
+    for( size_t i = 0; i < Entry->Values->Size(); i++ )
     {
-      newItem = m_Ctrl->AppendItem( ParentItem, Entry->Name + wxString("[") << i + wxString("]"), NO_IMAGE, NO_IMAGE, ConfigDataItem( BaseData.m_Config, BaseData.m_Category, BaseData.m_Entry, i, BaseData.m_Parent ) );
+      newItem = m_Ctrl->AppendItem( ParentItem, wxString( Entry->Name + ( wxString("[") << i  ) + wxString("]") ), -1, -1, new ConfigDataItem( BaseData.m_Config, BaseData.m_Category, BaseData.m_Entry, i, BaseData.m_Parent ) );
     }
   }
   else
   {
-    for( size_t i = 0; i < Entry->StructVars.Size(); i++ )
+    for( size_t i = 0; i < Entry->StructVars->Size(); i++ )
     {
-      newItem = m_Ctrl->AppendItem( ParentItem, Entry->Name + wxString("[") << i + wxString("]"), NO_IMAGE, NO_IMAGE, ConfigDataItem( BaseData.m_Config, BaseData.m_Category, BaseData.m_Entry, i, BaseData.m_Parent ) );
+      newItem = m_Ctrl->AppendItem( ParentItem, Entry->Name + ( wxString("[") << i  ) + wxString("]"), -1, -1, new ConfigDataItem( BaseData.m_Config, BaseData.m_Category, BaseData.m_Entry, i, BaseData.m_Parent ) );
 
-      RecurseEntry( newItem, Entry->StructVars[i], ConfigDataItem( BaseData.m_Config, BaseData.m_Category, Entry->StructVars[i], -1, Entry ) );
+      RecurseEntry( newItem, Entry->StructVars->operator[](i), ConfigDataItem( BaseData.m_Config, BaseData.m_Category, Entry->StructVars->operator[](i), -1, &BaseData ) );
     }
   }
 }
@@ -144,43 +149,46 @@ void EdConfigFrame::RecurseEntry( wxTreeListItem ParentItem, FConfigEntry* Entry
 void EdConfigFrame::EVT_Apply( wxCommandEvent& event )
 {
   Apply();
-  event.skip();
+  event.Skip();
 }
 
 void EdConfigFrame::EVT_Refresh( wxCommandEvent& event )
 {
   Refresh();
-  event.skip();
+  event.Skip();
 }
 
 void EdConfigFrame::EVT_ObjectMenu( wxCommandEvent& event )
 {
-  event.skip();
+  event.Skip();
 }
 
 void EdConfigFrame::EVT_ObjectPlay( wxCommandEvent& event )
 {
-  event.skip();
+  event.Skip();
 }
 
 void EdConfigFrame::EVT_ObjectOpen( wxCommandEvent& event )
 {
-  event.skip();
+  event.Skip();
 }
 
-void EdConfigFrame::OnExit( wxCommandEvent& event )
+void EdConfigFrame::OnExit()
 {
-
   Apply();
+  if( m_ModalPrompt != NULL )
+  {
+      m_ModalPrompt->OnEnable();
+  }
 }
 
 //========================================================================
 // ConfigDataItem
 
-EdConfigFrame::ConfigDataItem::ConfigDataItem( FConfig* Config, FConfigCategory* Category, FConfigEntry* Entry, int Index, ConfigDataItem* Parent) : m_Config( Config ), m_Category( Category ), m_Entry( Entry ), m_Index( Index ), m_Parent( Parent )
+EdConfigFrame::ConfigDataItem::ConfigDataItem( FConfig* Config, FConfig::FConfigCategory* Category, FConfig::FConfigEntry* Entry, int Index, ConfigDataItem* Parent) : m_Config( Config ), m_Category( Category ), m_Entry( Entry ), m_Index( Index ), m_Parent( Parent )
 {}
 
-EdConfigFrame::ConfigDataItem::ConfigDataItem( wxString ConfigStr, wxString CategoryStr, wxString EntryStr, ConfigDataItem* Parent ) : m_ConfigStr( ConfigStr ), m_CategoryStr( CategoryStr ), m_EntryStr( EntryStr ), m_Index( Index ), m_Parent( Parent ), m_bFake( true )
+EdConfigFrame::ConfigDataItem::ConfigDataItem( wxString ConfigStr, wxString CategoryStr, wxString EntryStr, ConfigDataItem* Parent ) : m_ConfigStr( ConfigStr ), m_CategoryStr( CategoryStr ), m_EntryStr( EntryStr ), m_Parent( Parent ), m_bFake( true )
 {}
 
 wxString EdConfigFrame::ConfigDataItem::GetDataName()
@@ -237,46 +245,51 @@ bool EdConfigFrame::ConfigDataItem::WriteConfig()
 // EdConfigConfirm
 
 EdConfigFrame::EdConfigConfirm::EdConfigConfirm( EdConfigFrame* Parent,  TArray<wxTreeListItem>& Changed, wxTreeListCtrl* Ctrl, TArray<wxTreeListItem>& OutSelected ) 
-    : wxDialog( Parent, wxID_ANY, wxString( "Commit Config Changes"), wxDefaultPosition, wxDefaultSize, wxCLOSE_BOX | wxSTAY_ON_TOP | wxRESIZE_BORDER ), m_OutSelected( OutSelected ), m_Items( Changed )
+    : wxDialog( Parent, wxID_ANY, wxString( "Commit Config Changes"), wxDefaultPosition, wxDefaultSize, wxCLOSE_BOX | wxSTAY_ON_TOP | wxRESIZE_BORDER ), m_OutSelected( &OutSelected ), m_Items( Changed )
 {
   wxArrayString StrAry;
 
   for( size_t i = 0; i < Changed.Size(); i++ )
   {
-    ConfigDataItem* currentData = ConfigDataItem*( m_Ctrl->GetItemData( Changed[i] ) );
+    ConfigDataItem* currentData = (ConfigDataItem*)Ctrl->GetItemData( Changed[i] );
 
     StrAry.Add( currentData->GetDataName() );
   }
 
   wxBoxSizer* vsizer = new wxBoxSizer( wxVERTICAL );
-    m_Ctrl = new wxCheckListBox( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, Changed.Size(), StrAry, wxLB_EXTENDED | wxLB_HSCROLL );
-      vsizer.Add( m_Ctrl, 1 );
+    m_Ctrl = new wxCheckListBox( (wxWindow*)this, wxID_ANY, wxDefaultPosition, wxDefaultSize, StrAry, wxLB_EXTENDED | wxLB_HSCROLL );
+      vsizer->Add( m_Ctrl, 1 );
 
     wxPanel* panel = new wxPanel( this );
-      vsizer.Add( panel, 1 );
+      vsizer->Add( panel, 1 );
 
       wxBoxSizer* hsizer = new wxBoxSizer( wxHORIZONTAL );
 
       wxButton* buttonConfirm = new wxButton( panel, ID_Confirm, "Confirm", wxDefaultPosition, wxDefaultSize, wxBU_LEFT );
-        hsizer.Add( buttonConfirm, 0, wxLEFT | wxALIGN_LEFT );
-      wxButton* buttonCancel = new wxButton( panel, wxID_Cancel, "Cancel", wxDefaultPosition, wxDefaultSize, wxBU_LEFT );
-        hsizer.Add( buttonCancel, 0, wxLEFT | wxALIGN_LEFT );
+        hsizer->Add( buttonConfirm, 0, wxLEFT | wxALIGN_LEFT );
+      wxButton* buttonCancel = new wxButton( panel, wxID_CANCEL, "Cancel", wxDefaultPosition, wxDefaultSize, wxBU_LEFT );
+        hsizer->Add( buttonCancel, 0, wxLEFT | wxALIGN_LEFT );
 
-     panel->SetSizer( hszier );
+     panel->SetSizer( hsizer );
   
   SetSizer( vsizer );
 }
 
-EdConfigFrame::EdConfigConfirm::EVT_Confirm( wxCommandEvent& event )
+void EdConfigFrame::EdConfigConfirm::EVT_Confirm( wxCommandEvent& event )
 {
   for( size_t i = 0; i < m_Ctrl->GetCount(); i++ )
   {
-    if( IsChecked( i ) )
+    if( m_Ctrl->IsChecked( i ) )
     {
       m_OutSelected->PushBack( m_Items[i] );
     }
   }
 
-  EndModal();
+  EndModal( 0 );
   Close( true );
 }
+
+wxBEGIN_EVENT_TABLE(EdConfigFrame, wxFrame)
+    EVT_BUTTON(ID_Apply, EdConfigFrame::EVT_Apply)
+    EVT_BUTTON(ID_Refresh, EdConfigFrame::EVT_Refresh)
+wxEND_EVENT_TABLE()

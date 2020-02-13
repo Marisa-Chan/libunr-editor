@@ -17,47 +17,22 @@
 \*===========================================================================*/
 
 /*========================================================================
- * EdGamePrompt.h - Game Prompt and configuration frontend.
- *
- * written by Jesse 'Hyzoran' Kowalik
- *========================================================================
+* EdBrowser.cpp
+*
+* written by Jesse 'Hyzoran' Kowalik
+*========================================================================
 */
-#pragma once
 
-#include "EdEditor.h"
+#include "EdBrowsers.h"
 
-class EdConfigFrame;
-
-class EdGamePrompt : public wxDialog
+EdBrowser::EdBrowser( wxString Title, bool bStartDocked )
+	: EdToolFrame( EdEditor::sm_MainFrame, Title, bStartDocked )
 {
-public: 
-    EdGamePrompt( TArray<char*>* Names, int& OutGameIndex );
+}
 
-    void PromptRefresh();
-    void Select( int Choice );
-    void OnEnable();
+ThreadReturnType EdBrowser::StaticThreadObjectUpdate( void* Browser )
+{
+	((EdBrowser*)Browser)->ObjectUpdate();
 
-//Events
-    enum
-    {
-      ID_Select,
-      ID_Edit,
-      ID_Cancel,
-      ID_ListBox
-    };
-
-//Event Handlers
-
-    void EVT_Select( wxCommandEvent& event );
-    void EVT_Edit( wxCommandEvent& event );
-    void EVT_ListBox( wxCommandEvent& event );
-    void OnCancel( wxCommandEvent& event );
-
-    wxDECLARE_EVENT_TABLE();
-
-private:
-  wxBoxSizer* hsizer;
-  wxListBox* m_Ctrl;
-  EdConfigFrame* m_EditWindow = NULL;
-  int* m_OutGameIndex;
-};
+	return THREAD_SUCCESS;
+}

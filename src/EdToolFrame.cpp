@@ -24,51 +24,97 @@
 */
 
 #include "EdToolFrame.h"
+#include "EdGamePrompt.h"
 
-EdToolFrame::EdToolFrame( wxString& Title, bool bStartDocked, EdGamePrompt* ModalWindow )
-    : wxFrame( g_MainFrame, wxID_ANY, Title, wxDefaultPosition, DefaultFrameSize(), wxFRAME_FLOAT_ON_PARENT | wxFRAME_TOOL_WINDOW )
+TArray<EdToolFrame*> EdToolFrame::sm_Tools;
+size_t EdToolFrame::sm_EmptySlots;
+
+EdToolFrame::EdToolFrame( wxWindow* Parent, wxString Title, bool bStartDocked)
+    : wxFrame( Parent, wxID_ANY, Title, wxDefaultPosition, DefaultFrameSize( Parent )),
+    m_Parent( Parent ),
+    m_bDocked( bStartDocked )
 {
-    m_ModalWindow = ModalWindow;
-
-    if( m_ModalWindow == NULL )
+    if( Parent == EdEditor::sm_MainFrame && EdEditor::sm_MainFrame != NULL )
     {
-      m_MyID = g_MainFrame->RegisterTool( this );
+        m_MyID = EdToolFrame::RegisterTool( this );
     }
-    Show(true);
 }
 
 EdToolFrame::~EdToolFrame()
 {
-  if( m_ModalWindow == NULL )
-  {
-    g_MainFrame->UnregisterTool( m_MyID );
-  }
+    if( m_Parent == EdEditor::sm_MainFrame && EdEditor::sm_MainFrame != NULL )
+    {
+        EdToolFrame::UnregisterTool( m_MyID );
+    }
 }
 
-wxSize EdToolFrame::DefaultFrameSize()
+wxSize EdToolFrame::DefaultFrameSize( wxWindow* Parent )
 {
-    wxDisplay display (wxDisplay::GetFromWindow( EdEditorFrame::GetMainFrame() ) );
-    wxRect screen = display.GetClientArea();
+    wxDisplay* display;
+
+    if( Parent != NULL )
+        display = new wxDisplay( wxDisplay::GetFromWindow( Parent ) );
+    else
+        display = new wxDisplay( static_cast<unsigned int>(0) );
+
+    wxRect screen = display->GetClientArea();
     int x, y;
 
-    x = screen.Width / 2;
-    y = screen.Height / 2;
+    x = screen.width / 2;
+    y = screen.height / 2;
 
     if ( x < C_MINTOOLSIZE_X )
         x = C_MINTOOLSIZE_X;
     if ( y < C_MINTOOLSIZE_Y )
         y = C_MINTOOLSIZE_Y;
 
-    return returnSize;
+    delete display;
+
+    return wxSize( x, y );
 }
 
 void EdToolFrame::OnExit( wxCommandEvent& event )
 {
-    if( m_ModalWindow != NULL )
-    {
-      m_ModalWindow->Enable();
-      m_ModalWindow->OnEnable();
-    }
-
-    Close(True);
+    Close( true );
 }
+
+TArray<EdToolFrame*>* EdToolFrame::GetTools()
+{
+    return &sm_Tools;
+}
+
+size_t EdToolFrame::RegisterTool( EdToolFrame* Tool )
+{
+    if ( sm_EmptySlots > 0 ) //A slot was freed earlier, find and use that slot.
+    {
+        for (size_t i = 0; i < sm_Tools.Size(); i++)
+        {
+            if ( sm_Tools[i] == NULL)
+            {
+                sm_Tools[i] = Tool;
+                sm_EmptySlots--; //We used a slot.
+                return i;
+            }
+        }
+        //None found? Something went wrong.
+        GLogf(LOG_WARN, "EdToolFrame::RegTool() : sm_EmptySlots > 0, but none found in sm_ToolArray!");
+        GLogf(LOG_WARN, "Possible memory corruption... Pushing new tool to end of array...");
+    }
+    sm_Tools.PushBack((EdToolFrame*)Tool);
+    return sm_Tools.Size() - 1;
+}
+
+bool EdToolFrame::UnregisterTool( size_t id )
+{
+    if ( sm_Tools[id] != NULL )
+    {
+        sm_Tools[id] = NULL;
+        sm_EmptySlots++;
+        return true;
+    }
+    GLogf(LOG_WARN, "EdEditor::UnregisterTool() : Unregistered tool that does not exist in sm_ToolArray!");
+    return false;
+}
+
+wxBEGIN_EVENT_TABLE(EdToolFrame, wxFrame)
+wxEND_EVENT_TABLE()

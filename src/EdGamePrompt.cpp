@@ -24,9 +24,10 @@
 */
 
 #include "EdGamePrompt.h"
+#include "EdConfigFrame.h"
 
 EdGamePrompt::EdGamePrompt( TArray<char*>* Names, int& OutGameIndex )
-  : wxDialog( NULL, wxID_ANY, wxString("Select Game Configuration"), wxDefaultPosition, wxDefaultSize, wxRESIZE_BORDER ), m_OutGameIndex( OutGameIndex )
+  : wxDialog( NULL, wxID_ANY, wxString("Select Game Configuration"), wxDefaultPosition, wxDefaultSize, wxRESIZE_BORDER | wxSYSTEM_MENU | wxCLOSE_BOX | wxCAPTION | wxMINIMIZE_BOX | wxMAXIMIZE_BOX | wxBORDER_THEME ), m_OutGameIndex( &OutGameIndex )
 {
   wxArrayString StrAry;
 
@@ -34,22 +35,22 @@ EdGamePrompt::EdGamePrompt( TArray<char*>* Names, int& OutGameIndex )
   {
     StrAry.Add( wxString( (*Names)[i] ) );
   }
-  hsizer = new wxBoxSizer( wxHORIZONAL );
+  hsizer = new wxBoxSizer( wxHORIZONTAL );
     
-    m_Ctrl = new wxListBox( this, ID_ListBox, wxDefaultPosition, wxDefaultSizer, Names->Size(), StrAry, wxLB_SINGLE | wxBORDER_SUNKEN );
-      hsizer->Add( m_Ctrl, 1, wxLEFT | wxALIGN_LEFT );
+    m_Ctrl = new wxListBox( this, ID_ListBox, wxDefaultPosition, wxSize( -1, -1 ), StrAry, wxLB_SINGLE | wxBORDER_SUNKEN );
+      hsizer->Add( m_Ctrl, 1, wxLEFT | wxEXPAND );
 
     wxPanel* panel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( 48, -1 ) );
-      hsizer->Add( panel, 0, wxRIGHT | wxALIGN_RIGHT );
+      hsizer->Add( panel, 0, wxRIGHT | wxEXPAND );
 
       wxBoxSizer* vsizer = new wxBoxSizer( wxVERTICAL );
 
       wxButton* buttonSelect = new wxButton( panel, ID_Select, "Select", wxDefaultPosition, wxDefaultSize, wxBU_TOP );
-        vsizer.Add( buttonConfirm, 0, wxTOP | wxALIGN_TOP );
+        vsizer->Add( buttonSelect, 0, wxTOP | wxALIGN_TOP );
       wxButton* buttonEdit = new wxButton( panel, ID_Edit, "Edit", wxDefaultPosition, wxDefaultSize, wxBU_TOP );
-        vsizer.Add( buttonCancel, 0, wxTOP | wxALIGN_TOP );
-      wxButton* buttonEdit = new wxButton( panel, wxID_Cancel, "Cancel", wxDefaultPosition, wxDefaultSize, wxBU_TOP );
-        vsizer.Add( buttonCancel, 0, wxTOP | wxALIGN_TOP );
+        vsizer->Add( buttonEdit, 0, wxTOP | wxALIGN_TOP );
+      wxButton* buttonCancel = new wxButton( panel, wxID_CANCEL, "Cancel", wxDefaultPosition, wxDefaultSize, wxBU_TOP );
+        vsizer->Add( buttonCancel, 0, wxTOP | wxALIGN_TOP );
 
     panel->SetSizer( vsizer );
 
@@ -58,58 +59,66 @@ EdGamePrompt::EdGamePrompt( TArray<char*>* Names, int& OutGameIndex )
   Show(true);
 }
 
-void EdGamePrompt::Refresh()
+void EdGamePrompt::PromptRefresh()
 {
-  FConfigCategory* category = GLibunrConfig->GetCategoryFromName("Game");
-  FConfigEntry* entry = category->GetEntryFromName("Name");
+  FConfig::FConfigCategory* category = GLibunrConfig->GetCategoryFromName("Game");
+  FConfig::FConfigEntry* entry = category->GetEntryFromName("Name");
   wxArrayString strAry;
 
-  for( size_t i = 0; i < entry->Values.Size(); i++ )
+  for( size_t i = 0; i < entry->Values->Size(); i++ )
   {
-    strAry.Add( entry.(*Values)[i] );
+    strAry.Add( (*entry->Values)[i] );
   }
 
-  wxListBox newbox = new wxListBox( this, ID_ListBox, wxDefaultPosition, wxDefaultSizer, strAry->Size(), strAry, wxLB_SINGLE | wxBORDER_SUNKEN );
+  wxListBox* newbox = new wxListBox( this, ID_ListBox, wxDefaultPosition, wxDefaultSize, strAry, wxLB_SINGLE | wxBORDER_SUNKEN );
 
-  hsizer->Replace( m_ListBox, newbox );
-  delete m_ListBox;
-  m_ListBox = newbox;
+  hsizer->Replace( m_Ctrl, newbox );
+  delete m_Ctrl;
+  m_Ctrl = newbox;
+  hsizer->Layout();
 }
 
 void EdGamePrompt::Select( int Choice )
 {
-  m_OutGameIndex = Choice;
-  EndModal();
+  *m_OutGameIndex = Choice;
+  EndModal( 0 );
   Close( true );
 }
 
 void EdGamePrompt::OnEnable()
 {
-  Refresh();
+  Enable(true);
+  PromptRefresh();
 }
 
 void EdGamePrompt::EVT_Select( wxCommandEvent& event )
 {
   Select( m_Ctrl->GetSelection() );
-  event.skip();
+  m_EditWindow = NULL;
+  event.Skip();
 }
 
 void EdGamePrompt::EVT_Edit( wxCommandEvent& event )
 {
-  EdConfigFrame configEditor( GLibunrConfig, "Game", false, this );
-
+  m_EditWindow = new EdConfigFrame( this, GLibunrConfig, "Game", false, this );
   Disable();
-
-  event.skip();
+  event.Skip();
 }
 
 void EdGamePrompt::EVT_ListBox( wxCommandEvent& event )
 {
   Select( event.GetSelection() );
-  event.skip();
+  event.Skip();
 }
 
 void EdGamePrompt::OnCancel( wxCommandEvent& event )
 {
-  m_OutGameIndex = -1;
+  *m_OutGameIndex = -1;
 }
+
+wxBEGIN_EVENT_TABLE(EdGamePrompt, wxDialog)
+    EVT_BUTTON(ID_Select, EdGamePrompt::EVT_Select)
+    EVT_BUTTON(ID_Edit, EdGamePrompt::EVT_Edit)
+    EVT_BUTTON(ID_ListBox, EdGamePrompt::EVT_ListBox)
+    EVT_LISTBOX_DCLICK(ID_Select, EdGamePrompt::EVT_Select)
+wxEND_EVENT_TABLE()
