@@ -26,9 +26,6 @@
 #include "EdToolFrame.h"
 #include "EdGamePrompt.h"
 
-TArray<EdToolFrame*> EdToolFrame::sm_Tools;
-size_t EdToolFrame::sm_EmptySlots;
-
 EdToolFrame::EdToolFrame( wxWindow* Parent, wxString Title, bool bStartDocked)
     : wxFrame( Parent, wxID_ANY, Title, wxDefaultPosition, DefaultFrameSize( Parent )),
     m_Parent( Parent ),
@@ -36,7 +33,7 @@ EdToolFrame::EdToolFrame( wxWindow* Parent, wxString Title, bool bStartDocked)
 {
     if( Parent == EdEditor::sm_MainFrame && EdEditor::sm_MainFrame != NULL )
     {
-        m_MyID = EdToolFrame::RegisterTool( this );
+      size_t m_Id = EdToolFrame::StaticAddTool( this );
     }
 }
 
@@ -44,7 +41,7 @@ EdToolFrame::~EdToolFrame()
 {
     if( m_Parent == EdEditor::sm_MainFrame && EdEditor::sm_MainFrame != NULL )
     {
-        EdToolFrame::UnregisterTool( m_MyID );
+        EdToolFrame::StaticRemoveTool( m_Id );
     }
 }
 
@@ -83,37 +80,45 @@ TArray<EdToolFrame*>* EdToolFrame::GetTools()
     return &sm_Tools;
 }
 
-size_t EdToolFrame::RegisterTool( EdToolFrame* Tool )
+TArray<EdToolFrame*> EdToolFrame::sm_Tools;
+size_t EdToolFrame::sm_EmptySlots = 0;
+
+size_t EdToolFrame::StaticAddTool( EdToolFrame* Tool )
 {
-    if ( sm_EmptySlots > 0 ) //A slot was freed earlier, find and use that slot.
+  //Find empty slot.
+  if( sm_EmptySlots > 0 )
+  {
+    for( size_t i = 0; i<sm_Tools.Size(); i++ )
     {
-        for (size_t i = 0; i < sm_Tools.Size(); i++)
-        {
-            if ( sm_Tools[i] == NULL)
-            {
-                sm_Tools[i] = Tool;
-                sm_EmptySlots--; //We used a slot.
-                return i;
-            }
-        }
-        //None found? Something went wrong.
-        GLogf(LOG_WARN, "EdToolFrame::RegTool() : sm_EmptySlots > 0, but none found in sm_ToolArray!");
-        GLogf(LOG_WARN, "Possible memory corruption... Pushing new tool to end of array...");
+      if( sm_Tools[i] == NULL )
+      {
+        sm_Tools[i] = Tool;
+        sm_EmptySlots--;
+        return i;
+      }
     }
-    sm_Tools.PushBack((EdToolFrame*)Tool);
-    return sm_Tools.Size() - 1;
+  }
+  //Just add to end of array.
+  else
+  {
+    sm_Tools.PushBack( Tool );
+    return sm_Tools.Size()-1;
+  }
 }
 
-bool EdToolFrame::UnregisterTool( size_t id )
+bool EdToolFrame::StaticRemoveTool( size_t Id )
 {
-    if ( sm_Tools[id] != NULL )
-    {
-        sm_Tools[id] = NULL;
-        sm_EmptySlots++;
-        return true;
-    }
-    GLogf(LOG_WARN, "EdEditor::UnregisterTool() : Unregistered tool that does not exist in sm_ToolArray!");
+  if( sm_Tools.Size() <= Id )
+  {
+    //Out of range
     return false;
+  }
+  else
+  {
+    sm_Tools[Id] = NULL;
+    sm_EmptySlots++;
+    return true;
+  }
 }
 
 wxBEGIN_EVENT_TABLE(EdToolFrame, wxFrame)

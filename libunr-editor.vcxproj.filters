@@ -58,5 +58,8 @@
     <ClCompile Include="src\EdBrowser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\EdClassBrowser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

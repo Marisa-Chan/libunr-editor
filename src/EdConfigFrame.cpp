@@ -31,7 +31,13 @@ EdConfigFrame::EdConfigFrame( wxWindow* Parent, FConfig* Config, wxString Sectio
     :   EdToolFrame( Parent, wxString( wxString("Configuration Editor [") + Section + wxString("]") ), bDock ),
     m_ModalPrompt( ModalPrompt )
 {
-  m_Category = Config->GetCategoryFromName( Section.ToAscii() );
+  if( Section.IsEmpty() || Section == wxString( "" ) )
+  {
+    m_Category = NULL;
+  }
+  else
+   m_Category = Config->GetCategoryFromName( Section.ToAscii() );
+
   m_Config = Config;
 
   wxBoxSizer* hsizer = new wxBoxSizer( wxHORIZONTAL );
@@ -50,6 +56,12 @@ EdConfigFrame::EdConfigFrame( wxWindow* Parent, FConfig* Config, wxString Sectio
     panel->SetSizer(vsizer);
 
   SetSizer(hsizer);
+
+  //Contruct control columns
+  m_Ctrl->AppendColumn( wxString("Config") );
+  m_Ctrl->AppendColumn( wxString("Entry"), 128 );
+  m_Ctrl->AppendColumn( wxString("Value"), 128 );
+  ConfigRefresh();
   Show(true);
 }
 
@@ -79,10 +91,10 @@ void EdConfigFrame::Apply()
   }
 
   m_Changed.Clear();
-  Refresh();
+  ConfigRefresh();
 }
 
-void EdConfigFrame::Refresh()
+void EdConfigFrame::ConfigRefresh()
 {
   m_Ctrl->DeleteAllItems(); //Clear original state.
 
@@ -105,20 +117,38 @@ void EdConfigFrame::Refresh()
     //Populate Configs
     FConfig* currentConfig = Configs[i];
 
-    wxTreeListItem itemConfig = m_Ctrl->AppendItem( rootItem, wxString( currentConfig->GetName() ), -1, -1, new ConfigDataItem( currentConfig ) );
+    wxTreeListItem itemConfig = m_Ctrl->AppendItem( rootItem, wxString( currentConfig->GetName() ) + wxString(".ini"), -1, -1, new ConfigDataItem( currentConfig ) );
     //Populate Categories
-    for( size_t i2 = 0; i2 < currentConfig->GetCategories()->Size(); i2++ )
-    {
-      FConfig::FConfigCategory* currentCategory = currentConfig->GetCategories()->operator[](i2);
 
-      wxTreeListItem itemCategory = m_Ctrl->AppendItem( itemConfig, currentCategory->Name, -1, -1, new ConfigDataItem( currentConfig, currentCategory ) );
+    if( m_Category != NULL )
+    {
+      wxTreeListItem itemCategory = m_Ctrl->AppendItem( itemConfig, m_Category->Name, -1, -1, new ConfigDataItem( currentConfig, m_Category ) );
 
       //Populate Entries
-      for ( size_t i3 = 0; i3 < currentCategory->Entries->Size(); i3++ )
+      for ( size_t i3 = 0; i3 < m_Category->Entries->Size(); i3++ )
       {
-        FConfig::FConfigEntry* currentEntry = currentCategory->Entries->operator[](i3);
+        FConfig::FConfigEntry* currentEntry = m_Category->Entries->operator[](i3);
 
-        RecurseEntry( itemCategory, currentEntry, ConfigDataItem( currentConfig, currentCategory, currentEntry ) );
+        RecurseEntry( itemCategory, currentEntry, ConfigDataItem( currentConfig, m_Category, currentEntry ) );
+      }
+
+      m_Ctrl->Expand( itemCategory );
+    }
+    else
+    {
+      for( size_t i2 = 0; i2 < currentConfig->GetCategories()->Size(); i2++ )
+      {
+        FConfig::FConfigCategory* currentCategory = currentConfig->GetCategories()->operator[](i2);
+
+        wxTreeListItem itemCategory = m_Ctrl->AppendItem( itemConfig, currentCategory->Name, -1, -1, new ConfigDataItem( currentConfig, currentCategory ) );
+
+        //Populate Entries
+        for ( size_t i3 = 0; i3 < currentCategory->Entries->Size(); i3++ )
+        {
+          FConfig::FConfigEntry* currentEntry = currentCategory->Entries->operator[](i3);
+
+          RecurseEntry( itemCategory, currentEntry, ConfigDataItem( currentConfig, currentCategory, currentEntry ) );
+        }
       }
     }
   }
@@ -128,18 +158,29 @@ void EdConfigFrame::RecurseEntry( wxTreeListItem ParentItem, FConfig::FConfigEnt
 {
   wxTreeListItem newItem;
 
-  if( Entry->StructVars->IsEmpty() )
+  if( Entry->StructVars == NULL || Entry->StructVars->IsEmpty() )
   {
     for( size_t i = 0; i < Entry->Values->Size(); i++ )
     {
-      newItem = m_Ctrl->AppendItem( ParentItem, wxString( Entry->Name + ( wxString("[") << i  ) + wxString("]") ), -1, -1, new ConfigDataItem( BaseData.m_Config, BaseData.m_Category, BaseData.m_Entry, i, BaseData.m_Parent ) );
+      newItem = m_Ctrl->AppendItem( ParentItem, wxString(""), -1, -1, new ConfigDataItem( BaseData.m_Config, BaseData.m_Category, BaseData.m_Entry, i, BaseData.m_Parent ) );
+
+      //Generate Entry name
+      m_Ctrl->SetItemText( newItem, 1, wxString( Entry->Name + ( wxString("[") << i  ) + wxString("]") ) );
+
+      //Generate Entry Value
+      m_Ctrl->SetItemText( newItem, 2, Entry->Values->operator[](i) );
     }
   }
   else
   {
     for( size_t i = 0; i < Entry->StructVars->Size(); i++ )
     {
-      newItem = m_Ctrl->AppendItem( ParentItem, Entry->Name + ( wxString("[") << i  ) + wxString("]"), -1, -1, new ConfigDataItem( BaseData.m_Config, BaseData.m_Category, BaseData.m_Entry, i, BaseData.m_Parent ) );
+      newItem = m_Ctrl->AppendItem( ParentItem, wxString(""), -1, -1, new ConfigDataItem( BaseData.m_Config, BaseData.m_Category, BaseData.m_Entry, i, BaseData.m_Parent ) );
+
+      //Generate Entry name
+      m_Ctrl->SetItemText( newItem, 1, wxString( Entry->Name + ( wxString("[") << i  ) + wxString("]") ) );
+
+      //Generate Entry Values
 
       RecurseEntry( newItem, Entry->StructVars->operator[](i), ConfigDataItem( BaseData.m_Config, BaseData.m_Category, Entry->StructVars->operator[](i), -1, &BaseData ) );
     }
@@ -154,7 +195,7 @@ void EdConfigFrame::EVT_Apply( wxCommandEvent& event )
 
 void EdConfigFrame::EVT_Refresh( wxCommandEvent& event )
 {
-  Refresh();
+  ConfigRefresh();
   event.Skip();
 }
 

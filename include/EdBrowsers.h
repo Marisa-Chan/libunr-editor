@@ -29,6 +29,14 @@
 
 #include "EdToolFrame.h"
 
+enum
+{
+  ID_New,
+  ID_Open,
+  ID_Import,
+  ID_Export
+};
+
 //========================================================================
 // EdBrowser - Abstract Browser class.
 // Also contains any common utility classes to deal with handling UObjects.
@@ -36,11 +44,25 @@ class EdBrowser : public EdToolFrame
 {
 public:
     EdBrowser( wxString Title, bool bStartDocked = false );
+    ~EdBrowser();
 
     virtual void ObjectUpdate() = 0; //Notify Browser that UObject/UClass/UPackage pools have been updated or modified in some way.
-    static ThreadReturnType StaticThreadObjectUpdate( void* Browser ); //Obj should be an EdBrowser
+    static ThreadReturnType StaticThreadObjectUpdate( void* Browser );
 
 protected:
+
+    void EVT_Import( wxCommandEvent& event );
+    void EVT_Export( wxCommandEvent& event );
+
+    wxMenuBar* m_MenuBar;
+      wxMenu* m_MenuFile;
+
+    wxBoxSizer* m_VSizer;
+
+    wxPanel* m_HeaderPanel;
+      wxBoxSizer* m_HeaderSizer;
+
+private:
 };
 
 //========================================================================

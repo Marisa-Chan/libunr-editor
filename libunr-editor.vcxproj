@@ -159,6 +159,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\EdBrowser.cpp" />
+    <ClCompile Include="src\EdClassBrowser.cpp" />
     <ClCompile Include="src\EdConfigFrame.cpp" />
     <ClCompile Include="src\EdEditor.cpp" />
     <ClCompile Include="src\EdGamePrompt.cpp" />

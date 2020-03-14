@@ -82,10 +82,18 @@ static const wxString gc_SubDir_UNR = "/Maps";
 static const wxString gc_SubDir_USM = "/Meshes";
 static const wxString gc_SubDir_USA = "/Save";
 
-};
-
 //========================================================================
 // UObject Utility Classes
+
+struct UObjectClientData : public wxClientData
+{
+public:
+	inline UObject* GetObject() { return m_Object; }
+
+private:
+	UObject* m_Object;
+
+};
 
 class UObjectContextMenu : public wxMenu
 {
@@ -110,4 +118,6 @@ class UObjectNewDialog : public wxDialog
 {
 public:
 	UObjectNewDialog();
+};
+
 };

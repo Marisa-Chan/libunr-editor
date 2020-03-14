@@ -286,7 +286,12 @@ bool EditorApp::OnInit()
     }
 
     for (size_t i = 0; i < UPackage::GetLoadedPackages()->Size(); i++)
-        (*UPackage::GetLoadedPackages())[i]->LoadEditableTypes();
+    {
+      if( (*UPackage::GetLoadedPackages())[i] == NULL )
+        continue;
+
+      (*UPackage::GetLoadedPackages())[i]->LoadEditableTypes();
+    }
 
     // Start ticking loop
     EdEditor::LastTime = USystem::GetSeconds();

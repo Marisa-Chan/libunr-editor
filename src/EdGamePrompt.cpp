@@ -56,6 +56,8 @@ EdGamePrompt::EdGamePrompt( TArray<char*>* Names, int& OutGameIndex )
 
   SetSizer( hsizer );
 
+  m_Ctrl->SetSelection( 0 );
+  m_Ctrl->SetFocus();
   Show(true);
 }
 
@@ -89,12 +91,15 @@ void EdGamePrompt::OnEnable()
 {
   Enable(true);
   PromptRefresh();
+  Show(true);
+  SetFocus();
+  Raise();
+  m_Ctrl->SetSelection( 0 );
 }
 
 void EdGamePrompt::EVT_Select( wxCommandEvent& event )
 {
   Select( m_Ctrl->GetSelection() );
-  m_EditWindow = NULL;
   event.Skip();
 }
 
@@ -119,6 +124,5 @@ void EdGamePrompt::OnCancel( wxCommandEvent& event )
 wxBEGIN_EVENT_TABLE(EdGamePrompt, wxDialog)
     EVT_BUTTON(ID_Select, EdGamePrompt::EVT_Select)
     EVT_BUTTON(ID_Edit, EdGamePrompt::EVT_Edit)
-    EVT_BUTTON(ID_ListBox, EdGamePrompt::EVT_ListBox)
-    EVT_LISTBOX_DCLICK(ID_Select, EdGamePrompt::EVT_Select)
+    EVT_LISTBOX_DCLICK(ID_ListBox, EdGamePrompt::EVT_ListBox)
 wxEND_EVENT_TABLE()

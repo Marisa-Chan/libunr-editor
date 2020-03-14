@@ -77,7 +77,7 @@ public:
     };
 
     void Apply(); //Commit config edits.
-    void Refresh(); //Re-read ini and render. Nessecary when ini changes are applied.
+    void ConfigRefresh(); //Re-read ini and render. Nessecary when ini changes are applied.
       void RecurseEntry( wxTreeListItem ParentItem, FConfig::FConfigEntry* Entry, ConfigDataItem BaseData ); //Recursively add an entry and its components.
 
     //Upcoming functions:

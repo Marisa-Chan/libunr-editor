@@ -17,49 +17,15 @@
 \*===========================================================================*/
 
 /*========================================================================
- * EdToolFrame.h - Editor Tools.
- *
- * written by Jesse 'Hyzoran' Kowalik
- *========================================================================
+* EdClassBrowser.cpp
+*
+* written by Jesse 'Hyzoran' Kowalik
+*========================================================================
 */
-#pragma once
 
-#include "EdEditor.h"
+#include "EdBrowsers.h"
 
-#define C_MINTOOLSIZE_X 512
-#define C_MINTOOLSIZE_Y 384
-
-//========================================================================
-// EdToolFrame
-
-class EdToolFrame : public wxFrame
+EdClassBrowser::EdClassBrowser( UClass* Root, bool bStartDocked = false ) 
+  : EdBrowser( wxString("Class Browser"), bStartDocked )
 {
-public:
-    EdToolFrame( wxWindow* Parent = EdEditor::sm_MainFrame, wxString Title = "EdToolFrame", bool bStartDocked = false );
-    ~EdToolFrame();
-
-    static wxSize DefaultFrameSize( wxWindow* Parent );
-
-    virtual void OnExit( wxCommandEvent& event );
-
-    static TArray<EdToolFrame*>* GetTools();
-
-    wxDECLARE_EVENT_TABLE();
-
-protected:
-
-    wxWindow* m_Parent;
-
-    bool m_bDocked;
-    bool m_bDockable = true; //This Tool class is dockable, e.g., shows up as a tool window and is registered in sm_Tools.
-
-private:
-
-    size_t m_Id;
-
-    static size_t StaticAddTool( EdToolFrame* Browser );
-    static bool StaticRemoveTool( size_t Id );
-
-      static TArray<EdToolFrame*> sm_Tools;
-      static size_t sm_EmptySlots;
-};
+}

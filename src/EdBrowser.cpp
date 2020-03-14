@@ -28,6 +28,26 @@
 EdBrowser::EdBrowser( wxString Title, bool bStartDocked )
 	: EdToolFrame( EdEditor::sm_MainFrame, Title, bStartDocked )
 {
+	m_MenuFile = new wxMenu( "File" );
+		m_MenuFile->Append( ID_New, "New...", "Make new Package." );
+		m_MenuFile->Append( ID_Open, "Open...", "Load existing package." );
+
+	m_MenuBar = new wxMenuBar();
+		m_MenuBar->Append( m_MenuFile, "File" );
+
+	SetMenuBar( m_MenuBar );
+
+	m_VSizer = new wxBoxSizer( wxVERTICAL );
+		SetSizer( m_VSizer );
+
+	m_HeaderPanel = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxSize( -1, 64 ) );
+		m_HeaderSizer = new wxBoxSizer( wxHORIZONTAL );
+		m_HeaderPanel->SetSizer( m_HeaderSizer );
+		m_VSizer->Add( m_HeaderPanel, 1, wxEXPAND );
+}
+
+EdBrowser::~EdBrowser()
+{
 }
 
 ThreadReturnType EdBrowser::StaticThreadObjectUpdate( void* Browser )
@@ -36,3 +56,15 @@ ThreadReturnType EdBrowser::StaticThreadObjectUpdate( void* Browser )
 
 	return THREAD_SUCCESS;
 }
+
+void EdBrowser::EVT_Import( wxCommandEvent& event )
+{
+	new EdEditor::UObjectImportDialog( ((EdEditor::UObjectClientData*)( event.GetClientObject() ))->GetObject() );
+}
+
+void EdBrowser::EVT_Export( wxCommandEvent& event )
+{
+	new EdEditor::UObjectExportDialog( ((EdEditor::UObjectClientData*)( event.GetClientObject() ))->GetObject() );
+}
+
+
