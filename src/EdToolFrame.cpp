@@ -75,51 +75,31 @@ void EdToolFrame::OnExit( wxCommandEvent& event )
     Close( true );
 }
 
+void EdToolFrame::EVT_Exit( wxCommandEvent& event )
+{
+  OnExit( event );
+}
+
 TArray<EdToolFrame*>* EdToolFrame::GetTools()
 {
     return &sm_Tools;
 }
 
 TArray<EdToolFrame*> EdToolFrame::sm_Tools;
-size_t EdToolFrame::sm_EmptySlots = 0;
 
 size_t EdToolFrame::StaticAddTool( EdToolFrame* Tool )
 {
-  //Find empty slot.
-  if( sm_EmptySlots > 0 )
-  {
-    for( size_t i = 0; i<sm_Tools.Size(); i++ )
-    {
-      if( sm_Tools[i] == NULL )
-      {
-        sm_Tools[i] = Tool;
-        sm_EmptySlots--;
-        return i;
-      }
-    }
-  }
-  //Just add to end of array.
-  else
-  {
-    sm_Tools.PushBack( Tool );
-    return sm_Tools.Size()-1;
-  }
+  sm_Tools.PushBack( Tool );
+  return sm_Tools.Size()-1;
 }
 
 bool EdToolFrame::StaticRemoveTool( size_t Id )
 {
-  if( sm_Tools.Size() <= Id )
-  {
-    //Out of range
-    return false;
-  }
-  else
-  {
-    sm_Tools[Id] = NULL;
-    sm_EmptySlots++;
-    return true;
-  }
+  sm_Tools.Erase( Id );
+  return true;
 }
 
 wxBEGIN_EVENT_TABLE(EdToolFrame, wxFrame)
+  EVT_BUTTON(ID_Exit, EdToolFrame::EVT_Exit)
+  EVT_MENU(ID_Exit, EdToolFrame::EVT_Exit)
 wxEND_EVENT_TABLE()

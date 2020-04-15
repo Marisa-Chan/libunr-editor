@@ -83,22 +83,54 @@ static const wxString gc_SubDir_USM = "/Meshes";
 static const wxString gc_SubDir_USA = "/Save";
 
 //========================================================================
+// UObject Utility Functions
+
+extern UObject* g_LastMenuObject; //Used to pass the Object in question from event
+//to these functions
+
+void PlayObject( TArray<UObject*> Objects );
+void EditObject( TArray<UObject*> Objects );
+void ObjectExport( TArray<UObject*> Objects );
+void ObjectProperties( TArray<UObject*> Objects );
+
+//========================================================================
 // UObject Utility Classes
+
+enum
+{
+  ID_ObjectActivate,
+	ID_ObjectEdit,
+  ID_ObjectExport,
+  ID_ObjectProperties
+};
 
 struct UObjectClientData : public wxClientData
 {
 public:
+	UObjectClientData( UObject* Obj, u32 Group = 0 ) : m_Object(Obj), m_Group(Group) {}
 	inline UObject* GetObject() { return m_Object; }
+	inline u32 GetGroup() { return m_Group; }
 
 private:
 	UObject* m_Object;
+	u32 m_Group;
 
 };
 
 class UObjectContextMenu : public wxMenu
 {
 public:
-	UObjectContextMenu( UObject* Obj );
+	UObjectContextMenu( wxWindow* Wnd, TArray<UObject*> Objects );
+
+	void EVT_ObjectActivate( wxCommandEvent& event );
+	void EVT_ObjectEdit( wxCommandEvent& event );
+	void EVT_ObjectExport( wxCommandEvent& event );
+	void EVT_ObjectProperties( wxCommandEvent& event );
+
+protected:
+	TArray<UObject*> m_Objects;
+
+	wxDECLARE_EVENT_TABLE();
 };
 
 class UObjectExportDialog : public wxDialog
@@ -110,7 +142,7 @@ public:
 class UObjectImportDialog : public wxDialog
 {
 public:
-	UObjectImportDialog( wxString& Path );
+	UObjectImportDialog();
 };
 
 //Prompt for starting new map/package/etc. from editorframe.

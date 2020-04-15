@@ -27,15 +27,11 @@
 */
 #pragma once
 
+#include <wx/treelist.h>
+
 #include "EdToolFrame.h"
 
-enum
-{
-  ID_New,
-  ID_Open,
-  ID_Import,
-  ID_Export
-};
+
 
 //========================================================================
 // EdBrowser - Abstract Browser class.
@@ -46,11 +42,15 @@ public:
     EdBrowser( wxString Title, bool bStartDocked = false );
     ~EdBrowser();
 
-    virtual void ObjectUpdate() = 0; //Notify Browser that UObject/UClass/UPackage pools have been updated or modified in some way.
-    static ThreadReturnType StaticThreadObjectUpdate( void* Browser );
+    virtual void ObjectUpdate() = 0; //Populate the associated control.
+    static ThreadReturnType StaticThreadObjectUpdate( void* Browser ); //Notify Browser that UObject/UClass/UPackage pools have been updated or modified in some way.
+
+    bool bIsBrowser = true;
 
 protected:
 
+    void EVT_New( wxCommandEvent& event );
+    void EVT_Open( wxCommandEvent& event );
     void EVT_Import( wxCommandEvent& event );
     void EVT_Export( wxCommandEvent& event );
 
@@ -62,7 +62,11 @@ protected:
     wxPanel* m_HeaderPanel;
       wxBoxSizer* m_HeaderSizer;
 
+    wxString m_dirPath = EdEditor::gc_SubDir_U;
+
 private:
+
+    wxDECLARE_EVENT_TABLE();
 };
 
 //========================================================================
@@ -71,6 +75,20 @@ class EdClassBrowser : public EdBrowser
 {
 public:
     EdClassBrowser( UClass* Root, bool bStartDocked = false );
+    ~EdClassBrowser();
+
+    void ObjectUpdate();
+private: void recursePopulate( UClass* Parent, wxTreeListItem ParentItem, TArray<UClass*>& ExpandedAry ); //Recursively populate the tree under a given parent class and tree item.
+public:
+    void EVT_ObjectMenu( wxTreeListEvent& event );
+
+protected:
+
+  wxTreeListCtrl* m_Ctrl;
+  UClass* m_Root;
+
+  wxDECLARE_EVENT_TABLE();
+
 };
 
 //========================================================================
@@ -80,7 +98,23 @@ public:
 class EdObjectBrowser : public EdBrowser
 {
 public:
-    EdObjectBrowser( TArray<UClass*> Classes, bool bExactClass = false, bool bStartDocked = false );
+    EdObjectBrowser( TArray<UClass*>& Classes, bool bExactClass = false, bool bStartDocked = false );
+
+    void ObjectUpdate();
+
+    void EVT_ObjectMenu( wxTreeListEvent& event );
+
+protected:
+
+  TArray<UClass*> m_Classes;
+  bool m_bExactClass;
+  wxTreeListCtrl* m_Ctrl;
+
+private:
+
+  wxString getName( TArray<UClass*>& Classes );
+
+  wxDECLARE_EVENT_TABLE();
 };
 
 //========================================================================

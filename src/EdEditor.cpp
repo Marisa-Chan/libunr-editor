@@ -64,6 +64,7 @@ void EdEditor::LoadPackages( const wxArrayString& Paths )
     TArray<EdToolFrame*>* tools = EdToolFrame::GetTools();
 
     //Notify tools that Packages and Objects were updated, by running their Update functions on new threads.
+    //Threaded Implementation
     for ( size_t i = 0; i < tools->Size(); i++ )
     {
         localThreads.PushBack( GSystem->RunThread( EdBrowser::StaticThreadObjectUpdate, (*tools)[i] ) );
@@ -74,6 +75,14 @@ void EdEditor::LoadPackages( const wxArrayString& Paths )
     {
         GSystem->JoinThread( localThreads[i] );
     }
+    
+    //Single Threaded implementation.
+    /*
+    for ( size_t i = 0; i < tools->Size(); i++ )
+    {
+      (*tools)[i]->ObjectUpdate();
+    }
+    */
 }
 
 int EdEditor::GamePromptHandler( TArray<char*>* Names )
@@ -90,7 +99,7 @@ int EdEditor::GamePromptHandler( TArray<char*>* Names )
 
 wxString EdEditor::GetGameDir()
 {
-    return wxString( GGameConfig->ReadString( "Game", "Path", sm_SelectedGame ) );
+  return wxString( GLibunrConfig->ReadString( "Game", "Path", sm_SelectedGame ) );
 }
 
 void EdEditor::DoTick( wxIdleEvent& event )
@@ -127,3 +136,103 @@ void EdEditor::g_IcoInit()
     g_icoGraphics.CopyFromBitmap(g_bmpGraphics);
     g_icoMesh.CopyFromBitmap(g_bmpMesh);
 }
+
+UObject* EdEditor::g_LastMenuObject = NULL;
+
+void EdEditor::PlayObject( TArray<UObject*> Objects )
+{
+  //Play Objects, only play the first object in the list though.
+  if( ( Objects.Size() < 1 ) || ( Objects[0] == NULL ) )
+    return;
+
+  UObject* Obj = Objects[0];
+
+  //USound and UMusic are audio files and played.
+  if( Obj->IsA( USound::StaticClass() ) )
+  {
+    FVector ZeroVec;
+    ZeroVec.X = 0;
+    ZeroVec.Y = 0;
+    ZeroVec.Z = 0;
+
+    GEngine->Audio->PlaySound( NULL, (USound*)Obj, ZeroVec, 1, 1, 1 );
+  }
+  else if( Obj->IsA( UMusic::StaticClass() ) )
+  {
+    FVector ZeroVec;
+    ZeroVec.X = 0;
+    ZeroVec.Y = 0;
+    ZeroVec.Z = 0;
+
+    GEngine->Audio->PlayMusic( (UMusic*)Obj, 0, MTRAN_Instant );
+  }
+}
+
+void EdEditor::EditObject( TArray<UObject*> Objects )
+{
+}
+
+void EdEditor::ObjectExport( TArray<UObject*> Objects )
+{
+}
+
+void EdEditor::ObjectProperties( TArray<UObject*> Objects )
+{
+}
+
+EdEditor::UObjectContextMenu::UObjectContextMenu( wxWindow* Wnd, TArray<UObject*> Objects ) : m_Objects( Objects )
+{
+  if( Objects.IsEmpty() )
+  {
+    delete this;
+    return;
+  }
+
+  Append( ID_ObjectActivate, "Play/Preview..." );
+  Append( ID_ObjectEdit, "Edit..." );
+
+  AppendSeparator();
+
+  Append( ID_ObjectExport, "Export Object..." );
+
+  AppendSeparator();
+
+  Append( ID_ObjectProperties, "Properties..." );
+
+  Wnd->PopupMenu( this );
+}
+
+void EdEditor::UObjectContextMenu::EVT_ObjectActivate( wxCommandEvent& event )
+{
+  EdEditor::PlayObject( m_Objects );
+}
+
+void EdEditor::UObjectContextMenu::EVT_ObjectEdit( wxCommandEvent& event )
+{
+  EdEditor::EditObject( m_Objects );
+}
+
+void EdEditor::UObjectContextMenu::EVT_ObjectExport( wxCommandEvent& event )
+{
+  EdEditor::ObjectExport( m_Objects );
+}
+
+void EdEditor::UObjectContextMenu::EVT_ObjectProperties( wxCommandEvent& event )
+{
+  EdEditor::ObjectProperties( m_Objects );
+}
+
+EdEditor::UObjectExportDialog::UObjectExportDialog(  UObject* Obj  )
+{
+}
+
+EdEditor::UObjectImportDialog::UObjectImportDialog()
+{
+}
+
+wxBEGIN_EVENT_TABLE( EdEditor::UObjectContextMenu, wxMenu )
+  EVT_MENU( ID_ObjectActivate, EdEditor::UObjectContextMenu::EVT_ObjectActivate )
+  EVT_MENU( ID_ObjectEdit, EdEditor::UObjectContextMenu::EVT_ObjectEdit )
+  EVT_MENU( ID_ObjectExport, EdEditor::UObjectContextMenu::EVT_ObjectExport )
+  EVT_MENU( ID_ObjectProperties, EdEditor::UObjectContextMenu::EVT_ObjectProperties )
+wxEND_EVENT_TABLE()

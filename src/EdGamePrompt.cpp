@@ -57,8 +57,9 @@ EdGamePrompt::EdGamePrompt( TArray<char*>* Names, int& OutGameIndex )
   SetSizer( hsizer );
 
   m_Ctrl->SetSelection( 0 );
-  m_Ctrl->SetFocus();
   Show(true);
+
+  m_Ctrl->SetFocus();
 }
 
 void EdGamePrompt::PromptRefresh()
@@ -78,6 +79,7 @@ void EdGamePrompt::PromptRefresh()
   delete m_Ctrl;
   m_Ctrl = newbox;
   hsizer->Layout();
+  m_Ctrl->SetFocus();
 }
 
 void EdGamePrompt::Select( int Choice )
@@ -95,6 +97,7 @@ void EdGamePrompt::OnEnable()
   SetFocus();
   Raise();
   m_Ctrl->SetSelection( 0 );
+  m_Ctrl->SetFocus();
 }
 
 void EdGamePrompt::EVT_Select( wxCommandEvent& event )

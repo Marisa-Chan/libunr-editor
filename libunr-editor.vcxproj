@@ -164,6 +164,7 @@
     <ClCompile Include="src\EdEditor.cpp" />
     <ClCompile Include="src\EdGamePrompt.cpp" />
     <ClCompile Include="src\EdMain.cpp" />
+    <ClCompile Include="src\EdObjectBrowser.cpp" />
     <ClCompile Include="src\EdToolFrame.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

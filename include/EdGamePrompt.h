@@ -51,6 +51,7 @@ public:
     void EVT_Select( wxCommandEvent& event );
     void EVT_Edit( wxCommandEvent& event );
     void EVT_ListBox( wxCommandEvent& event );
+    void OnKey( wxKeyEvent &event ); //Enter key handle.
     void OnCancel( wxCommandEvent& event );
 
     wxDECLARE_EVENT_TABLE();

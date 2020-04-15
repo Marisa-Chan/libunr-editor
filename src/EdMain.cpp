@@ -26,6 +26,9 @@
 #include "EdMain.h"
 #include <Editor/UEditorEngine.h>
 
+#define C_BUTTONSIZE 30
+#define C_BUTTONCOLOUR wxColour( 130, 130, 130 )
+
 EdEditorFrame::EdEditorFrame(const wxString& Title, const wxPoint& Pos, const wxSize& Size)
     : wxFrame(NULL, wxID_ANY, Title, Pos, Size)
 {
@@ -97,11 +100,11 @@ EdEditorFrame::EdEditorFrame(const wxString& Title, const wxPoint& Pos, const wx
 
     wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
 
-    wxBitmapButton* button_NewMap = new wxBitmapButton(toolBar, ID_New, EdEditor::g_bmpNew, wxDefaultPosition, wxSize(C_BUTTONSIZE, C_BUTTONSIZE));
-    buttonSizer->Add(button_NewMap, 0, wxALIGN_CENTRE_VERTICAL);
+    wxBitmapButton* button_New = new wxBitmapButton(toolBar, ID_New, EdEditor::g_bmpNew, wxDefaultPosition, wxSize(C_BUTTONSIZE, C_BUTTONSIZE));
+    buttonSizer->Add(button_New, 0, wxALIGN_CENTRE_VERTICAL);
 
-    wxBitmapButton* button_OpenMap = new wxBitmapButton(toolBar, ID_Open, EdEditor::g_bmpDir, wxDefaultPosition, wxSize(C_BUTTONSIZE, C_BUTTONSIZE));
-    buttonSizer->Add(button_OpenMap, 0, wxALIGN_CENTRE_VERTICAL);
+    wxBitmapButton* button_Open = new wxBitmapButton(toolBar, ID_Open, EdEditor::g_bmpDir, wxDefaultPosition, wxSize(C_BUTTONSIZE, C_BUTTONSIZE));
+    buttonSizer->Add(button_Open, 0, wxALIGN_CENTRE_VERTICAL);
 
     wxBitmapButton* button_Save = new wxBitmapButton(toolBar, ID_Save, EdEditor::g_bmpSave, wxDefaultPosition, wxSize(C_BUTTONSIZE, C_BUTTONSIZE));
     buttonSizer->Add(button_Save, 0, wxALIGN_CENTRE_VERTICAL);
@@ -199,32 +202,44 @@ void EdEditorFrame::EVT_BrowserPackage(wxCommandEvent& event)
 
 void EdEditorFrame::EVT_BrowserClass(wxCommandEvent& event)
 {
-    //new EdClassBrowser();
+    new EdClassBrowser( UObject::StaticClass() );
     event.Skip();
 }
 
 void EdEditorFrame::EVT_BrowserSound(wxCommandEvent& event)
 {
-    //new EdSoundBrowser();
-    event.Skip();
+  TArray<UClass*> classes;
+  classes.PushBack( USound::StaticClass() );
+
+  new EdObjectBrowser( classes, false );
+  event.Skip();
 }
 
 void EdEditorFrame::EVT_BrowserMusic(wxCommandEvent& event)
 {
-    //new EdMusicBrowser();
-    event.Skip();
+  TArray<UClass*> classes;
+  classes.PushBack( UMusic::StaticClass() );
+
+  new EdObjectBrowser( classes, false );
+  event.Skip();
 }
 
 void EdEditorFrame::EVT_BrowserTexture(wxCommandEvent& event)
 {
-    //new EdTextureBrowser();
-    event.Skip();
+  TArray<UClass*> classes;
+  classes.PushBack( UTexture::StaticClass() );
+
+  new EdObjectBrowser( classes, false );
+  event.Skip();
 }
 
 void EdEditorFrame::EVT_BrowserMesh(wxCommandEvent& event)
 {
-    //new EdMeshBrowser();
-    event.Skip();
+  TArray<UClass*> classes;
+  classes.PushBack( UModel::StaticClass() );
+
+  new EdObjectBrowser( classes, false );
+  event.Skip();
 }
 
 void EdEditorFrame::EVT_ViewLog(wxCommandEvent& event)

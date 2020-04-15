@@ -31,10 +31,6 @@
 #include "EdGamePrompt.h"
 #include "EdBrowsers.h"
 
-#define C_BUTTONSIZE 34
-#define C_BUTTONCOLOUR wxColour( 130, 130, 130 )
-#define C_TOOLBUTTONSIZE 28
-
 //EdEditorFrame - Central Editor window.
 class EdEditorFrame : public wxFrame
 {

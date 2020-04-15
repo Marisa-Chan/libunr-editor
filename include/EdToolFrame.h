@@ -32,19 +32,34 @@
 //========================================================================
 // EdToolFrame
 
+enum
+{
+  ID_New,
+  ID_Open,
+  ID_Import,
+  ID_Export,
+  ID_Ctrl,
+  ID_Exit
+};
+
 class EdToolFrame : public wxFrame
 {
 public:
     EdToolFrame( wxWindow* Parent = EdEditor::sm_MainFrame, wxString Title = "EdToolFrame", bool bStartDocked = false );
     ~EdToolFrame();
 
+    const wxString tag = wxString( "IMATOOL" ); //temporary variable to easily read if tool pointer is valid.
+
     static wxSize DefaultFrameSize( wxWindow* Parent );
 
+    void EVT_Exit( wxCommandEvent& event );
     virtual void OnExit( wxCommandEvent& event );
 
     static TArray<EdToolFrame*>* GetTools();
 
-    wxDECLARE_EVENT_TABLE();
+    virtual void ObjectUpdate() = 0;
+
+    bool bIsBrowser = false;
 
 protected:
 
@@ -61,5 +76,6 @@ private:
     static bool StaticRemoveTool( size_t Id );
 
       static TArray<EdToolFrame*> sm_Tools;
-      static size_t sm_EmptySlots;
+      
+    wxDECLARE_EVENT_TABLE();
 };
