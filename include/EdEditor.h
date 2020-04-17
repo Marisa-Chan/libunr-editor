@@ -58,8 +58,9 @@ extern wxBitmap g_bmpPackage;
 extern wxBitmap g_bmpClass;
 extern wxBitmap g_bmpSound;
 extern wxBitmap g_bmpMusic;
-extern wxBitmap g_bmpGraphics;
+extern wxBitmap g_bmpTexture;
 extern wxBitmap g_bmpMesh;
+extern wxBitmap g_bmpMisc;
 
 extern wxIcon g_icoNew;
 extern wxIcon g_icoDir;
@@ -68,8 +69,9 @@ extern wxIcon g_icoPackage;
 extern wxIcon g_icoClass;
 extern wxIcon g_icoSound;
 extern wxIcon g_icoMusic;
-extern wxIcon g_icoGraphics;
+extern wxIcon g_icoTexture;
 extern wxIcon g_icoMesh;
+extern wxIcon g_icoMisc;
 
 void g_IcoInit();
 

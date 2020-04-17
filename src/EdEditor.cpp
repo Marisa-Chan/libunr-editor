@@ -39,8 +39,9 @@ wxBitmap EdEditor::g_bmpPackage;
 wxBitmap EdEditor::g_bmpClass;
 wxBitmap EdEditor::g_bmpSound;
 wxBitmap EdEditor::g_bmpMusic;
-wxBitmap EdEditor::g_bmpGraphics;
+wxBitmap EdEditor::g_bmpTexture;
 wxBitmap EdEditor::g_bmpMesh;
+wxBitmap EdEditor::g_bmpMisc;
 
 wxIcon EdEditor::g_icoNew;
 wxIcon EdEditor::g_icoDir;
@@ -49,8 +50,9 @@ wxIcon EdEditor::g_icoPackage;
 wxIcon EdEditor::g_icoClass;
 wxIcon EdEditor::g_icoSound;
 wxIcon EdEditor::g_icoMusic;
-wxIcon EdEditor::g_icoGraphics;
+wxIcon EdEditor::g_icoTexture;
 wxIcon EdEditor::g_icoMesh;
+wxIcon EdEditor::g_icoMisc;
 
 void EdEditor::LoadPackages( const wxArrayString& Paths )
 {
@@ -123,8 +125,9 @@ void EdEditor::g_IcoInit()
     g_bmpClass = wxBitmap(wxT("res/bitmap/ClassBrowser.png"), wxBITMAP_TYPE_PNG);
     g_bmpSound = wxBitmap(wxT("res/bitmap/SoundBrowser.png"), wxBITMAP_TYPE_PNG);
     g_bmpMusic = wxBitmap(wxT("res/bitmap/MusicBrowser.png"), wxBITMAP_TYPE_PNG);
-    g_bmpGraphics = wxBitmap(wxT("res/bitmap/GraphicsBrowser.png"), wxBITMAP_TYPE_PNG);
+    g_bmpTexture = wxBitmap(wxT("res/bitmap/GraphicsBrowser.png"), wxBITMAP_TYPE_PNG);
     g_bmpMesh = wxBitmap(wxT("res/bitmap/MeshBrowser.png"), wxBITMAP_TYPE_PNG);
+    g_bmpMisc = wxBitmap(wxT("res/bitmap/Misc.png"), wxBITMAP_TYPE_PNG);
 
     g_icoNew.CopyFromBitmap(g_bmpNew);
     g_icoDir.CopyFromBitmap(g_bmpDir);
@@ -133,8 +136,9 @@ void EdEditor::g_IcoInit()
     g_icoClass.CopyFromBitmap(g_bmpClass);
     g_icoSound.CopyFromBitmap(g_bmpSound);
     g_icoMusic.CopyFromBitmap(g_bmpMusic);
-    g_icoGraphics.CopyFromBitmap(g_bmpGraphics);
+    g_icoTexture.CopyFromBitmap(g_bmpTexture);
     g_icoMesh.CopyFromBitmap(g_bmpMesh);
+    g_icoMisc.CopyFromBitmap(g_bmpMisc);
 }
 
 UObject* EdEditor::g_LastMenuObject = NULL;

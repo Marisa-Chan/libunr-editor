@@ -53,7 +53,7 @@ public:
         ID_BrowserClass,
         ID_BrowserSound,
         ID_BrowserMusic,
-        ID_BrowserGraphics,
+        ID_BrowserTexture,
         ID_BrowserMesh,
         ID_ViewLog,
         ID_ActiveTools,

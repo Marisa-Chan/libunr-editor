@@ -65,7 +65,7 @@ EdEditorFrame::EdEditorFrame(const wxString& Title, const wxPoint& Pos, const wx
     menuView->Append(ID_BrowserClass, "&Class Browser...", "Open an Class browser instance");
     menuView->Append(ID_BrowserSound, "&Sound Browser...", "Open a Sound browser instance");
     menuView->Append(ID_BrowserMusic, "&Music Browser...", "Open a Music browser instance");
-    menuView->Append(ID_BrowserGraphics, "&Graphics Browser...", "Open a Graphics browser instance");
+    menuView->Append(ID_BrowserTexture, "&Texture Browser...", "Open a Graphics browser instance");
     menuView->Append(ID_BrowserMesh, "&Mesh Browser...", "Open a mesh browser instance");
 
     menuView->AppendSeparator();
@@ -123,8 +123,8 @@ EdEditorFrame::EdEditorFrame(const wxString& Title, const wxPoint& Pos, const wx
     wxBitmapButton* button_MusicBrowser = new wxBitmapButton(toolBar, ID_BrowserMusic, EdEditor::g_bmpMusic, wxDefaultPosition, wxSize(C_BUTTONSIZE, C_BUTTONSIZE));
     buttonSizer->Add(button_MusicBrowser, 0, wxALIGN_CENTRE_VERTICAL);
 
-    wxBitmapButton* button_GraphicsBrowser = new wxBitmapButton(toolBar, ID_BrowserGraphics, EdEditor::g_bmpGraphics, wxDefaultPosition, wxSize(C_BUTTONSIZE, C_BUTTONSIZE));
-    buttonSizer->Add(button_GraphicsBrowser, 0, wxALIGN_CENTRE_VERTICAL);
+    wxBitmapButton* button_TextureBrowser = new wxBitmapButton(toolBar, ID_BrowserTexture, EdEditor::g_bmpTexture, wxDefaultPosition, wxSize(C_BUTTONSIZE, C_BUTTONSIZE));
+    buttonSizer->Add(button_TextureBrowser, 0, wxALIGN_CENTRE_VERTICAL);
 
     wxBitmapButton* button_MeshBrowser = new wxBitmapButton(toolBar, ID_BrowserMesh, EdEditor::g_bmpMesh, wxDefaultPosition, wxSize(C_BUTTONSIZE, C_BUTTONSIZE));
     buttonSizer->Add(button_MeshBrowser, 0, wxALIGN_CENTRE_VERTICAL);
@@ -236,7 +236,7 @@ void EdEditorFrame::EVT_BrowserTexture(wxCommandEvent& event)
 void EdEditorFrame::EVT_BrowserMesh(wxCommandEvent& event)
 {
   TArray<UClass*> classes;
-  classes.PushBack( UModel::StaticClass() );
+  classes.PushBack( UMesh::StaticClass() );
 
   new EdObjectBrowser( classes, false );
   event.Skip();
@@ -385,8 +385,8 @@ wxBEGIN_EVENT_TABLE(EdEditorFrame, wxFrame)
     EVT_BUTTON(ID_BrowserSound, EdEditorFrame::EVT_BrowserSound)
     EVT_MENU(ID_BrowserMusic, EdEditorFrame::EVT_BrowserMusic)
     EVT_BUTTON(ID_BrowserMusic, EdEditorFrame::EVT_BrowserMusic)
-    EVT_MENU(ID_BrowserGraphics, EdEditorFrame::EVT_BrowserTexture)
-    EVT_BUTTON(ID_BrowserGraphics, EdEditorFrame::EVT_BrowserTexture)
+    EVT_MENU(ID_BrowserTexture, EdEditorFrame::EVT_BrowserTexture)
+    EVT_BUTTON(ID_BrowserTexture, EdEditorFrame::EVT_BrowserTexture)
     EVT_MENU(ID_BrowserMesh, EdEditorFrame::EVT_BrowserMesh)
     EVT_BUTTON(ID_BrowserMesh, EdEditorFrame::EVT_BrowserMesh)
     EVT_MENU(ID_ViewLog, EdEditorFrame::EVT_ViewLog)

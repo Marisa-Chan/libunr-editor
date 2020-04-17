@@ -29,6 +29,8 @@
 EdClassBrowser::EdClassBrowser( UClass* Root, bool bStartDocked ) 
   : EdBrowser( wxString("Class Browser") + wxString(" [") + wxString( Root->Pkg->Name.Data() ) + wxString(".") + wxString( Root->Name.Data() ) + wxString("]"), bStartDocked ), m_Root( Root )
 {
+  SetIcon( EdEditor::g_icoClass );
+
   m_Ctrl = new wxTreeListCtrl( this, ID_Ctrl, wxDefaultPosition, wxDefaultSize, wxTL_MULTIPLE | wxTL_NO_HEADER );
 
     m_VSizer->Add( m_Ctrl, 1, wxEXPAND );

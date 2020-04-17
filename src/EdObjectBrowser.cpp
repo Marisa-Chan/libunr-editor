@@ -26,42 +26,68 @@
 #include "EdEditor.h"
 #include "EdBrowsers.h"
 
-EdObjectBrowser::EdObjectBrowser( TArray<UClass*>& Classes, bool bExactClass, bool bStartDocked )
+EdObjectBrowser::EdObjectBrowser( TArray<UClass*>& Classes, bool bExactClass, bool bStartDocked, UPackage* Package )
   : EdBrowser( getName( Classes ), bStartDocked ), m_Classes( Classes ), m_bExactClass( bExactClass )
 {
+  if( Package == NULL )
+  {
+    m_bFilterPackage = false;
+  }
+  else
+    m_bFilterPackage = true;
 
-  //Set default open directory based on class type
+  //Set properties relating to browser types.
   if( Classes.Size() == 1 )
   {
     if( Classes[0]->IsA( USound::StaticClass() ) || Classes[0] == USound::StaticClass() )
     {
       m_dirPath = EdEditor::gc_SubDir_UAX;
+      SetIcon( EdEditor::g_icoSound );
     }
     else if( Classes[0]->IsA( UMusic::StaticClass() ) || Classes[0] == UMusic::StaticClass() )
     {
       m_dirPath = EdEditor::gc_SubDir_UMX;
+      SetIcon( EdEditor::g_icoMusic );
     }
     else if( Classes[0]->IsA( UTexture::StaticClass() ) || Classes[0] == UTexture::StaticClass() )
     {
       m_dirPath = EdEditor::gc_SubDir_UTX;
+      SetIcon( EdEditor::g_icoTexture );
     }
     else if( Classes[0]->IsA( ULevel::StaticClass() ) || Classes[0] == ULevel::StaticClass() )
     {
       m_dirPath = EdEditor::gc_SubDir_UNR;
+      SetIcon( EdEditor::g_icoMisc );
     }
-    else if( Classes[0]->IsA( UModel::StaticClass() ) || Classes[0] == UModel::StaticClass() )
+    else if( Classes[0]->IsA( UMesh::StaticClass() ) || Classes[0] == UModel::StaticClass() )
     {
       m_dirPath = EdEditor::gc_SubDir_USM;
+      SetIcon( EdEditor::g_icoMesh );
     }
     else
     {
       m_dirPath = wxString(" ");
+      SetIcon( EdEditor::g_icoMisc );
     }
   }
   else
   {
     m_dirPath = wxString(" ");
+    SetIcon( EdEditor::g_icoMisc );
   }
+
+  m_PkgCtrl = new EdBrowser::PackageComboCtrl( m_HeaderPanel, Package );
+    m_HeaderSizer->Add( m_PkgCtrl, 0, wxALIGN_CENTRE_VERTICAL);
+    m_PkgCtrl->Show();
+
+  if( !m_bFilterPackage )
+  {
+    m_PkgCtrl->Disable();
+  }
+
+  m_CheckFilterPackage = new wxCheckBox( m_HeaderPanel, ID_FilterPackage, wxString( "Filter by Package" ) );
+    m_CheckFilterPackage->SetValue( m_bFilterPackage );
+    m_HeaderSizer->Add( m_CheckFilterPackage, 0, wxALIGN_CENTRE_VERTICAL);
 
   m_Ctrl = new wxTreeListCtrl( this, ID_Ctrl, wxDefaultPosition, wxDefaultSize, wxTL_MULTIPLE | wxTL_NO_HEADER );
 
@@ -77,9 +103,10 @@ EdObjectBrowser::EdObjectBrowser( TArray<UClass*>& Classes, bool bExactClass, bo
 
 void EdObjectBrowser::ObjectUpdate()
 {
+
   //First, preserve any expanded members, so that they will be expanded when the control is re-populated.
   TArray<UObject*> expanded;
-  TArray<u32> expandedGroups; //Used instead for group items ( Object == NULL and Group != 0 )
+  TArray<u32> unexpandedGroups; //Used instead for group items ( Object == NULL and Group != 0 )
 
   wxTreeListItem item = m_Ctrl->GetFirstItem();
 
@@ -88,16 +115,16 @@ void EdObjectBrowser::ObjectUpdate()
     UObject* currentObject = ((EdEditor::UObjectClientData*)( m_Ctrl->GetItemData( item ) ))->GetObject();
     u32 currentGroup = ((EdEditor::UObjectClientData*)( m_Ctrl->GetItemData( item ) ))->GetGroup();
 
-    if( ( m_Ctrl->IsExpanded( item ) ) )
+    if( ( m_Ctrl->IsExpanded( item ) ) && ( currentObject != NULL ) )
     {
-      if( currentObject != NULL )
+      if( m_Ctrl->IsExpanded( item ) )
       {
         expanded.PushBack( currentObject );
       }
-      else if( currentGroup != 0 )
-      {
-        expandedGroups.PushBack( currentGroup );
-      }
+    }
+    else if( currentGroup != 0 )
+    {
+      unexpandedGroups.PushBack( currentGroup );
     }
   }
 
@@ -108,10 +135,20 @@ void EdObjectBrowser::ObjectUpdate()
   //Populate Packages
   for( size_t i = 0; i<UPackage::GetLoadedPackages()->Size(); i++ )
   {
-    UPackage* currentPackage = (*(UPackage::GetLoadedPackages()))[i];
+    UPackage* currentPackage;
+
+    if( m_bFilterPackage )
+      currentPackage = m_PkgCtrl->GetSelected();
+    else
+      currentPackage = (*(UPackage::GetLoadedPackages()))[i];
 
     if( currentPackage == NULL ) //Invalid Package
-      continue;
+    {
+      if( m_bFilterPackage )
+        return;
+      else
+        continue;
+    }
 
     wxTreeListItem currentPackageItem;
     TArray<wxTreeListItem> groupItems;
@@ -187,16 +224,20 @@ void EdObjectBrowser::ObjectUpdate()
     for( size_t i2 = 0; i2<groupItems.Size(); i2++ )
     {
       u32 currentGroup = ((EdEditor::UObjectClientData*)(m_Ctrl->GetItemData( groupItems[i2] )))->GetGroup();
+      m_Ctrl->Expand( groupItems[i2] );
 
-      for( size_t i3 = 0; i3<expandedGroups.Size(); i3++ )
+      for( size_t i3 = 0; i3<unexpandedGroups.Size(); i3++ )
       {
-        if( currentGroup == expandedGroups[i3] )
+        if( currentGroup == unexpandedGroups[i3] )
         {
-          m_Ctrl->Expand( groupItems[i2] );
+          m_Ctrl->Collapse( groupItems[i2] );
           break;
         }
       }
     }
+
+    if( m_bFilterPackage ) //If we are only doing one package, break.
+      break;
   } //End Package
 }
 
@@ -222,7 +263,7 @@ wxString EdObjectBrowser::getName( TArray<UClass*>& Classes )
     {
       str = wxString( "Level" );
     }
-    else if( Classes[0]->IsA( UModel::StaticClass() ) || Classes[0] == UModel::StaticClass() )
+    else if( Classes[0]->IsA( UMesh::StaticClass() ) || Classes[0] == UMesh::StaticClass() )
     {
       str = wxString( "Mesh" );
     }
@@ -264,6 +305,27 @@ void EdObjectBrowser::EVT_ObjectMenu( wxTreeListEvent& event )
   new EdEditor::UObjectContextMenu( this, objects );
 }
 
+void EdObjectBrowser::EVT_FilterPackage( wxCommandEvent& event )
+{
+  m_bFilterPackage = !m_bFilterPackage;
+  m_CheckFilterPackage->SetValue( m_bFilterPackage );
+
+  if( m_CheckFilterPackage )
+    m_PkgCtrl->Enable();
+  else
+    m_PkgCtrl->Disable();
+
+  ObjectUpdate();
+}
+
+void EdObjectBrowser::EVT_FilterPackageCtrl( wxCommandEvent& event )
+{
+  ObjectUpdate();
+  m_PkgCtrl->Refresh();
+}
+
 wxBEGIN_EVENT_TABLE( EdObjectBrowser, EdBrowser )
   EVT_TREELIST_ITEM_CONTEXT_MENU( ID_Ctrl, EdObjectBrowser::EVT_ObjectMenu )
+  EVT_CHECKBOX( ID_FilterPackage, EdObjectBrowser::EVT_FilterPackage )
+  EVT_COMBOBOX( ID_FilterPackageCtrl, EdObjectBrowser::EVT_FilterPackageCtrl )
 wxEND_EVENT_TABLE()

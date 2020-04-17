@@ -39,7 +39,9 @@ enum
   ID_Import,
   ID_Export,
   ID_Ctrl,
-  ID_Exit
+  ID_Exit,
+  ID_FilterPackage,
+  ID_FilterPackageCtrl
 };
 
 class EdToolFrame : public wxFrame

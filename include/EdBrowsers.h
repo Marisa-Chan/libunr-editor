@@ -47,6 +47,64 @@ public:
 
     bool bIsBrowser = true;
 
+    class PackageComboCtrl : public wxComboBox
+    {
+    public:
+      PackageComboCtrl( wxWindow* Parent, UPackage* Selected = NULL, TArray<UPackage*>* PackageList = UPackage::GetLoadedPackages() )
+        : wxComboBox( Parent, ID_FilterPackageCtrl, wxString( "Package" ), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_SORT ), m_PackageList( PackageList )
+      {
+        Refresh();
+      }
+
+      void SetPackage( UPackage* Package )
+      {
+        if( Package == NULL )
+          return;
+
+        for( size_t i = 0; i<GetCount(); i++ )
+        {
+          if( ( (UPackage*)( (EdEditor::UObjectClientData*)GetClientObject( i ) )->GetObject() ) == Package )
+          {
+            SetSelection( i );
+            break;
+          }
+        }
+      }
+
+      UPackage* GetSelected()
+      {
+        if( wxItemContainerImmutable::IsEmpty() )
+          return NULL;
+
+        int n = GetSelection();
+
+        if( n == wxNOT_FOUND )
+          return NULL;
+
+        return (UPackage*)( (EdEditor::UObjectClientData*)GetClientObject( n ) )->GetObject();
+      }
+
+      void Refresh()
+      {
+        UPackage* selected = GetSelected();
+
+        Clear();
+        
+        for( size_t i = 0; i<m_PackageList->Size(); i++ )
+        {
+          Append( wxString( (*m_PackageList)[i]->Name.Data() ), new EdEditor::UObjectClientData( (*m_PackageList)[i] ) );
+        }
+
+        SetPackage( selected );
+
+        Update();
+      }
+
+    private:
+
+      TArray<UPackage*>* m_PackageList;
+    };
+
 protected:
 
     void EVT_New( wxCommandEvent& event );
@@ -95,19 +153,25 @@ protected:
 // EdObjectBrowser - Renders all objects matching given class(es), sorting by group and Package.
 // Contains list and tile view modes, and a preview window.
 // bExactClass: If true, only Objects whose Class==Classes[x] will be considered, otherwise, Class.IsA( Classes[x] ) will be used instead.
+// Package: if NULL, browse in all Packages, else, filter by the given package.
 class EdObjectBrowser : public EdBrowser
 {
 public:
-    EdObjectBrowser( TArray<UClass*>& Classes, bool bExactClass = false, bool bStartDocked = false );
+    EdObjectBrowser( TArray<UClass*>& Classes, bool bExactClass = false, bool bStartDocked = false, UPackage* Package = NULL );
 
     void ObjectUpdate();
 
     void EVT_ObjectMenu( wxTreeListEvent& event );
+    void EVT_FilterPackage( wxCommandEvent& event );
+    void EVT_FilterPackageCtrl( wxCommandEvent& event );
 
 protected:
 
   TArray<UClass*> m_Classes;
   bool m_bExactClass;
+  EdBrowser::PackageComboCtrl* m_PkgCtrl;
+  wxCheckBox* m_CheckFilterPackage;
+  bool m_bFilterPackage;
   wxTreeListCtrl* m_Ctrl;
 
 private:
