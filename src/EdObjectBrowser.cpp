@@ -29,12 +29,6 @@
 EdObjectBrowser::EdObjectBrowser( TArray<UClass*>& Classes, bool bExactClass, bool bStartDocked, UPackage* Package )
   : EdBrowser( getName( Classes ), bStartDocked ), m_Classes( Classes ), m_bExactClass( bExactClass )
 {
-  if( Package == NULL )
-  {
-    m_bFilterPackage = false;
-  }
-  else
-    m_bFilterPackage = true;
 
   //Set properties relating to browser types.
   if( Classes.Size() == 1 )
@@ -76,17 +70,13 @@ EdObjectBrowser::EdObjectBrowser( TArray<UClass*>& Classes, bool bExactClass, bo
     SetIcon( EdEditor::g_icoMisc );
   }
 
-  m_PkgCtrl = new EdBrowser::PackageComboCtrl( m_HeaderPanel, Package );
-    m_HeaderSizer->Add( m_PkgCtrl, 0, wxALIGN_CENTRE_VERTICAL);
-    m_PkgCtrl->Show();
-
-  if( !m_bFilterPackage )
-  {
-    m_PkgCtrl->Disable();
-  }
+  m_PackageCtrl = new wxComboBox( m_HeaderPanel, ID_FilterPackageCtrl, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_SORT );
+    PackageListUpdate();
+    PackageSelect( Package );
+    m_HeaderSizer->Add( m_PackageCtrl, 0, wxALIGN_CENTRE_VERTICAL);
 
   m_CheckFilterPackage = new wxCheckBox( m_HeaderPanel, ID_FilterPackage, wxString( "Filter by Package" ) );
-    m_CheckFilterPackage->SetValue( m_bFilterPackage );
+    m_CheckFilterPackage->SetValue( false );
     m_HeaderSizer->Add( m_CheckFilterPackage, 0, wxALIGN_CENTRE_VERTICAL);
 
   m_Ctrl = new wxTreeListCtrl( this, ID_Ctrl, wxDefaultPosition, wxDefaultSize, wxTL_MULTIPLE | wxTL_NO_HEADER );
@@ -103,52 +93,29 @@ EdObjectBrowser::EdObjectBrowser( TArray<UClass*>& Classes, bool bExactClass, bo
 
 void EdObjectBrowser::ObjectUpdate()
 {
-
-  //First, preserve any expanded members, so that they will be expanded when the control is re-populated.
-  TArray<UObject*> expanded;
-  TArray<u32> unexpandedGroups; //Used instead for group items ( Object == NULL and Group != 0 )
-
-  wxTreeListItem item = m_Ctrl->GetFirstItem();
-
-  for ( wxTreeListItem item = m_Ctrl->GetFirstItem(); item.IsOk(); item = m_Ctrl->GetNextItem( item ) )
-  {
-    UObject* currentObject = ((EdEditor::UObjectClientData*)( m_Ctrl->GetItemData( item ) ))->GetObject();
-    u32 currentGroup = ((EdEditor::UObjectClientData*)( m_Ctrl->GetItemData( item ) ))->GetGroup();
-
-    if( ( m_Ctrl->IsExpanded( item ) ) && ( currentObject != NULL ) )
-    {
-      if( m_Ctrl->IsExpanded( item ) )
-      {
-        expanded.PushBack( currentObject );
-      }
-    }
-    else if( currentGroup != 0 )
-    {
-      unexpandedGroups.PushBack( currentGroup );
-    }
-  }
-
   //Clear tree for update
   //TODO: Optimize by tracking what objects have been removed or addded instead of regenerating entire tree.
   m_Ctrl->DeleteAllItems();
+
+  if( m_bUpdatePackageList )
+    PackageListUpdate();
+
+  m_bUpdatePackageList = true;
 
   //Populate Packages
   for( size_t i = 0; i<UPackage::GetLoadedPackages()->Size(); i++ )
   {
     UPackage* currentPackage;
 
-    if( m_bFilterPackage )
-      currentPackage = m_PkgCtrl->GetSelected();
+    if( m_CheckFilterPackage->GetValue() )
+    {
+      currentPackage = GetSelectedPackage();
+
+      if( currentPackage == NULL )
+          return;
+    }
     else
       currentPackage = (*(UPackage::GetLoadedPackages()))[i];
-
-    if( currentPackage == NULL ) //Invalid Package
-    {
-      if( m_bFilterPackage )
-        return;
-      else
-        continue;
-    }
 
     wxTreeListItem currentPackageItem;
     TArray<wxTreeListItem> groupItems;
@@ -210,35 +177,14 @@ void EdObjectBrowser::ObjectUpdate()
 
     } //End Object
 
-    //Check if Package was expanded before.
-    for( size_t i2 = 0; i2<expanded.Size(); i2++ )
-    {
-      if( currentPackage == expanded[i2] )
-      {
-        m_Ctrl->Expand( currentPackageItem );
-        break;
-      }
-    }
-
-    //Check expanded groups.
-    for( size_t i2 = 0; i2<groupItems.Size(); i2++ )
-    {
-      u32 currentGroup = ((EdEditor::UObjectClientData*)(m_Ctrl->GetItemData( groupItems[i2] )))->GetGroup();
-      m_Ctrl->Expand( groupItems[i2] );
-
-      for( size_t i3 = 0; i3<unexpandedGroups.Size(); i3++ )
-      {
-        if( currentGroup == unexpandedGroups[i3] )
-        {
-          m_Ctrl->Collapse( groupItems[i2] );
-          break;
-        }
-      }
-    }
-
-    if( m_bFilterPackage ) //If we are only doing one package, break.
+    if( m_CheckFilterPackage->GetValue() ) //If we are only doing one package, break.
       break;
   } //End Package
+
+  for ( wxTreeListItem item = m_Ctrl->GetFirstItem(); item.IsOk(); item = m_Ctrl->GetNextItem( item ) )
+  {
+    m_Ctrl->Expand( item );
+  }
 }
 
 wxString EdObjectBrowser::getName( TArray<UClass*>& Classes )
@@ -307,21 +253,17 @@ void EdObjectBrowser::EVT_ObjectMenu( wxTreeListEvent& event )
 
 void EdObjectBrowser::EVT_FilterPackage( wxCommandEvent& event )
 {
-  m_bFilterPackage = !m_bFilterPackage;
-  m_CheckFilterPackage->SetValue( m_bFilterPackage );
-
-  if( m_CheckFilterPackage )
-    m_PkgCtrl->Enable();
-  else
-    m_PkgCtrl->Disable();
-
+  m_bUpdatePackageList = false;
   ObjectUpdate();
 }
 
 void EdObjectBrowser::EVT_FilterPackageCtrl( wxCommandEvent& event )
 {
+  if( !m_CheckFilterPackage->GetValue() )
+    return;
+
+  m_bUpdatePackageList = false;
   ObjectUpdate();
-  m_PkgCtrl->Refresh();
 }
 
 wxBEGIN_EVENT_TABLE( EdObjectBrowser, EdBrowser )

@@ -22,6 +22,7 @@
 * written by Jesse 'Hyzoran' Kowalik
 *========================================================================
 */
+#pragma once
 
 #include "EdBrowsers.h"
 
@@ -66,6 +67,62 @@ ThreadReturnType EdBrowser::StaticThreadObjectUpdate( void* Browser )
 	((EdBrowser*)Browser)->ObjectUpdate();
 
 	return THREAD_SUCCESS;
+}
+
+void EdBrowser::PackageSelect( UPackage* Package )
+{
+	if( m_PackageCtrl == NULL )
+		return;
+
+	if( Package == NULL )
+	{
+		m_PackageCtrl->SetSelection( wxNOT_FOUND );
+	}
+
+	for( size_t i = 0; i<m_PackageCtrl->GetCount(); i++ )
+	{
+		UPackage* currentPackage = (UPackage*)((( EdEditor::UObjectClientData* )( m_PackageCtrl->GetClientObject( i ) ))->GetObject());
+
+		if( currentPackage == Package )
+		{
+			m_PackageCtrl->SetSelection( i );
+			return;
+		}
+	}
+
+	m_PackageCtrl->SetSelection( wxNOT_FOUND );
+}
+
+UPackage* EdBrowser::GetSelectedPackage()
+{
+	if( m_PackageCtrl == NULL )
+		return NULL;
+
+	int select = m_PackageCtrl->GetSelection();
+
+	if( select == wxNOT_FOUND )
+		return NULL;
+
+	return (UPackage*)((( EdEditor::UObjectClientData* )( m_PackageCtrl->GetClientObject( select ) ))->GetObject());
+}
+
+void EdBrowser::PackageListUpdate()
+{
+	if( m_PackageCtrl == NULL )
+		return;
+
+	UPackage* selected = GetSelectedPackage();
+
+	m_PackageCtrl->Clear();
+
+	for( size_t i = 0; i<UPackage::GetLoadedPackages()->Size(); i++ )
+	{
+		UPackage* currentPackage = (*(UPackage::GetLoadedPackages()))[i];
+
+		m_PackageCtrl->Append( currentPackage->Name.Data(), new EdEditor::UObjectClientData( currentPackage ) );
+	}
+
+	PackageSelect( selected );
 }
 
 void EdBrowser::EVT_New( wxCommandEvent& event )

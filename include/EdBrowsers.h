@@ -45,65 +45,11 @@ public:
     virtual void ObjectUpdate() = 0; //Populate the associated control.
     static ThreadReturnType StaticThreadObjectUpdate( void* Browser ); //Notify Browser that UObject/UClass/UPackage pools have been updated or modified in some way.
 
+    void PackageSelect( UPackage* Package = NULL );
+    UPackage* GetSelectedPackage();
+    void PackageListUpdate();
+
     bool bIsBrowser = true;
-
-    class PackageComboCtrl : public wxComboBox
-    {
-    public:
-      PackageComboCtrl( wxWindow* Parent, UPackage* Selected = NULL, TArray<UPackage*>* PackageList = UPackage::GetLoadedPackages() )
-        : wxComboBox( Parent, ID_FilterPackageCtrl, wxString( "Package" ), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_SORT ), m_PackageList( PackageList )
-      {
-        Refresh();
-      }
-
-      void SetPackage( UPackage* Package )
-      {
-        if( Package == NULL )
-          return;
-
-        for( size_t i = 0; i<GetCount(); i++ )
-        {
-          if( ( (UPackage*)( (EdEditor::UObjectClientData*)GetClientObject( i ) )->GetObject() ) == Package )
-          {
-            SetSelection( i );
-            break;
-          }
-        }
-      }
-
-      UPackage* GetSelected()
-      {
-        if( wxItemContainerImmutable::IsEmpty() )
-          return NULL;
-
-        int n = GetSelection();
-
-        if( n == wxNOT_FOUND )
-          return NULL;
-
-        return (UPackage*)( (EdEditor::UObjectClientData*)GetClientObject( n ) )->GetObject();
-      }
-
-      void Refresh()
-      {
-        UPackage* selected = GetSelected();
-
-        Clear();
-        
-        for( size_t i = 0; i<m_PackageList->Size(); i++ )
-        {
-          Append( wxString( (*m_PackageList)[i]->Name.Data() ), new EdEditor::UObjectClientData( (*m_PackageList)[i] ) );
-        }
-
-        SetPackage( selected );
-
-        Update();
-      }
-
-    private:
-
-      TArray<UPackage*>* m_PackageList;
-    };
 
 protected:
 
@@ -119,6 +65,10 @@ protected:
 
     wxPanel* m_HeaderPanel;
       wxBoxSizer* m_HeaderSizer;
+
+      wxComboBox* m_PackageCtrl = NULL;
+      wxCheckBox* m_CheckFilterPackage = NULL;
+      bool m_bUpdatePackageList = false;
 
     wxString m_dirPath = EdEditor::gc_SubDir_U;
 
@@ -169,9 +119,6 @@ protected:
 
   TArray<UClass*> m_Classes;
   bool m_bExactClass;
-  EdBrowser::PackageComboCtrl* m_PkgCtrl;
-  wxCheckBox* m_CheckFilterPackage;
-  bool m_bFilterPackage;
   wxTreeListCtrl* m_Ctrl;
 
 private:

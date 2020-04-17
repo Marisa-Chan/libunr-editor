@@ -65,6 +65,7 @@ void EdEditor::LoadPackages( const wxArrayString& Paths )
     TArray<void*> localThreads;
     TArray<EdToolFrame*>* tools = EdToolFrame::GetTools();
 
+    /*
     //Notify tools that Packages and Objects were updated, by running their Update functions on new threads.
     //Threaded Implementation
     for ( size_t i = 0; i < tools->Size(); i++ )
@@ -77,14 +78,15 @@ void EdEditor::LoadPackages( const wxArrayString& Paths )
     {
         GSystem->JoinThread( localThreads[i] );
     }
+    */
     
     //Single Threaded implementation.
-    /*
+    
     for ( size_t i = 0; i < tools->Size(); i++ )
     {
       (*tools)[i]->ObjectUpdate();
     }
-    */
+    
 }
 
 int EdEditor::GamePromptHandler( TArray<char*>* Names )
