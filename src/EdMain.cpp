@@ -29,8 +29,8 @@
 #define C_BUTTONSIZE 30
 #define C_BUTTONCOLOUR wxColour( 130, 130, 130 )
 
-EdEditorFrame::EdEditorFrame(const wxString& Title, const wxPoint& Pos, const wxSize& Size)
-    : wxFrame(NULL, wxID_ANY, Title, Pos, Size)
+EdEditorFrame::EdEditorFrame( const wxString& Title, const wxPoint& Pos, const wxSize& Size )
+    : wxFrame( NULL, wxID_ANY, Title, Pos, Size )
 {
     //Init interface
     wxMenu* menuFile = new wxMenu();
@@ -196,49 +196,43 @@ void EdEditorFrame::EVT_Preferences(wxCommandEvent& event)
 
 void EdEditorFrame::EVT_BrowserPackage(wxCommandEvent& event)
 {
-    //new EdPackageBrowser();
+    new EdMasterBrowser( EdBrowser::E_BrowserType_Package );
+
     event.Skip();
 }
 
 void EdEditorFrame::EVT_BrowserClass(wxCommandEvent& event)
 {
-    new EdClassBrowser( UObject::StaticClass() );
+    new EdMasterBrowser( EdBrowser::E_BrowserType_Class );
+
     event.Skip();
 }
 
 void EdEditorFrame::EVT_BrowserSound(wxCommandEvent& event)
 {
-  TArray<UClass*> classes;
-  classes.PushBack( USound::StaticClass() );
+  new EdMasterBrowser( EdBrowser::E_BrowserType_Sound );
 
-  new EdObjectBrowser( classes, false );
   event.Skip();
 }
 
 void EdEditorFrame::EVT_BrowserMusic(wxCommandEvent& event)
 {
-  TArray<UClass*> classes;
-  classes.PushBack( UMusic::StaticClass() );
+  new EdMasterBrowser( EdBrowser::E_BrowserType_Music );
 
-  new EdObjectBrowser( classes, false );
   event.Skip();
 }
 
 void EdEditorFrame::EVT_BrowserTexture(wxCommandEvent& event)
 {
-  TArray<UClass*> classes;
-  classes.PushBack( UTexture::StaticClass() );
+  new EdMasterBrowser( EdBrowser::E_BrowserType_Texture );
 
-  new EdObjectBrowser( classes, false );
   event.Skip();
 }
 
 void EdEditorFrame::EVT_BrowserMesh(wxCommandEvent& event)
 {
-  TArray<UClass*> classes;
-  classes.PushBack( UMesh::StaticClass() );
+  new EdMasterBrowser( EdBrowser::E_BrowserType_Mesh );
 
-  new EdObjectBrowser( classes, false );
   event.Skip();
 }
 

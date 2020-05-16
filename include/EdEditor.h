@@ -37,43 +37,47 @@ namespace EdEditor
 
 extern wxFrame* sm_MainFrame;
 
-//Libunr interaction
-void LoadPackages( const wxArrayString& Paths );
-int GamePromptHandler( TArray<char*>* Names );
+//========================================================================
+// Engine-Interaction - Game Config
+
+	void LoadPackages( const wxArrayString& Paths );
+	int GamePromptHandler( TArray<char*>* Names );
 	extern int sm_SelectedGame;
 
-wxString GetGameDir(); //Return absolute path of game directory.
+	wxString GetGameDir(); //Return absolute path of game directory.
 
-//Engine stuff
+//========================================================================
+// Engine-Interaction - Ticking
 
-void DoTick( wxIdleEvent& event );
+	void DoTick( wxIdleEvent& event );
 	extern double CurrentTime;
 	extern double LastTime;
 
-//Static Resource references
-extern wxBitmap g_bmpNew;
-extern wxBitmap g_bmpDir;
-extern wxBitmap g_bmpSave;
-extern wxBitmap g_bmpPackage;
-extern wxBitmap g_bmpClass;
-extern wxBitmap g_bmpSound;
-extern wxBitmap g_bmpMusic;
-extern wxBitmap g_bmpTexture;
-extern wxBitmap g_bmpMesh;
-extern wxBitmap g_bmpMisc;
+//========================================================================
+// Static Resource variables
+	extern wxBitmap g_bmpNew;
+	extern wxBitmap g_bmpDir;
+	extern wxBitmap g_bmpSave;
+	extern wxBitmap g_bmpPackage;
+	extern wxBitmap g_bmpClass;
+	extern wxBitmap g_bmpSound;
+	extern wxBitmap g_bmpMusic;
+	extern wxBitmap g_bmpTexture;
+	extern wxBitmap g_bmpMesh;
+	extern wxBitmap g_bmpMisc;
 
-extern wxIcon g_icoNew;
-extern wxIcon g_icoDir;
-extern wxIcon g_icoSave;
-extern wxIcon g_icoPackage;
-extern wxIcon g_icoClass;
-extern wxIcon g_icoSound;
-extern wxIcon g_icoMusic;
-extern wxIcon g_icoTexture;
-extern wxIcon g_icoMesh;
-extern wxIcon g_icoMisc;
+	extern wxIcon g_icoNew;
+	extern wxIcon g_icoDir;
+	extern wxIcon g_icoSave;
+	extern wxIcon g_icoPackage;
+	extern wxIcon g_icoClass;
+	extern wxIcon g_icoSound;
+	extern wxIcon g_icoMusic;
+	extern wxIcon g_icoTexture;
+	extern wxIcon g_icoMesh;
+	extern wxIcon g_icoMisc;
 
-void g_IcoInit();
+	void g_IcoInit(); //Init resources
 
 //subdir suffix for different package types.
 static const wxString gc_SubDir_U = "/System";
@@ -87,71 +91,88 @@ static const wxString gc_SubDir_USA = "/Save";
 //========================================================================
 // UObject Utility Functions
 
-extern UObject* g_LastMenuObject; //Used to pass the Object in question from event
-//to these functions
+	extern UObject* g_LastMenuObject; //Used to pass the Object in question from event
+	//to these functions
 
-void PlayObject( TArray<UObject*> Objects );
-void EditObject( TArray<UObject*> Objects );
-void ObjectExport( TArray<UObject*> Objects );
-void ObjectProperties( TArray<UObject*> Objects );
+	void PlayObject( TArray<UObject*> Objects );
+	void EditObject( TArray<UObject*> Objects );
+	void ObjectExport( TArray<UObject*> Objects );
+	void ObjectProperties( TArray<UObject*> Objects );
 
 //========================================================================
 // UObject Utility Classes
 
-enum
-{
-  ID_ObjectActivate,
-	ID_ObjectEdit,
-  ID_ObjectExport,
-  ID_ObjectProperties
-};
+	enum
+	{
+		ID_ObjectActivate,
+		ID_ObjectEdit,
+		ID_ObjectExport,
+		ID_ObjectProperties
+	};
 
-struct UObjectClientData : public wxClientData
-{
-public:
-	UObjectClientData( UObject* Obj, u32 Group = 0 ) : m_Object(Obj), m_Group(Group) {}
-	inline UObject* GetObject() { return m_Object; }
-	inline u32 GetGroup() { return m_Group; }
+	struct UObjectClientData : public wxClientData
+	{
+	public:
+		UObjectClientData( UObject* Obj, u32 Group = 0 ) : m_Object(Obj), m_Group(Group) {}
+		inline UObject* GetObject() { return m_Object; }
+		inline u32 GetGroup() { return m_Group; }
 
-private:
-	UObject* m_Object;
-	u32 m_Group;
+	private:
+		UObject* m_Object;
+		u32 m_Group;
 
-};
+	};
 
-class UObjectContextMenu : public wxMenu
-{
-public:
-	UObjectContextMenu( wxWindow* Wnd, TArray<UObject*> Objects );
+	class UObjectContextMenu : public wxMenu
+	{
+	public:
+		UObjectContextMenu( wxWindow* Wnd, TArray<UObject*> Objects );
 
-	void EVT_ObjectActivate( wxCommandEvent& event );
-	void EVT_ObjectEdit( wxCommandEvent& event );
-	void EVT_ObjectExport( wxCommandEvent& event );
-	void EVT_ObjectProperties( wxCommandEvent& event );
+		void EVT_ObjectActivate( wxCommandEvent& event );
+		void EVT_ObjectEdit( wxCommandEvent& event );
+		void EVT_ObjectExport( wxCommandEvent& event );
+		void EVT_ObjectProperties( wxCommandEvent& event );
 
-protected:
-	TArray<UObject*> m_Objects;
+	protected:
+		TArray<UObject*> m_Objects;
 
-	wxDECLARE_EVENT_TABLE();
-};
+		wxDECLARE_EVENT_TABLE();
+	};
 
-class UObjectExportDialog : public wxDialog
-{
-public:
-	UObjectExportDialog( UObject* Obj );
-};
+	class UObjectExportDialog : public wxDialog
+	{
+	public:
+		UObjectExportDialog( UObject* Obj );
+	};
 
-class UObjectImportDialog : public wxDialog
-{
-public:
-	UObjectImportDialog();
-};
+	class UObjectImportDialog : public wxDialog
+	{
+	public:
+		UObjectImportDialog();
+	};
 
-//Prompt for starting new map/package/etc. from editorframe.
-class UObjectNewDialog : public wxDialog
-{
-public:
-	UObjectNewDialog();
-};
+	//Prompt for starting new map/package/etc. from editorframe.
+	class UObjectNewDialog : public wxDialog
+	{
+	public:
+		UObjectNewDialog();
+	};
+
+//========================================================================
+// Utility Ctrl Classes
+
+	//========================================================================
+	// EdUPackageCtrl - Control used to "Select" a UPackage.
+	class EdUPackageCtrl : public wxComboBox
+	{
+	public:
+		EdUPackageCtrl( wxWindow* Parent );
+
+		void PackageListUpdate();
+		UPackage* GetSelectedPackage();
+
+	private:
+
+	};
 
 };

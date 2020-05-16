@@ -84,7 +84,7 @@ void EdEditor::LoadPackages( const wxArrayString& Paths )
     
     for ( size_t i = 0; i < tools->Size(); i++ )
     {
-      (*tools)[i]->ObjectUpdate();
+      (*tools)[i]->ObjectUpdate( true );
     }
     
 }
@@ -234,6 +234,47 @@ EdEditor::UObjectExportDialog::UObjectExportDialog(  UObject* Obj  )
 
 EdEditor::UObjectImportDialog::UObjectImportDialog()
 {
+}
+
+EdEditor::EdUPackageCtrl::EdUPackageCtrl( wxWindow* Parent )
+  : wxComboBox( Parent, EdToolFrame::ID_PackageCtrl, wxEmptyString, wxDefaultPosition, wxSize( 256, -1 ), 0, NULL, wxCB_SORT )
+{
+}
+
+void EdEditor::EdUPackageCtrl::PackageListUpdate()
+{
+  UPackage* selected = NULL;
+
+  //TODO: remembering package is broken: select always == NULL?
+
+  //Preserve selected package
+  if( !( GetSelection() == wxNOT_FOUND ) )
+    UPackage* selected = (UPackage*)(((UObjectClientData*)GetClientObject( GetSelection() ))->GetObject());
+
+  Clear();
+
+  int index = -1;
+
+  for( size_t i = 0; i<UPackage::GetLoadedPackages()->Size(); i++ )
+  {
+    UPackage* currentPackage = (*(UPackage::GetLoadedPackages()))[i];
+
+    if( currentPackage == selected )
+      int index = Append( currentPackage->Name.Data(), new UObjectClientData( currentPackage ) );
+    else
+      Append( currentPackage->Name.Data(), new UObjectClientData( currentPackage ) );
+  }
+
+  if( index != -1 )
+    SetSelection( index );
+}
+
+UPackage* EdEditor::EdUPackageCtrl::GetSelectedPackage()
+{
+  if( GetSelection() == wxNOT_FOUND )
+    return NULL;
+
+  return (UPackage*)((UObjectClientData*)GetClientObject( GetSelection() ))->GetObject();
 }
 
 wxBEGIN_EVENT_TABLE( EdEditor::UObjectContextMenu, wxMenu )

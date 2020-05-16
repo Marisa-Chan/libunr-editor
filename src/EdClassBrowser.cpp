@@ -26,12 +26,16 @@
 #include "EdEditor.h"
 #include "EdBrowsers.h"
 
-EdClassBrowser::EdClassBrowser( UClass* Root, bool bStartDocked ) 
-  : EdBrowser( wxString("Class Browser") + wxString(" [") + wxString( Root->Pkg->Name.Data() ) + wxString(".") + wxString( Root->Name.Data() ) + wxString("]"), bStartDocked ), m_Root( Root )
+EdClassBrowser::EdClassBrowser( wxWindow* Parent, UClass* Root, bool bStartDocked ) 
+  : EdBrowser( Parent ), m_Root( Root )
 {
-  SetIcon( EdEditor::g_icoClass );
+  //We do not use the package ctrl.
+  m_HeaderSizer->Detach( m_PackageCtrl );
+  m_HeaderSizer->Detach( m_CheckFilterPackage );
+  m_PackageCtrl->Destroy();
+  m_CheckFilterPackage->Destroy();
 
-  m_Ctrl = new wxTreeListCtrl( this, ID_Ctrl, wxDefaultPosition, wxDefaultSize, wxTL_MULTIPLE | wxTL_NO_HEADER );
+  m_Ctrl = new wxTreeListCtrl( this, EdToolFrame::ID_Ctrl, wxDefaultPosition, wxDefaultSize, wxTL_MULTIPLE | wxTL_NO_HEADER );
 
     m_VSizer->Add( m_Ctrl, 1, wxEXPAND );
 
@@ -50,7 +54,7 @@ EdClassBrowser::~EdClassBrowser()
   delete m_Ctrl;
 }
 
-void EdClassBrowser::ObjectUpdate()
+void EdClassBrowser::ObjectUpdate( bool bUpdatePackageList )
 {
   //First, preserve any expanded members, so that they will be expanded when the control is re-populated.
   TArray<UClass*> expanded;
@@ -148,5 +152,5 @@ void EdClassBrowser::EVT_ObjectMenu( wxTreeListEvent& event )
 }
 
 wxBEGIN_EVENT_TABLE( EdClassBrowser, EdBrowser )
-  EVT_TREELIST_ITEM_CONTEXT_MENU( ID_Ctrl, EdClassBrowser::EVT_ObjectMenu)
+  EVT_TREELIST_ITEM_CONTEXT_MENU( EdToolFrame::ID_Ctrl, EdClassBrowser::EVT_ObjectMenu)
 wxEND_EVENT_TABLE()

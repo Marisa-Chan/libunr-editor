@@ -35,7 +35,7 @@ public:
     EdConfigFrame( wxWindow* Parent = EdEditor::sm_MainFrame, FConfig* Config = NULL, wxString Section = "", bool bDock = false, EdGamePrompt* ModalPrompt = NULL ); //If Empty Section string, then read all ini sections.
     ~EdConfigFrame();
 
-    void ObjectUpdate() {} //ConfigFrame does not deal with Objects so do nothing.
+    void ObjectUpdate( bool m_bUpdatePackageList = true ) {} //ConfigFrame does not deal with Objects so do nothing.
 
     //Multi-purpose class to store config-entry references in memory, as well as "Fake" ones, to be written.
     struct ConfigDataItem : public wxClientData

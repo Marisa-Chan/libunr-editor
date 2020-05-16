@@ -32,23 +32,26 @@
 //========================================================================
 // EdToolFrame
 
-enum
-{
-  ID_New,
-  ID_Open,
-  ID_Import,
-  ID_Export,
-  ID_Ctrl,
-  ID_Exit,
-  ID_FilterPackage,
-  ID_FilterPackageCtrl
-};
+//========================================================================
+// Event IDs
 
 class EdToolFrame : public wxFrame
 {
 public:
     EdToolFrame( wxWindow* Parent = EdEditor::sm_MainFrame, wxString Title = "EdToolFrame", bool bStartDocked = false );
     ~EdToolFrame();
+
+    enum
+    {
+      ID_New,
+      ID_Open,
+      ID_Import,
+      ID_Export,
+      ID_Ctrl, //For the main ctrl of a browser
+      ID_Exit,
+      ID_PackageCtrl, //For the EdUPackageCtrl of a browser
+      ID_bFilterPackageCheck //Filter Package Checkbox
+    };
 
     const wxString tag = wxString( "IMATOOL" ); //temporary variable to easily read if tool pointer is valid.
 
@@ -59,7 +62,7 @@ public:
 
     static TArray<EdToolFrame*>* GetTools();
 
-    virtual void ObjectUpdate() = 0;
+    virtual void ObjectUpdate( bool m_bUpdatePackageList = true ) = 0;
 
     bool bIsBrowser = false;
 
