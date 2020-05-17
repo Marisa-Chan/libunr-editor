@@ -26,6 +26,8 @@
 #include "EdEditor.h"
 #include "EdBrowsers.h"
 
+#define CTRLFONT() SetFont( wxFont(8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false ) )
+
 EdClassBrowser::EdClassBrowser( wxWindow* Parent, UClass* Root, bool bStartDocked ) 
   : EdBrowser( Parent ), m_Root( Root )
 {
@@ -43,6 +45,8 @@ EdClassBrowser::EdClassBrowser( wxWindow* Parent, UClass* Root, bool bStartDocke
 
   m_Ctrl->AppendColumn( wxString("Class"), wxCOL_WIDTH_AUTOSIZE, wxALIGN_LEFT, wxCOL_RESIZABLE | wxCOL_SORTABLE );
   m_Ctrl->AppendColumn( wxString("Package"), wxCOL_WIDTH_AUTOSIZE, wxALIGN_LEFT, wxCOL_RESIZABLE );
+
+  m_Ctrl->CTRLFONT();
 
   Show();
 
@@ -87,6 +91,23 @@ void EdClassBrowser::ObjectUpdate( bool bUpdatePackageList )
 
   //Expand Root Item
   m_Ctrl->Expand( rootItem );
+
+  /*
+  //Expand all remembered classes
+  for ( wxTreeListItem item = m_Ctrl->GetFirstItem(); item.IsOk(); item = m_Ctrl->GetNextItem( item ) )
+  {
+    UClass* currentClass = (UClass*)( ((EdEditor::UObjectClientData*)( m_Ctrl->GetItemData( item ) ))->GetObject() );
+
+    for( size_t i2 = 0; i2<expanded.Size(); i2++ )
+    {
+      if( currentClass==expanded[i2] )
+      {
+        m_Ctrl->Expand( item );
+        break;
+      }
+    }
+  }
+  */
 }
 
 //TODO: This code will get exponentially slower the bigger the class pool is, optimize in the future if possible.

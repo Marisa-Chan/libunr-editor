@@ -26,15 +26,19 @@
 #include "EdEditor.h"
 #include "EdBrowsers.h"
 
+#define CTRLFONT() SetFont( wxFont(8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false ) )
+
 EdObjectBrowser::EdObjectBrowser( wxWindow* Parent, TArray<UClass*>& Classes, bool bExactClass, bool bStartDocked, UPackage* Package )
   : EdBrowser( Parent ), m_Classes( Classes ), m_bExactClass( bExactClass )
 {
-  m_Ctrl = new wxTreeListCtrl( this, EdToolFrame::ID_Ctrl, wxDefaultPosition, wxDefaultSize, wxTL_MULTIPLE | wxTL_NO_HEADER );
+  m_Ctrl = new wxTreeListCtrl( this, EdToolFrame::ID_Ctrl, wxDefaultPosition, wxDefaultSize, wxTL_MULTIPLE );
 
     m_VSizer->Add( m_Ctrl, 1, wxEXPAND );
 
   m_Ctrl->AppendColumn( wxString("Object"), wxCOL_WIDTH_AUTOSIZE, wxALIGN_LEFT, wxCOL_RESIZABLE | wxCOL_SORTABLE  );
   m_Ctrl->AppendColumn( wxString("Class"), wxCOL_WIDTH_AUTOSIZE, wxALIGN_LEFT, wxCOL_RESIZABLE | wxCOL_SORTABLE  );
+
+  m_Ctrl->CTRLFONT();
 
   Show();
 

@@ -161,7 +161,8 @@ void EdEditor::PlayObject( TArray<UObject*> Objects )
     ZeroVec.Y = 0;
     ZeroVec.Z = 0;
 
-    GEngine->Audio->PlaySound( NULL, (USound*)Obj, ZeroVec, 1, 1, 1 );
+    if ( GEngine->Audio != NULL )
+      GEngine->Audio->PlaySound( NULL, (USound*)Obj, ZeroVec, 1, 1, 1 );
   }
   else if( Obj->IsA( UMusic::StaticClass() ) )
   {
@@ -170,7 +171,8 @@ void EdEditor::PlayObject( TArray<UObject*> Objects )
     ZeroVec.Y = 0;
     ZeroVec.Z = 0;
 
-    GEngine->Audio->PlayMusic( (UMusic*)Obj, 0, MTRAN_Instant );
+    if ( GEngine->Audio != NULL )
+      GEngine->Audio->PlayMusic( (UMusic*)Obj, 0, MTRAN_Instant );
   }
 }
 
@@ -245,28 +247,37 @@ void EdEditor::EdUPackageCtrl::PackageListUpdate()
 {
   UPackage* selected = NULL;
 
-  //TODO: remembering package is broken: select always == NULL?
-
   //Preserve selected package
   if( !( GetSelection() == wxNOT_FOUND ) )
-    UPackage* selected = (UPackage*)(((UObjectClientData*)GetClientObject( GetSelection() ))->GetObject());
+    selected = (UPackage*)GetClientData( GetSelection() );
 
   Clear();
-
-  int index = -1;
 
   for( size_t i = 0; i<UPackage::GetLoadedPackages()->Size(); i++ )
   {
     UPackage* currentPackage = (*(UPackage::GetLoadedPackages()))[i];
 
-    if( currentPackage == selected )
-      int index = Append( currentPackage->Name.Data(), new UObjectClientData( currentPackage ) );
-    else
-      Append( currentPackage->Name.Data(), new UObjectClientData( currentPackage ) );
+    Append( currentPackage->Name.Data(), (void*)currentPackage );
   }
 
-  if( index != -1 )
-    SetSelection( index );
+  if( selected != NULL )
+  {
+    for( size_t i = 0; i<GetCount(); i++ )
+    {
+      if( (UPackage*)GetClientData( i ) == selected )
+      {
+        SetSelection(i);
+        return;
+      }
+    }
+  }
+  else
+  {
+    if( GetCount() > 0 )
+    {
+      SetSelection(0);
+    }
+  }
 }
 
 UPackage* EdEditor::EdUPackageCtrl::GetSelectedPackage()
@@ -274,7 +285,7 @@ UPackage* EdEditor::EdUPackageCtrl::GetSelectedPackage()
   if( GetSelection() == wxNOT_FOUND )
     return NULL;
 
-  return (UPackage*)((UObjectClientData*)GetClientObject( GetSelection() ))->GetObject();
+  return (UPackage*)GetClientData( GetSelection() );
 }
 
 wxBEGIN_EVENT_TABLE( EdEditor::UObjectContextMenu, wxMenu )

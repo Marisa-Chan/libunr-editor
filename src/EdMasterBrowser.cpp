@@ -103,6 +103,7 @@ EdMasterBrowser::EdMasterBrowser( EdBrowser::E_BrowserType Type, wxWindow* Paren
 
 void EdMasterBrowser::ObjectUpdate( bool bUpdatePackageList )
 {
+  
   for( size_t i = 0; i<7; i++ )
   {
     m_Browsers[i]->ObjectUpdate( bUpdatePackageList );
@@ -116,54 +117,62 @@ void EdMasterBrowser::PageChange()
 
   switch (selection)
   {
-  case EdBrowser::E_BrowserType_Package:
-  {
-    m_dirPath = EdEditor::gc_SubDir_U;
-    SetIcon( EdEditor::g_icoPackage );
-    break;
-  }
-  case EdBrowser::E_BrowserType_Class:
-  {
-    m_dirPath = EdEditor::gc_SubDir_U;
-    SetIcon( EdEditor::g_icoClass );
-    break;
-  }
-  case EdBrowser::E_BrowserType_Sound:
-  {
-    m_dirPath = EdEditor::gc_SubDir_UAX;
-    SetIcon( EdEditor::g_icoSound );
-    break;
-  }
-  case EdBrowser::E_BrowserType_Music:
-  {
-    m_dirPath = EdEditor::gc_SubDir_UMX;
-    SetIcon( EdEditor::g_icoMusic );
-    break;
-  }
-  case EdBrowser::E_BrowserType_Texture:
-  {
-    m_dirPath = EdEditor::gc_SubDir_UTX;
-    SetIcon( EdEditor::g_icoTexture );
-    break;
-  }
-  case EdBrowser::E_BrowserType_Mesh:
-  {
-    m_dirPath = EdEditor::gc_SubDir_USM;
-    SetIcon( EdEditor::g_icoMesh );
-    break;
-  }
-  case EdBrowser::E_BrowserType_Level:
-  {
-    m_dirPath = EdEditor::gc_SubDir_UNR;
-    SetIcon( EdEditor::g_icoMisc );
-    break;
-  }
-  default:
-  {
-    m_dirPath = wxString(" ");
-    SetIcon( EdEditor::g_icoMisc );
-    break;
-  }
+    case EdBrowser::E_BrowserType_Package:
+    {
+      m_dirPath = EdEditor::gc_SubDir_U;
+      SetIcon( EdEditor::g_icoPackage );
+      SetLabel( wxString("Package Browser") );
+      break;
+    }
+    case EdBrowser::E_BrowserType_Class:
+    {
+      m_dirPath = EdEditor::gc_SubDir_U;
+      SetIcon( EdEditor::g_icoClass );
+      SetLabel( wxString("Class Browser") );
+      break;
+    }
+    case EdBrowser::E_BrowserType_Sound:
+    {
+      m_dirPath = EdEditor::gc_SubDir_UAX;
+      SetIcon( EdEditor::g_icoSound );
+      SetLabel( wxString("Sound Browser") );
+      break;
+    }
+    case EdBrowser::E_BrowserType_Music:
+    {
+      m_dirPath = EdEditor::gc_SubDir_UMX;
+      SetIcon( EdEditor::g_icoMusic );
+      SetLabel( wxString("Music Browser") );
+      break;
+    }
+    case EdBrowser::E_BrowserType_Texture:
+    {
+      m_dirPath = EdEditor::gc_SubDir_UTX;
+      SetIcon( EdEditor::g_icoTexture );
+      SetLabel( wxString("Texture Browser") );
+      break;
+    }
+    case EdBrowser::E_BrowserType_Mesh:
+    {
+      m_dirPath = EdEditor::gc_SubDir_USM;
+      SetIcon( EdEditor::g_icoMesh );
+      SetLabel( wxString("Mesh Browser") );
+      break;
+    }
+    case EdBrowser::E_BrowserType_Level:
+    {
+      m_dirPath = EdEditor::gc_SubDir_UNR;
+      SetIcon( EdEditor::g_icoMisc );
+      SetLabel( wxString("Level Browser") );
+      break;
+    }
+    default:
+    {
+      m_dirPath = wxString(" ");
+      SetLabel( wxString("Browser") );
+      SetIcon( EdEditor::g_icoMisc );
+      break;
+    }
   }
 
   SetName( m_Browsers[ (EdBrowser::E_BrowserType)selection ]->GetName() );

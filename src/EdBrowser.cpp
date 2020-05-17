@@ -40,7 +40,7 @@ EdBrowser::EdBrowser( wxWindow* Parent )
 	m_VSizer->Add( m_HeaderPanel, 0, wxEXPAND );
 
 	m_PackageCtrl = new EdEditor::EdUPackageCtrl( m_HeaderPanel );
-	m_HeaderSizer->Add( m_PackageCtrl, 0 );
+	m_HeaderSizer->Add( m_PackageCtrl, 0, 0, 4 );
 
 	m_CheckFilterPackage = new wxCheckBox( m_HeaderPanel, EdToolFrame::ID_bFilterPackageCheck, wxString("Filter Package?") );
 	m_CheckFilterPackage->SetValue( false );
