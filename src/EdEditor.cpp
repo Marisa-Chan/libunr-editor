@@ -238,6 +238,16 @@ EdEditor::UObjectImportDialog::UObjectImportDialog()
 {
 }
 
+//========================================================================
+// UObjectPreviewWindow
+EdEditor::UObjectPreviewWindow::UObjectPreviewWindow( wxWindow* Parent )
+  : wxWindow( Parent, wxID_ANY )
+{
+}
+
+//========================================================================
+// EdUPackageCtrl
+
 EdEditor::EdUPackageCtrl::EdUPackageCtrl( wxWindow* Parent )
   : wxComboBox( Parent, EdToolFrame::ID_PackageCtrl, wxEmptyString, wxDefaultPosition, wxSize( 256, -1 ), 0, NULL, wxCB_SORT )
 {

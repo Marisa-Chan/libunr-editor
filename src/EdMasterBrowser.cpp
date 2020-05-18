@@ -99,6 +99,7 @@ EdMasterBrowser::EdMasterBrowser( EdBrowser::E_BrowserType Type, wxWindow* Paren
   PageChange();
 
   Show();
+  SetLabel( m_Browsers[ Type ]->GetLabel() );
 }
 
 void EdMasterBrowser::ObjectUpdate( bool bUpdatePackageList )
@@ -175,7 +176,8 @@ void EdMasterBrowser::PageChange()
     }
   }
 
-  SetName( m_Browsers[ (EdBrowser::E_BrowserType)selection ]->GetName() );
+  if( selection != -1 )
+    SetLabel( m_Browsers[ selection ]->GetLabel() );
 }
 
 void EdMasterBrowser::EVT_New( wxCommandEvent& event )

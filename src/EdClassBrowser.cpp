@@ -26,7 +26,7 @@
 #include "EdEditor.h"
 #include "EdBrowsers.h"
 
-#define CTRLFONT() SetFont( wxFont(8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false ) )
+#define CTRLFONT() SetFont( wxFont(8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false ) )
 
 EdClassBrowser::EdClassBrowser( wxWindow* Parent, UClass* Root, bool bStartDocked ) 
   : EdBrowser( Parent ), m_Root( Root )
@@ -36,17 +36,21 @@ EdClassBrowser::EdClassBrowser( wxWindow* Parent, UClass* Root, bool bStartDocke
   m_HeaderSizer->Detach( m_CheckFilterPackage );
   m_PackageCtrl->Destroy();
   m_CheckFilterPackage->Destroy();
+  m_PackageCtrl = NULL;
+  m_CheckFilterPackage = NULL;
 
-  m_Ctrl = new wxTreeListCtrl( this, EdToolFrame::ID_Ctrl, wxDefaultPosition, wxDefaultSize, wxTL_MULTIPLE | wxTL_NO_HEADER );
+  m_Ctrl = new wxTreeListCtrl( this, EdToolFrame::ID_Ctrl, wxDefaultPosition, wxDefaultSize, wxTL_MULTIPLE );
 
     m_VSizer->Add( m_Ctrl, 1, wxEXPAND );
 
   //Columns: |Class|Package|Dirty|
 
-  m_Ctrl->AppendColumn( wxString("Class"), wxCOL_WIDTH_AUTOSIZE, wxALIGN_LEFT, wxCOL_RESIZABLE | wxCOL_SORTABLE );
+  m_Ctrl->AppendColumn( wxString("Class"), 256, wxALIGN_LEFT, wxCOL_RESIZABLE | wxCOL_SORTABLE );
   m_Ctrl->AppendColumn( wxString("Package"), wxCOL_WIDTH_AUTOSIZE, wxALIGN_LEFT, wxCOL_RESIZABLE );
 
   m_Ctrl->CTRLFONT();
+
+  SetLabel( wxString( "Class Browser [" ) + wxString( Root->Name.Data() ) + wxString( "]" ) );
 
   Show();
 
@@ -91,23 +95,6 @@ void EdClassBrowser::ObjectUpdate( bool bUpdatePackageList )
 
   //Expand Root Item
   m_Ctrl->Expand( rootItem );
-
-  /*
-  //Expand all remembered classes
-  for ( wxTreeListItem item = m_Ctrl->GetFirstItem(); item.IsOk(); item = m_Ctrl->GetNextItem( item ) )
-  {
-    UClass* currentClass = (UClass*)( ((EdEditor::UObjectClientData*)( m_Ctrl->GetItemData( item ) ))->GetObject() );
-
-    for( size_t i2 = 0; i2<expanded.Size(); i2++ )
-    {
-      if( currentClass==expanded[i2] )
-      {
-        m_Ctrl->Expand( item );
-        break;
-      }
-    }
-  }
-  */
 }
 
 //TODO: This code will get exponentially slower the bigger the class pool is, optimize in the future if possible.

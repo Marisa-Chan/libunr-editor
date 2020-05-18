@@ -26,7 +26,7 @@
 #include "EdEditor.h"
 #include "EdBrowsers.h"
 
-#define CTRLFONT() SetFont( wxFont(8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false ) )
+#define CTRLFONT() SetFont( wxFont(8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false ) )
 
 EdObjectBrowser::EdObjectBrowser( wxWindow* Parent, TArray<UClass*>& Classes, bool bExactClass, bool bStartDocked, UPackage* Package )
   : EdBrowser( Parent ), m_Classes( Classes ), m_bExactClass( bExactClass )
@@ -43,15 +43,24 @@ EdObjectBrowser::EdObjectBrowser( wxWindow* Parent, TArray<UClass*>& Classes, bo
   Show();
 
   ObjectUpdate();
+
+  wxString labelName;
+
+  if( m_Classes.Size() == 1 )
+    labelName = wxString( m_Classes[0]->Name.Data() );
+  else
+    labelName = wxString( "Object" );
+
+  SetLabel( labelName + wxString( " Browser" ) );
 }
 
-void EdObjectBrowser::ObjectUpdate( bool m_bUpdatePackageList )
+void EdObjectBrowser::ObjectUpdate( bool bUpdatePackageList )
 {
   //Clear tree for update
   //TODO: Optimize by tracking what objects have been removed or addded instead of regenerating entire tree.
   m_Ctrl->DeleteAllItems();
 
-  if( m_bUpdatePackageList )
+  if( bUpdatePackageList )
     m_PackageCtrl->PackageListUpdate();
 
   //Populate Packages
@@ -130,54 +139,12 @@ void EdObjectBrowser::ObjectUpdate( bool m_bUpdatePackageList )
     } //End Object
 
     if( m_CheckFilterPackage->GetValue() ) //If we are only doing one package, break.
+    {
+      m_Ctrl->Expand( currentPackageItem );
       break;
+    }
   } //End Package
 
-  /*
-  for ( wxTreeListItem item = m_Ctrl->GetFirstItem(); item.IsOk(); item = m_Ctrl->GetNextItem( item ) )
-  {
-    m_Ctrl->Expand( item );
-  }
-  */
-}
-
-wxString EdObjectBrowser::getName( TArray<UClass*>& Classes )
-{
-  wxString str;
-
-  if( Classes.Size() == 1 )
-  {
-    if( Classes[0]->IsA( USound::StaticClass() ) || Classes[0] == USound::StaticClass() )
-    {
-      str = wxString( "Sound" );
-    }
-    else if( Classes[0]->IsA( UMusic::StaticClass() ) || Classes[0] == UMusic::StaticClass() )
-    {
-      str = wxString( "Music" );
-    }
-    else if( Classes[0]->IsA( UTexture::StaticClass() ) || Classes[0] == UTexture::StaticClass() )
-    {
-      str = wxString( "Texture" );
-    }
-    else if( Classes[0]->IsA( ULevel::StaticClass() ) || Classes[0] == ULevel::StaticClass() )
-    {
-      str = wxString( "Level" );
-    }
-    else if( Classes[0]->IsA( UMesh::StaticClass() ) || Classes[0] == UMesh::StaticClass() )
-    {
-      str = wxString( "Mesh" );
-    }
-    else
-    {
-      str = wxString( "Object" );
-    }
-  }
-  else
-  {
-    str = wxString("");
-  }
-
-  return str + wxString( " Browser");
 }
 
 void EdObjectBrowser::EVT_ObjectMenu( wxTreeListEvent& event )

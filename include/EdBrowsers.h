@@ -25,6 +25,8 @@
 #pragma once
 
 #include <wx/treelist.h>
+#include <wx/listctrl.h>
+#include <wx/splitter.h>
 
 #include "EdToolFrame.h"
 
@@ -55,7 +57,7 @@ public:
   virtual void ObjectUpdate( bool m_bUpdatePackageList = true ) = 0; //Update Main browser Ctrl
 
   void EVT_FilterPackage( wxCommandEvent& event );
-  void EVT_FilterPackageCtrl( wxCommandEvent& event );
+  void EVT_FilterPackageCheck( wxCommandEvent& event );
 
 protected:
 
@@ -81,7 +83,57 @@ public:
 
   void ObjectUpdate( bool m_bUpdatePackageList = true );
 
+protected:
+
+  enum E_PackageMode
+  {
+    E_PackageMode_Name,
+    E_PackageMode_Export,
+    E_PackageMode_Import
+  };
+
+  class EdPackageHeader : public wxWindow
+  {
+  public:
+    EdPackageHeader( wxWindow* Parent );
+
+    void Update( UPackage* Package = NULL );
+
+  protected:
+    wxBoxSizer* m_VSizer;
+    wxListCtrl* m_PackageInfo;
+    wxListCtrl* m_PackageFlags;
+  };
+
+  class EdPackageTable : public wxListCtrl
+  {
+  public:
+    EdPackageTable( wxWindow* Parent, E_PackageMode Mode );
+
+    void Update( UPackage* Package = NULL );
+  };
+
+  class EdPackageTree : public wxTreeListCtrl
+  {
+  public:
+    EdPackageTree( wxWindow* Parent, E_PackageMode Mode );
+
+    void Update( UPackage* Package = NULL );
+  };
+
+  wxSplitterWindow* m_MainView;
+    wxNotebook* m_Notebook;
+      EdPackageHeader* m_PackageHeader;
+      EdPackageTable* m_NameTable;
+      EdPackageTable* m_ExportTable;
+      EdPackageTree* m_ExportTree;
+      EdPackageTable* m_ImportTable;
+      EdPackageTree* m_ImportTree;
+    EdEditor::UObjectPreviewWindow* m_ViewWindow;
+
 private:
+public:
+  wxDECLARE_EVENT_TABLE();
 };
 
 //========================================================================
@@ -124,9 +176,6 @@ protected:
   TArray<UClass*> m_Classes;
   bool m_bExactClass;
   wxTreeListCtrl* m_Ctrl;
-
-private:
-  wxString getName( TArray<UClass*>& Classes );
 
 public:
   wxDECLARE_EVENT_TABLE();

@@ -158,8 +158,13 @@ static const wxString gc_SubDir_USA = "/Save";
 		UObjectNewDialog();
 	};
 
-//========================================================================
-// Utility Ctrl Classes
+	//========================================================================
+	// "Renders" or otherwise previews a UObject in some way.
+	class UObjectPreviewWindow : public wxWindow
+	{
+	public:
+		UObjectPreviewWindow( wxWindow* Parent );
+	};
 
 	//========================================================================
 	// EdUPackageCtrl - Control used to "Select" a UPackage.
