@@ -294,6 +294,26 @@ bool EditorApp::OnInit()
         return false;
     }
 
+    auto client = GEngine->Client;
+    if (!client)
+    {
+        GLogf(LOG_CRIT, "Can't get Client");
+        return false;
+    }
+
+    auto viewport = client->OpenViewport();
+    if (!viewport)
+    {
+        GLogf(LOG_CRIT, "Failed to open Viewport");
+        return false;
+    }
+    viewport->Show();
+
+    // Create a camera
+    ACamera* camera = (ACamera*)ACamera::StaticClass()->CreateObject();
+    camera->Acceleration = FVector( 100, 100, 0 );
+    viewport->Possess( camera );
+
     for (size_t i = 0; i < UPackage::GetLoadedPackages()->Size(); i++)
     {
       if( (*UPackage::GetLoadedPackages())[i] == NULL )
