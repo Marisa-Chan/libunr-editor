@@ -30,24 +30,24 @@
 
 #include "EdToolFrame.h"
 
-//========================================================================
-// EdBrowser - Abstract Browser class.
+/*-----------------------------------------------------------------------------
+ * EdBrowser
+ * Abstract Browser class.
+-----------------------------------------------------------------------------*/
 class EdBrowser : public wxWindow
 {
 public:
-  //========================================================================
-  // Standard Browser types
-  #define BROWSERTYPE_COUNT 7
 
-  enum E_BrowserType
+  enum BrowserType
   {
-    E_BrowserType_Package = 0,
-    E_BrowserType_Class = 1,
-    E_BrowserType_Sound = 2,
-    E_BrowserType_Music = 3,
-    E_BrowserType_Texture = 4,
-    E_BrowserType_Mesh = 5,
-    E_BrowserType_Level = 6
+    BT_Package,
+    BT_Class,
+    BT_Sound,
+    BT_Music,
+    BT_Texture,
+    BT_Mesh,
+    BT_Level,
+    BT_TypeCount // Keep last, so it's always equal to the number of browser types
   };
 
 public:
@@ -73,9 +73,11 @@ private:
     wxDECLARE_EVENT_TABLE();
 };
 
-//========================================================================
-// EdPackageBrowser - Inspects the contents and properties of Package objects,
-// such as Import/Export tables, Name tables, Headers, etc.
+/*-----------------------------------------------------------------------------
+ * EdPackageBrowser
+ * Inspects the contents and properties of Package objects, such as 
+ * Import/Export tables, Name tables, Headers, etc.
+-----------------------------------------------------------------------------*/
 class EdPackageBrowser : public EdBrowser
 {
 public:
@@ -136,8 +138,10 @@ public:
   wxDECLARE_EVENT_TABLE();
 };
 
-//========================================================================
-// EdClassBrowser - Renders a class tree, given a root class.
+/*-----------------------------------------------------------------------------
+ * EdClassBrowser
+ * Renders a class tree, given a root class.
+-----------------------------------------------------------------------------*/
 class EdClassBrowser : public EdBrowser
 {
 public:
@@ -158,11 +162,12 @@ public:
   wxDECLARE_EVENT_TABLE();
 };
 
-//========================================================================
-// EdObjectBrowser - Renders all objects matching given class(es), sorting by group and Package.
-// Contains list and tile view modes, and a preview window.
-// bExactClass: If true, only Objects whose Class==Classes[x] will be considered, otherwise, Class.IsA( Classes[x] ) will be used instead.
-// Package: if NULL, browse in all Packages, else, filter by the given package.
+/*-----------------------------------------------------------------------------
+ * EdObjectBrowser 
+ * Renders all objects matching given class(es), sorting by group and Package.
+ * Contains list and tile view modes, and a preview window.
+ * Package: if NULL, browse in all Packages, else, filter by the given package.
+-----------------------------------------------------------------------------*/
 class EdObjectBrowser : public EdBrowser
 {
 public:
@@ -174,16 +179,18 @@ public:
 
 protected:
   TArray<UClass*> m_Classes;
-  bool m_bExactClass;
+  bool m_bExactClass; // If true, only Objects whose Class==Classes[x] will be considered, otherwise, Class.IsA( Classes[x] ) will be used instead.
   wxTreeListCtrl* m_Ctrl;
 
 public:
   wxDECLARE_EVENT_TABLE();
 };
 
-//========================================================================
-// EdPropertyBrowser - Inspects a given UObject and renders not only its properties,
-// but any associated raw data.
+/*-----------------------------------------------------------------------------
+ * EdPropertyBrowser 
+ * Inspects a given UObject and renders not only its properties,
+ * but any associated raw data.
+-----------------------------------------------------------------------------*/
 class EdPropertyBrowser : public EdBrowser
 {
 public:
@@ -195,13 +202,15 @@ public:
   wxDECLARE_EVENT_TABLE();
 };
 
-//========================================================================
-// EdMasterBrowser - ToolFrame that manages tabs for every browser type
+/*-----------------------------------------------------------------------------
+ * EdMasterBrowser 
+ * ToolFrame that manages tabs for every browser type
+-----------------------------------------------------------------------------*/
 class EdMasterBrowser : public EdToolFrame
 {
 
 public:
-  EdMasterBrowser( EdBrowser::E_BrowserType Type, wxWindow* Parent = EdEditor::sm_MainFrame, wxString Title = "Browser", bool bStartDocked = false );
+  EdMasterBrowser( EdBrowser::BrowserType Type, wxWindow* Parent = EdEditor::sm_MainFrame, wxString Title = "Browser", bool bStartDocked = false );
 
   void ObjectUpdate( bool bUpdatePackageList = true );
   void PageChange();

@@ -196,42 +196,42 @@ void EdEditorFrame::EVT_Preferences(wxCommandEvent& event)
 
 void EdEditorFrame::EVT_BrowserPackage(wxCommandEvent& event)
 {
-    new EdMasterBrowser( EdBrowser::E_BrowserType_Package );
+    new EdMasterBrowser( EdBrowser::BrowserType::BT_Package );
 
     event.Skip();
 }
 
 void EdEditorFrame::EVT_BrowserClass(wxCommandEvent& event)
 {
-    new EdMasterBrowser( EdBrowser::E_BrowserType_Class );
+    new EdMasterBrowser( EdBrowser::BrowserType::BT_Class );
 
     event.Skip();
 }
 
 void EdEditorFrame::EVT_BrowserSound(wxCommandEvent& event)
 {
-  new EdMasterBrowser( EdBrowser::E_BrowserType_Sound );
+  new EdMasterBrowser( EdBrowser::BrowserType::BT_Sound );
 
   event.Skip();
 }
 
 void EdEditorFrame::EVT_BrowserMusic(wxCommandEvent& event)
 {
-  new EdMasterBrowser( EdBrowser::E_BrowserType_Music );
+  new EdMasterBrowser( EdBrowser::BrowserType::BT_Music );
 
   event.Skip();
 }
 
 void EdEditorFrame::EVT_BrowserTexture(wxCommandEvent& event)
 {
-  new EdMasterBrowser( EdBrowser::E_BrowserType_Texture );
+  new EdMasterBrowser( EdBrowser::BrowserType::BT_Texture );
 
   event.Skip();
 }
 
 void EdEditorFrame::EVT_BrowserMesh(wxCommandEvent& event)
 {
-  new EdMasterBrowser( EdBrowser::E_BrowserType_Mesh );
+  new EdMasterBrowser( EdBrowser::BrowserType::BT_Mesh );
 
   event.Skip();
 }
