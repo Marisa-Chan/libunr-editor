@@ -136,7 +136,7 @@ void EdClassBrowser::recursePopulate( UClass* Parent, wxTreeListItem ParentItem,
   }
 }
 
-void EdClassBrowser::EVT_ObjectMenu( wxTreeListEvent& event )
+void EdClassBrowser::EventObjectMenu( wxTreeListEvent& event )
 {
   wxTreeListItems items;
 
@@ -160,5 +160,5 @@ void EdClassBrowser::EVT_ObjectMenu( wxTreeListEvent& event )
 }
 
 wxBEGIN_EVENT_TABLE( EdClassBrowser, EdBrowser )
-  EVT_TREELIST_ITEM_CONTEXT_MENU( EdToolFrame::ID_Ctrl, EdClassBrowser::EVT_ObjectMenu)
+  EVT_TREELIST_ITEM_CONTEXT_MENU( EdToolFrame::ID_Ctrl, EdClassBrowser::EventObjectMenu)
 wxEND_EVENT_TABLE()

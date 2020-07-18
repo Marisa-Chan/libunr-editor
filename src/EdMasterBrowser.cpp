@@ -25,12 +25,27 @@
 
 #include "EdBrowsers.h"
 
+// Asset import types
+#define LEVEL_FILE_TYPES "*.t3d"
+#define CLASS_FILE_TYPES "*.uc"
+#define TEXTURE_FILE_TYPES "*.bmp;*.pcx;*.png"
+#define SOUND_FILE_TYPES "*.wav;*.ogg;*.mp3"
+#define MESH_FILE_TYPES "*_d.3d;*_a.3d;*.psk;*.psa;*.obj"
+#define MUSIC_FILE_TYPES "*.it;*.xm;*.s3m;*.stm;*.mod;*.ptm;*.669;*.psm;*.mtm; \
+                         *.riff;*.asy;*.amf;*.okt;*.ogg;*.mp3;*.ay;*.gbs;*.gym; \
+                         *.hes;*.kss;*.nsf;*.nsfe;*.sap;*.spc;*.vgm"
+#define PALETTE_FILE_TYPES "*.palt;*.palb"
+#define FRACTAL_FILE_TYPES "*.ftx"
+#define FONT_FILE_TYPES "*.ufnt"
+
 #define C_BUTTONSIZE 30
 #define C_BUTTONCOLOUR wxColour( 130, 130, 130 )
 
-EdMasterBrowser::EdMasterBrowser( EdBrowser::BrowserType Type, wxWindow* Parent, wxString Title, bool bStartDocked )
+EdMasterBrowser::EdMasterBrowser( EdBrowser::EBrowserType Type, wxWindow* Parent, wxString Title, bool bStartDocked )
   : EdToolFrame( Parent, Title, bStartDocked )
 {
+  BrowserType = Type;
+
   m_VSizer = new wxBoxSizer( wxVERTICAL );
   SetSizer( m_VSizer );
 
@@ -64,36 +79,36 @@ EdMasterBrowser::EdMasterBrowser( EdBrowser::BrowserType Type, wxWindow* Parent,
   //Setup Browsers
   TArray<UClass*> classes;
 
-  m_Browsers[EdBrowser::BrowserType::BT_Package] = new EdPackageBrowser( m_Ctrl, NULL, false );
-  m_Browsers[EdBrowser::BrowserType::BT_Class] = new EdClassBrowser( m_Ctrl, UObject::StaticClass() );
+  m_Browsers[EdBrowser::EBrowserType::BT_Package] = new EdPackageBrowser( m_Ctrl, NULL, false );
+  m_Browsers[EdBrowser::EBrowserType::BT_Class] = new EdClassBrowser( m_Ctrl, UObject::StaticClass() );
   
   classes.PushBack( USound::StaticClass() );
-  m_Browsers[EdBrowser::BrowserType::BT_Sound] = new EdObjectBrowser( m_Ctrl, classes, false );
+  m_Browsers[EdBrowser::EBrowserType::BT_Sound] = new EdObjectBrowser( m_Ctrl, classes, false );
   classes.Clear();
 
   classes.PushBack( UMusic::StaticClass() );
-  m_Browsers[EdBrowser::BrowserType::BT_Music] = new EdObjectBrowser( m_Ctrl, classes, false );
+  m_Browsers[EdBrowser::EBrowserType::BT_Music] = new EdObjectBrowser( m_Ctrl, classes, false );
   classes.Clear();
 
   classes.PushBack( UTexture::StaticClass() );
-  m_Browsers[EdBrowser::BrowserType::BT_Texture] = new EdObjectBrowser( m_Ctrl, classes, false );
+  m_Browsers[EdBrowser::EBrowserType::BT_Texture] = new EdObjectBrowser( m_Ctrl, classes, false );
   classes.Clear();
 
   classes.PushBack( UMesh::StaticClass() );
-  m_Browsers[EdBrowser::BrowserType::BT_Mesh] = new EdObjectBrowser( m_Ctrl, classes, false );
+  m_Browsers[EdBrowser::EBrowserType::BT_Mesh] = new EdObjectBrowser( m_Ctrl, classes, false );
   classes.Clear();
 
   classes.PushBack( ULevel::StaticClass() );
-  m_Browsers[EdBrowser::BrowserType::BT_Level] = new EdObjectBrowser( m_Ctrl, classes, false );
+  m_Browsers[EdBrowser::EBrowserType::BT_Level] = new EdObjectBrowser( m_Ctrl, classes, false );
   classes.Clear();
 
-  m_Ctrl->InsertPage( 0, m_Browsers[EdBrowser::BrowserType::BT_Package], wxString( "Packages" ), false);
-  m_Ctrl->InsertPage( 1, m_Browsers[EdBrowser::BrowserType::BT_Class], wxString( "Classes" ), false );
-  m_Ctrl->InsertPage( 2, m_Browsers[EdBrowser::BrowserType::BT_Sound], wxString( "Sounds" ), false );
-  m_Ctrl->InsertPage( 3, m_Browsers[EdBrowser::BrowserType::BT_Music], wxString( "Music" ), false );
-  m_Ctrl->InsertPage( 4, m_Browsers[EdBrowser::BrowserType::BT_Texture], wxString( "Textures" ), false );
-  m_Ctrl->InsertPage( 5, m_Browsers[EdBrowser::BrowserType::BT_Mesh], wxString( "Meshes" ), false );
-  m_Ctrl->InsertPage( 6, m_Browsers[EdBrowser::BrowserType::BT_Level], wxString( "Level" ), false );
+  m_Ctrl->InsertPage( 0, m_Browsers[EdBrowser::EBrowserType::BT_Package], wxString( "Packages" ), false);
+  m_Ctrl->InsertPage( 1, m_Browsers[EdBrowser::EBrowserType::BT_Class], wxString( "Classes" ), false );
+  m_Ctrl->InsertPage( 2, m_Browsers[EdBrowser::EBrowserType::BT_Sound], wxString( "Sounds" ), false );
+  m_Ctrl->InsertPage( 3, m_Browsers[EdBrowser::EBrowserType::BT_Music], wxString( "Music" ), false );
+  m_Ctrl->InsertPage( 4, m_Browsers[EdBrowser::EBrowserType::BT_Texture], wxString( "Textures" ), false );
+  m_Ctrl->InsertPage( 5, m_Browsers[EdBrowser::EBrowserType::BT_Mesh], wxString( "Meshes" ), false );
+  m_Ctrl->InsertPage( 6, m_Browsers[EdBrowser::EBrowserType::BT_Level], wxString( "Level" ), false );
 
   m_Ctrl->SetSelection( Type );
 
@@ -107,7 +122,6 @@ EdMasterBrowser::EdMasterBrowser( EdBrowser::BrowserType Type, wxWindow* Parent,
 
 void EdMasterBrowser::ObjectUpdate( bool bUpdatePackageList )
 {
-  
   for( size_t i = 0; i<7; i++ )
   {
     m_Browsers[i]->ObjectUpdate( bUpdatePackageList );
@@ -121,49 +135,49 @@ void EdMasterBrowser::PageChange()
 
   switch (selection)
   {
-    case EdBrowser::BrowserType::BT_Package:
+    case EdBrowser::EBrowserType::BT_Package:
     {
       m_dirPath = EdEditor::gc_SubDir_U;
       SetIcon( EdEditor::g_icoPackage );
       SetLabel( wxString("Package Browser") );
       break;
     }
-    case EdBrowser::BrowserType::BT_Class:
+    case EdBrowser::EBrowserType::BT_Class:
     {
       m_dirPath = EdEditor::gc_SubDir_U;
       SetIcon( EdEditor::g_icoClass );
       SetLabel( wxString("Class Browser") );
       break;
     }
-    case EdBrowser::BrowserType::BT_Sound:
+    case EdBrowser::EBrowserType::BT_Sound:
     {
       m_dirPath = EdEditor::gc_SubDir_UAX;
       SetIcon( EdEditor::g_icoSound );
       SetLabel( wxString("Sound Browser") );
       break;
     }
-    case EdBrowser::BrowserType::BT_Music:
+    case EdBrowser::EBrowserType::BT_Music:
     {
       m_dirPath = EdEditor::gc_SubDir_UMX;
       SetIcon( EdEditor::g_icoMusic );
       SetLabel( wxString("Music Browser") );
       break;
     }
-    case EdBrowser::BrowserType::BT_Texture:
+    case EdBrowser::EBrowserType::BT_Texture:
     {
       m_dirPath = EdEditor::gc_SubDir_UTX;
       SetIcon( EdEditor::g_icoTexture );
       SetLabel( wxString("Texture Browser") );
       break;
     }
-    case EdBrowser::BrowserType::BT_Mesh:
+    case EdBrowser::EBrowserType::BT_Mesh:
     {
       m_dirPath = EdEditor::gc_SubDir_USM;
       SetIcon( EdEditor::g_icoMesh );
       SetLabel( wxString("Mesh Browser") );
       break;
     }
-    case EdBrowser::BrowserType::BT_Level:
+    case EdBrowser::EBrowserType::BT_Level:
     {
       m_dirPath = EdEditor::gc_SubDir_UNR;
       SetIcon( EdEditor::g_icoMisc );
@@ -183,17 +197,25 @@ void EdMasterBrowser::PageChange()
     SetLabel( m_Browsers[ selection ]->GetLabel() );
 }
 
-void EdMasterBrowser::EVT_New( wxCommandEvent& event )
+void EdMasterBrowser::EventNew( wxCommandEvent& event )
 {
 
 }
 
-void EdMasterBrowser::EVT_Open( wxCommandEvent& event )
+void EdMasterBrowser::EventOpen( wxCommandEvent& event )
 {
   wxString subdir = EdEditor::GetGameDir() + wxString( m_dirPath );
 
-  wxFileDialog openFileDialog( this, "Open Unreal Package", subdir, "", "UE Package Files (*.u, *.utx, *.uax\
-    , *.umx, *.usm, *.unr)|*.u;*.u;*.utx;*.uax;*.umx;*.usm;*.unr", wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE );
+  wxFileDialog openFileDialog
+  ( 
+    this,
+    "Open Unreal Package", 
+    subdir, 
+    "", 
+    "UE Package Files (*.u, *.utx, *.uax, *.umx, *.usm, *.unr) \
+      |*.u;*.u;*.utx;*.uax;*.umx;*.usm;*.unr",
+    wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE 
+  );
 
   if ( openFileDialog.ShowModal() == wxID_CANCEL )
     return;
@@ -203,28 +225,104 @@ void EdMasterBrowser::EVT_Open( wxCommandEvent& event )
   EdEditor::LoadPackages( filePaths );
 }
 
-void EdMasterBrowser::EVT_Import( wxCommandEvent& event )
+static char* GetAllTypesFilter()
 {
+  static char Types[2048] = { 0 };
+  static char Type[512] = { 0 };
+  static const char Fmt[] = "%s files (%s)|%s|";
+
+  snprintf( Type, sizeof(Fmt), Fmt, "Texture", TEXTURE_FILE_TYPES, TEXTURE_FILE_TYPES );
+  strcat( Types, Type );
+
+  snprintf( Type, sizeof(Fmt), Fmt, "Sound", SOUND_FILE_TYPES, SOUND_FILE_TYPES );
+  strcat( Types, Type );
+
+  snprintf( Type, sizeof( Fmt ), Fmt, "Music", MUSIC_FILE_TYPES, MUSIC_FILE_TYPES );
+  strcat( Types, Type );
+
+  snprintf( Type, sizeof( Fmt ), Fmt, "Mesh", MESH_FILE_TYPES, MESH_FILE_TYPES );
+  strcat( Types, Type );
+
+  snprintf( Type, sizeof( Fmt ), Fmt, "Class", CLASS_FILE_TYPES, CLASS_FILE_TYPES );
+  strcat( Types, Type );
+
+  snprintf( Type, sizeof( Fmt )-1, Fmt, "Level", LEVEL_FILE_TYPES, LEVEL_FILE_TYPES );
+  strcat( Types, Type );
+
+  return Types;
 }
 
-void EdMasterBrowser::EVT_Export( wxCommandEvent& event )
+void EdMasterBrowser::EventImport( wxCommandEvent& event )
+{
+  wxString subdir = EdEditor::GetGameDir() + wxString( m_dirPath );
+  
+  // Figure out types to add
+  static char Types[2048] = { 0 };
+  static const char* Fmt = "%s files (%s)|%s";
+  switch ( BrowserType )
+  {
+  case EdBrowser::EBrowserType::BT_Package:
+    strcpy( Types, GetAllTypesFilter() );
+    break;
+  case EdBrowser::EBrowserType::BT_Class:
+    sprintf( Types, Fmt, "Class", CLASS_FILE_TYPES, CLASS_FILE_TYPES );
+    break;
+  case EdBrowser::EBrowserType::BT_Sound:
+    sprintf( Types, Fmt, "Sound", SOUND_FILE_TYPES, SOUND_FILE_TYPES );
+    break;
+  case EdBrowser::EBrowserType::BT_Music:
+    sprintf( Types, Fmt, "Music", MUSIC_FILE_TYPES, MUSIC_FILE_TYPES );
+    break;
+  case EdBrowser::EBrowserType::BT_Texture:
+    sprintf( Types, Fmt, "Texture", TEXTURE_FILE_TYPES, TEXTURE_FILE_TYPES );
+    break;
+  case EdBrowser::EBrowserType::BT_Mesh:
+    sprintf( Types, Fmt, "Mesh", MESH_FILE_TYPES, MESH_FILE_TYPES );
+    break;
+  case EdBrowser::EBrowserType::BT_Level:
+    sprintf( Types, Fmt, "Level", LEVEL_FILE_TYPES, LEVEL_FILE_TYPES );
+    break;
+  default:
+    GLogf( LOG_ERR, "Browser type not of any known type??" );
+    break;
+  }
+
+  wxFileDialog importFileDialog
+  (
+    this,
+    "Import Asset",
+    subdir,
+    "",
+    Types,
+    wxFD_OPEN | wxFD_FILE_MUST_EXIST | wxFD_MULTIPLE
+  );
+
+  if ( importFileDialog.ShowModal() == wxID_CANCEL )
+    return;
+
+  wxArrayString filePaths;
+  importFileDialog.GetPaths( filePaths );
+  EdEditor::ImportAssets( filePaths );
+}
+
+void EdMasterBrowser::EventExport( wxCommandEvent& event )
 {
   new EdEditor::UObjectExportDialog( ((EdEditor::UObjectClientData*)( event.GetClientObject() ))->GetObject() );
 }
 
-void EdMasterBrowser::EVT_PageChanged( wxBookCtrlEvent& event )
+void EdMasterBrowser::EventPageChanged( wxBookCtrlEvent& event )
 {
   PageChange();
 }
 
 wxBEGIN_EVENT_TABLE( EdMasterBrowser, EdToolFrame )
-  EVT_BUTTON(ID_New, EdMasterBrowser::EVT_New)
-  EVT_MENU(ID_New, EdMasterBrowser::EVT_New)
-  EVT_BUTTON(ID_Open, EdMasterBrowser::EVT_Open)
-  EVT_MENU(ID_Open, EdMasterBrowser::EVT_Open)
-  EVT_BUTTON(ID_Import, EdMasterBrowser::EVT_Import)
-  EVT_MENU(ID_Import, EdMasterBrowser::EVT_Import)
-  EVT_BUTTON(ID_Export, EdMasterBrowser::EVT_Export)
-  EVT_MENU(ID_Export, EdMasterBrowser::EVT_Export)
-  EVT_NOTEBOOK_PAGE_CHANGED( ID_Ctrl, EdMasterBrowser::EVT_PageChanged )
+  EVT_BUTTON(ID_New, EdMasterBrowser::EventNew)
+  EVT_MENU(ID_New, EdMasterBrowser::EventNew)
+  EVT_BUTTON(ID_Open, EdMasterBrowser::EventOpen)
+  EVT_MENU(ID_Open, EdMasterBrowser::EventOpen)
+  EVT_BUTTON(ID_Import, EdMasterBrowser::EventImport)
+  EVT_MENU(ID_Import, EdMasterBrowser::EventImport)
+  EVT_BUTTON(ID_Export, EdMasterBrowser::EventExport)
+  EVT_MENU(ID_Export, EdMasterBrowser::EventExport)
+  EVT_NOTEBOOK_PAGE_CHANGED( ID_Ctrl, EdMasterBrowser::EventPageChanged )
 wxEND_EVENT_TABLE()

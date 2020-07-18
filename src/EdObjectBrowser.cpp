@@ -147,7 +147,7 @@ void EdObjectBrowser::ObjectUpdate( bool bUpdatePackageList )
 
 }
 
-void EdObjectBrowser::EVT_ObjectMenu( wxTreeListEvent& event )
+void EdObjectBrowser::EventObjectMenu( wxTreeListEvent& event )
 {
   wxTreeListItems items;
 
@@ -171,5 +171,5 @@ void EdObjectBrowser::EVT_ObjectMenu( wxTreeListEvent& event )
 }
 
 wxBEGIN_EVENT_TABLE( EdObjectBrowser, EdBrowser )
-  EVT_TREELIST_ITEM_CONTEXT_MENU( EdToolFrame::ID_Ctrl, EdObjectBrowser::EVT_ObjectMenu )
+  EVT_TREELIST_ITEM_CONTEXT_MENU( EdToolFrame::ID_Ctrl, EdObjectBrowser::EventObjectMenu )
 wxEND_EVENT_TABLE()

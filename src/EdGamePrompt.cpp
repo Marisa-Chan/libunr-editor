@@ -100,20 +100,20 @@ void EdGamePrompt::OnEnable()
   m_Ctrl->SetFocus();
 }
 
-void EdGamePrompt::EVT_Select( wxCommandEvent& event )
+void EdGamePrompt::EventSelect( wxCommandEvent& event )
 {
   Select( m_Ctrl->GetSelection() );
   event.Skip();
 }
 
-void EdGamePrompt::EVT_Edit( wxCommandEvent& event )
+void EdGamePrompt::EventEdit( wxCommandEvent& event )
 {
   m_EditWindow = new EdConfigFrame( this, GLibunrConfig, "Game", false, this );
   Disable();
   event.Skip();
 }
 
-void EdGamePrompt::EVT_ListBox( wxCommandEvent& event )
+void EdGamePrompt::EventListBox( wxCommandEvent& event )
 {
   Select( event.GetSelection() );
   event.Skip();
@@ -125,7 +125,7 @@ void EdGamePrompt::OnCancel( wxCommandEvent& event )
 }
 
 wxBEGIN_EVENT_TABLE(EdGamePrompt, wxDialog)
-    EVT_BUTTON(ID_Select, EdGamePrompt::EVT_Select)
-    EVT_BUTTON(ID_Edit, EdGamePrompt::EVT_Edit)
-    EVT_LISTBOX_DCLICK(ID_ListBox, EdGamePrompt::EVT_ListBox)
+    EVT_BUTTON(ID_Select, EdGamePrompt::EventSelect)
+    EVT_BUTTON(ID_Edit, EdGamePrompt::EventEdit)
+    EVT_LISTBOX_DCLICK(ID_ListBox, EdGamePrompt::EventListBox)
 wxEND_EVENT_TABLE()

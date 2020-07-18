@@ -69,8 +69,8 @@ public:
         ID_Confirm
       };
 
-      void EVT_CheckList( wxCommandEvent& event );
-      void EVT_Confirm( wxCommandEvent& event );
+      void EventCheckList( wxCommandEvent& event );
+      void EventConfirm( wxCommandEvent& event );
 
     private:
       TArray<wxTreeListItem> m_Items;
@@ -97,11 +97,11 @@ public:
 
     //Event Handlers
 
-    void EVT_Apply( wxCommandEvent& event );
-    void EVT_Refresh( wxCommandEvent& event );
-    void EVT_ObjectMenu( wxCommandEvent& event );
-    void EVT_ObjectPlay( wxCommandEvent& event );
-    void EVT_ObjectOpen( wxCommandEvent& event );
+    void EventApply( wxCommandEvent& event );
+    void EventRefresh( wxCommandEvent& event );
+    void EventObjectMenu( wxCommandEvent& event );
+    void EventObjectPlay( wxCommandEvent& event );
+    void EventObjectOpen( wxCommandEvent& event );
     virtual void OnExit();
 
     wxDECLARE_EVENT_TABLE();

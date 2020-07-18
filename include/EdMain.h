@@ -31,79 +31,81 @@
 #include "EdGamePrompt.h"
 #include "EdBrowsers.h"
 
-//EdEditorFrame - Central Editor window.
+/*-----------------------------------------------------------------------------
+ * EdEditorFrame
+ * Central Editor window
+-----------------------------------------------------------------------------*/
 class EdEditorFrame : public wxFrame
 {
 public:
-    EdEditorFrame( const wxString& Title, const wxPoint& Pos, const wxSize& Size );
-    ~EdEditorFrame();
+  EdEditorFrame( const wxString& Title, const wxPoint& Pos, const wxSize& Size );
+  ~EdEditorFrame();
 
-    void DoTick( wxIdleEvent& event ) { EdEditor::DoTick( event ); }
+  void DoTick( wxIdleEvent& event ) { EdEditor::DoTick( event ); }
 
-//Events
-    enum
-    {
-        ID_New,
-        ID_Open,
-        ID_Save,
-        ID_Import,
-        ID_Export,
-        ID_Preferences,
-        ID_BrowserPackage,
-        ID_BrowserClass,
-        ID_BrowserSound,
-        ID_BrowserMusic,
-        ID_BrowserTexture,
-        ID_BrowserMesh,
-        ID_ViewLog,
-        ID_ActiveTools,
-        ID_MapEditor,
-        ID_MeshEditor,
-        ID_Manual,
-        ID_AdvancedOptions,
-        ID_ObjectPlay,
-        ID_ObjectOpen,
-        ID_ObjectProperties,
-        ID_ObjectExport
-    };
+  //Events
+  enum
+  {
+    ID_New,
+    ID_Open,
+    ID_Save,
+    ID_Import,
+    ID_Export,
+    ID_Preferences,
+    ID_BrowserPackage,
+    ID_BrowserClass,
+    ID_BrowserSound,
+    ID_BrowserMusic,
+    ID_BrowserTexture,
+    ID_BrowserMesh,
+    ID_ViewLog,
+    ID_ActiveTools,
+    ID_MapEditor,
+    ID_MeshEditor,
+    ID_Manual,
+    ID_AdvancedOptions,
+    ID_ObjectPlay,
+    ID_ObjectOpen,
+    ID_ObjectProperties,
+    ID_ObjectExport
+  };
 
-//Event Handlers
-    void OnExit(wxCommandEvent& event);
-    void OnAbout(wxCommandEvent& event);
-    void EVT_New(wxCommandEvent& event); //Prompt to create new map/package/object.
-    void EVT_Open(wxCommandEvent& event); //Prompt to open existing package.
-    void EVT_Save(wxCommandEvent& event); //Prompt to save modified packages.
-    void EVT_Import(wxCommandEvent& event); //Prompt to import Assets to a package.
-    void EVT_Export(wxCommandEvent& event); //Prompt to export an object from a package.
-    void EVT_Preferences(wxCommandEvent& event);
-    void EVT_BrowserPackage(wxCommandEvent& event);
-    void EVT_BrowserClass(wxCommandEvent& event);
-    void EVT_BrowserSound(wxCommandEvent& event);
-    void EVT_BrowserMusic(wxCommandEvent& event);
-    void EVT_BrowserTexture(wxCommandEvent& event);
-    void EVT_BrowserMesh(wxCommandEvent& event);
-    void EVT_BrowserGroup(wxCommandEvent& event);
-    void EVT_ViewLog(wxCommandEvent& event);
-    void EVT_ActiveTools(wxCommandEvent& event); //List active EdToolFrame instances.
-    void EVT_MapEditor(wxCommandEvent& event);
-    void EVT_MeshEditor(wxCommandEvent& event);
-    void EVT_Manual(wxCommandEvent& event);
-    void EVT_AdvancedOptions( wxCommandEvent& event );
+  //Event Handlers
+  void OnExit(wxCommandEvent& event);
+  void OnAbout(wxCommandEvent& event);
+  void EventNew(wxCommandEvent& event); //Prompt to create new map/package/object.
+  void EventOpen(wxCommandEvent& event); //Prompt to open existing package.
+  void EventSave(wxCommandEvent& event); //Prompt to save modified packages.
+  void EventImport(wxCommandEvent& event); //Prompt to import Assets to a package.
+  void EventExport(wxCommandEvent& event); //Prompt to export an object from a package.
+  void EventPreferences(wxCommandEvent& event);
+  void EventBrowserPackage(wxCommandEvent& event);
+  void EventBrowserClass(wxCommandEvent& event);
+  void EventBrowserSound(wxCommandEvent& event);
+  void EventBrowserMusic(wxCommandEvent& event);
+  void EventBrowserTexture(wxCommandEvent& event);
+  void EventBrowserMesh(wxCommandEvent& event);
+  void EventBrowserGroup(wxCommandEvent& event);
+  void EventViewLog(wxCommandEvent& event);
+  void EventActiveTools(wxCommandEvent& event); //List active EdToolFrame instances.
+  void EventMapEditor(wxCommandEvent& event);
+  void EventMeshEditor(wxCommandEvent& event);
+  void EventManual(wxCommandEvent& event);
+  void EventAdvancedOptions( wxCommandEvent& event );
 
-    wxDECLARE_EVENT_TABLE();
+  wxDECLARE_EVENT_TABLE();
 };
 
 class EdAbout : public wxFrame
 {
 public:
-    EdAbout( wxWindow* Parent );
+  EdAbout( wxWindow* Parent );
 
-    void OnClose( wxCommandEvent& event );
+  void OnClose( wxCommandEvent& event );
 };
 
 class EditorApp : public wxApp
 {
 public:
-    virtual bool OnInit();
-    
+  virtual bool OnInit();
 };

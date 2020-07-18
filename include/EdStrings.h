@@ -17,47 +17,11 @@
 \*===========================================================================*/
 
 /*========================================================================
- * EdGamePrompt.h - Game Prompt and configuration frontend.
+ * EdStrings.h - String definitions for various object/enum defs
  *
- * written by Jesse 'Hyzoran' Kowalik
+ * written by Adam 'Xaleros' Smith
  *========================================================================
 */
+
 #pragma once
 
-#include "EdEditor.h"
-
-class EdConfigFrame;
-
-class EdGamePrompt : public wxDialog
-{
-public: 
-    EdGamePrompt( TArray<char*>* Names, int& OutGameIndex );
-
-    void PromptRefresh();
-    void Select( int Choice );
-    void OnEnable();
-
-    //Events
-    enum
-    {
-      ID_Select,
-      ID_Edit,
-      ID_Cancel,
-      ID_ListBox
-    };
-
-    //Event Handlers
-    void EventSelect( wxCommandEvent& event );
-    void EventEdit( wxCommandEvent& event );
-    void EventListBox( wxCommandEvent& event );
-    void OnKey( wxKeyEvent &event ); //Enter key handle.
-    void OnCancel( wxCommandEvent& event );
-
-    wxDECLARE_EVENT_TABLE();
-
-private:
-  wxBoxSizer* hsizer;
-  wxListBox* m_Ctrl;
-  EdConfigFrame* m_EditWindow = NULL;
-  int* m_OutGameIndex;
-};

@@ -37,8 +37,12 @@
 class EdBrowser : public wxWindow
 {
 public:
+  EdBrowser( wxWindow* Parent );
+  ~EdBrowser();
 
-  enum BrowserType
+  virtual void ObjectUpdate( bool m_bUpdatePackageList = true ) = 0; //Update Main browser Ctrl
+
+  enum EBrowserType
   {
     BT_Package,
     BT_Class,
@@ -50,28 +54,110 @@ public:
     BT_TypeCount // Keep last, so it's always equal to the number of browser types
   };
 
-public:
-  EdBrowser( wxWindow* Parent );
-  ~EdBrowser();
-
-  virtual void ObjectUpdate( bool m_bUpdatePackageList = true ) = 0; //Update Main browser Ctrl
-
-  void EVT_FilterPackage( wxCommandEvent& event );
-  void EVT_FilterPackageCheck( wxCommandEvent& event );
-
 protected:
 
   wxBoxSizer* m_VSizer;
 
   wxPanel* m_HeaderPanel;
-    wxBoxSizer* m_HeaderSizer;
+  wxBoxSizer* m_HeaderSizer;
+    EdEditor::EdUPackageCtrl* m_PackageCtrl;
+    wxCheckBox* m_CheckFilterPackage;
 
-    EdEditor::EdUPackageCtrl* m_PackageCtrl = NULL;
-    wxCheckBox* m_CheckFilterPackage = NULL;
+  void EventFilterPackage( wxCommandEvent& event );
+  void EventFilterPackageCheck( wxCommandEvent& event );
 
 private:
-    wxDECLARE_EVENT_TABLE();
+  wxDECLARE_EVENT_TABLE();
 };
+
+/*-----------------------------------------------------------------------------
+ * EdPackageHeader
+-----------------------------------------------------------------------------*/
+class EdPackageHeader : public wxWindow
+{
+public:
+  EdPackageHeader( wxWindow* Parent );
+
+  void Update( UPackage* Package = NULL );
+
+protected:
+  wxBoxSizer* m_VSizer;
+  wxListCtrl* m_PackageInfo;
+  wxListCtrl* m_PackageFlags;
+};
+
+/*-----------------------------------------------------------------------------
+ * EdGenerationsTable
+-----------------------------------------------------------------------------*/
+class EdGenerationsTable : public wxListCtrl
+{
+public:
+  EdGenerationsTable( wxWindow* Parent );
+
+  void Update( UPackage* Package = NULL );
+
+protected:
+  wxListCtrl* m_GenerationInfo;
+};
+
+/*-----------------------------------------------------------------------------
+ * EdNameTable
+-----------------------------------------------------------------------------*/
+class EdNameTable : public wxListCtrl
+{
+public:
+  EdNameTable( wxWindow* Parent );
+
+  void Update( UPackage* Package = NULL );
+
+protected:
+  wxListCtrl* m_NameTable;
+};
+
+/*-----------------------------------------------------------------------------
+ * EdExportTable
+-----------------------------------------------------------------------------*/
+class EdExportTable : public wxListCtrl
+{
+public:
+  EdExportTable( wxWindow* Parent );
+
+  void Update( UPackage* Package = NULL );
+};
+
+/*-----------------------------------------------------------------------------
+ * EdExportTree
+-----------------------------------------------------------------------------*/
+class EdExportTree : public wxTreeListCtrl
+{
+public:
+  EdExportTree( wxWindow* Parent );
+
+  void Update( UPackage* Package = NULL );
+};
+
+/*-----------------------------------------------------------------------------
+ * EdImportTable
+-----------------------------------------------------------------------------*/
+class EdImportTable : public wxListCtrl
+{
+public:
+  EdImportTable( wxWindow* Parent );
+
+  void Update( UPackage* Package = NULL );
+};
+
+/*-----------------------------------------------------------------------------
+ * EdImportTree
+-----------------------------------------------------------------------------*/
+class EdImportTree : public wxTreeListCtrl
+{
+public:
+  EdImportTree( wxWindow* Parent );
+
+  void Update( UPackage* Package = NULL );
+};
+
 
 /*-----------------------------------------------------------------------------
  * EdPackageBrowser
@@ -83,58 +169,22 @@ class EdPackageBrowser : public EdBrowser
 public:
   EdPackageBrowser( wxWindow* Parent, UPackage* Package = NULL, bool bStartDocked = false );
 
-  void ObjectUpdate( bool m_bUpdatePackageList = true );
+  virtual void ObjectUpdate( bool m_bUpdatePackageList = true );
 
 protected:
-
-  enum E_PackageMode
-  {
-    E_PackageMode_Name,
-    E_PackageMode_Export,
-    E_PackageMode_Import
-  };
-
-  class EdPackageHeader : public wxWindow
-  {
-  public:
-    EdPackageHeader( wxWindow* Parent );
-
-    void Update( UPackage* Package = NULL );
-
-  protected:
-    wxBoxSizer* m_VSizer;
-    wxListCtrl* m_PackageInfo;
-    wxListCtrl* m_PackageFlags;
-  };
-
-  class EdPackageTable : public wxListCtrl
-  {
-  public:
-    EdPackageTable( wxWindow* Parent, E_PackageMode Mode );
-
-    void Update( UPackage* Package = NULL );
-  };
-
-  class EdPackageTree : public wxTreeListCtrl
-  {
-  public:
-    EdPackageTree( wxWindow* Parent, E_PackageMode Mode );
-
-    void Update( UPackage* Package = NULL );
-  };
 
   wxSplitterWindow* m_MainView;
     wxNotebook* m_Notebook;
       EdPackageHeader* m_PackageHeader;
-      EdPackageTable* m_NameTable;
-      EdPackageTable* m_ExportTable;
-      EdPackageTree* m_ExportTree;
-      EdPackageTable* m_ImportTable;
-      EdPackageTree* m_ImportTree;
+      EdGenerationsTable* m_GenTable;
+      EdNameTable* m_NameTable;
+      EdExportTable* m_ExportTable;
+      EdExportTree* m_ExportTree;
+      EdImportTable* m_ImportTable;
+      EdImportTree* m_ImportTree;
     EdEditor::UObjectPreviewWindow* m_ViewWindow;
 
 private:
-public:
   wxDECLARE_EVENT_TABLE();
 };
 
@@ -148,17 +198,16 @@ public:
   EdClassBrowser( wxWindow* Parent, UClass* Root, bool bStartDocked = false );
   ~EdClassBrowser();
 
-  void ObjectUpdate( bool bUpdatePackageList = true );
-private: 
-  void recursePopulate( UClass* Parent, wxTreeListItem ParentItem, TArray<UClass*>& ExpandedAry ); //Recursively populate the tree under a given parent class and tree item.
-public:
-  void EVT_ObjectMenu( wxTreeListEvent& event );
+  virtual void ObjectUpdate( bool bUpdatePackageList = true );
 
 protected:
   wxTreeListCtrl* m_Ctrl;
   UClass* m_Root;
 
-public:
+private:
+  void recursePopulate( UClass* Parent, wxTreeListItem ParentItem, TArray<UClass*>& ExpandedAry ); //Recursively populate the tree under a given parent class and tree item.
+  void EventObjectMenu( wxTreeListEvent& event );
+
   wxDECLARE_EVENT_TABLE();
 };
 
@@ -173,16 +222,16 @@ class EdObjectBrowser : public EdBrowser
 public:
   EdObjectBrowser( wxWindow* Parent, TArray<UClass*>& Classes, bool bExactClass = false, bool bStartDocked = false, UPackage* Package = NULL );
 
-  void ObjectUpdate( bool bUpdatePackageList = true );
+  virtual void ObjectUpdate( bool bUpdatePackageList = true );
 
-  void EVT_ObjectMenu( wxTreeListEvent& event );
+  void EventObjectMenu( wxTreeListEvent& event );
 
 protected:
   TArray<UClass*> m_Classes;
   bool m_bExactClass; // If true, only Objects whose Class==Classes[x] will be considered, otherwise, Class.IsA( Classes[x] ) will be used instead.
   wxTreeListCtrl* m_Ctrl;
 
-public:
+private:
   wxDECLARE_EVENT_TABLE();
 };
 
@@ -196,9 +245,9 @@ class EdPropertyBrowser : public EdBrowser
 public:
   EdPropertyBrowser( wxWindow* Parent, UObject* Obj );
 
-  void ObjectUpdate( bool bUpdatePackageList = true );
+  virtual void ObjectUpdate( bool bUpdatePackageList = true );
 
-public:
+private:
   wxDECLARE_EVENT_TABLE();
 };
 
@@ -208,19 +257,18 @@ public:
 -----------------------------------------------------------------------------*/
 class EdMasterBrowser : public EdToolFrame
 {
-
 public:
-  EdMasterBrowser( EdBrowser::BrowserType Type, wxWindow* Parent = EdEditor::sm_MainFrame, wxString Title = "Browser", bool bStartDocked = false );
+  EdMasterBrowser( EdBrowser::EBrowserType Type, wxWindow* Parent = EdEditor::sm_MainFrame, wxString Title = "Browser", bool bStartDocked = false );
 
-  void ObjectUpdate( bool bUpdatePackageList = true );
+  virtual void ObjectUpdate( bool bUpdatePackageList = true );
   void PageChange();
 
-  void EVT_New( wxCommandEvent& event );
-  void EVT_Open( wxCommandEvent& event );
-  void EVT_Import( wxCommandEvent& event );
-  void EVT_Export( wxCommandEvent& event );
+  void EventNew( wxCommandEvent& event );
+  void EventOpen( wxCommandEvent& event );
+  void EventImport( wxCommandEvent& event );
+  void EventExport( wxCommandEvent& event );
 
-  void EVT_PageChanged( wxBookCtrlEvent& event );
+  void EventPageChanged( wxBookCtrlEvent& event );
 
 private:
   wxNotebook* m_Ctrl = NULL;
@@ -237,6 +285,7 @@ private:
 
   wxString m_dirPath = EdEditor::gc_SubDir_U;
 
-public:
+  EdBrowser::EBrowserType BrowserType;
+
   wxDECLARE_EVENT_TABLE();
 };

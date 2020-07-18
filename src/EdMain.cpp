@@ -164,99 +164,99 @@ void EdEditorFrame::OnAbout(wxCommandEvent& event)
     new EdAbout( this );
 }
 
-void EdEditorFrame::EVT_New(wxCommandEvent& event)
+void EdEditorFrame::EventNew(wxCommandEvent& event)
 {
     event.Skip();
 }
 
-void EdEditorFrame::EVT_Open(wxCommandEvent& event)
+void EdEditorFrame::EventOpen(wxCommandEvent& event)
 {
     event.Skip();
 }
 
-void EdEditorFrame::EVT_Save(wxCommandEvent& event)
+void EdEditorFrame::EventSave(wxCommandEvent& event)
 {
     event.Skip();
 }
 
-void EdEditorFrame::EVT_Import(wxCommandEvent& event)
+void EdEditorFrame::EventImport(wxCommandEvent& event)
 {
     event.Skip();
 }
 
-void EdEditorFrame::EVT_Export(wxCommandEvent& event)
+void EdEditorFrame::EventExport(wxCommandEvent& event)
 {
     event.Skip();
 }
 
-void EdEditorFrame::EVT_Preferences(wxCommandEvent& event)
+void EdEditorFrame::EventPreferences(wxCommandEvent& event)
 {
     event.Skip();
 }
 
-void EdEditorFrame::EVT_BrowserPackage(wxCommandEvent& event)
+void EdEditorFrame::EventBrowserPackage(wxCommandEvent& event)
 {
-    new EdMasterBrowser( EdBrowser::BrowserType::BT_Package );
+    new EdMasterBrowser( EdBrowser::EBrowserType::BT_Package );
 
     event.Skip();
 }
 
-void EdEditorFrame::EVT_BrowserClass(wxCommandEvent& event)
+void EdEditorFrame::EventBrowserClass(wxCommandEvent& event)
 {
-    new EdMasterBrowser( EdBrowser::BrowserType::BT_Class );
+    new EdMasterBrowser( EdBrowser::EBrowserType::BT_Class );
 
     event.Skip();
 }
 
-void EdEditorFrame::EVT_BrowserSound(wxCommandEvent& event)
+void EdEditorFrame::EventBrowserSound(wxCommandEvent& event)
 {
-  new EdMasterBrowser( EdBrowser::BrowserType::BT_Sound );
+  new EdMasterBrowser( EdBrowser::EBrowserType::BT_Sound );
 
   event.Skip();
 }
 
-void EdEditorFrame::EVT_BrowserMusic(wxCommandEvent& event)
+void EdEditorFrame::EventBrowserMusic(wxCommandEvent& event)
 {
-  new EdMasterBrowser( EdBrowser::BrowserType::BT_Music );
+  new EdMasterBrowser( EdBrowser::EBrowserType::BT_Music );
 
   event.Skip();
 }
 
-void EdEditorFrame::EVT_BrowserTexture(wxCommandEvent& event)
+void EdEditorFrame::EventBrowserTexture(wxCommandEvent& event)
 {
-  new EdMasterBrowser( EdBrowser::BrowserType::BT_Texture );
+  new EdMasterBrowser( EdBrowser::EBrowserType::BT_Texture );
 
   event.Skip();
 }
 
-void EdEditorFrame::EVT_BrowserMesh(wxCommandEvent& event)
+void EdEditorFrame::EventBrowserMesh(wxCommandEvent& event)
 {
-  new EdMasterBrowser( EdBrowser::BrowserType::BT_Mesh );
+  new EdMasterBrowser( EdBrowser::EBrowserType::BT_Mesh );
 
   event.Skip();
 }
 
-void EdEditorFrame::EVT_ViewLog(wxCommandEvent& event)
+void EdEditorFrame::EventViewLog(wxCommandEvent& event)
 {
     event.Skip();
 }
 
-void EdEditorFrame::EVT_ActiveTools(wxCommandEvent& event)
+void EdEditorFrame::EventActiveTools(wxCommandEvent& event)
 {
     event.Skip();
 }
 
-void EdEditorFrame::EVT_MapEditor(wxCommandEvent& event)
+void EdEditorFrame::EventMapEditor(wxCommandEvent& event)
 {
     event.Skip();
 }
 
-void EdEditorFrame::EVT_MeshEditor(wxCommandEvent& event)
+void EdEditorFrame::EventMeshEditor(wxCommandEvent& event)
 {
     event.Skip();
 }
 
-void EdEditorFrame::EVT_Manual(wxCommandEvent& event)
+void EdEditorFrame::EventManual(wxCommandEvent& event)
 {
     event.Skip();
 }
@@ -385,29 +385,29 @@ void EdAbout::OnClose( wxCommandEvent& event )
 wxBEGIN_EVENT_TABLE(EdEditorFrame, wxFrame)
     EVT_MENU(wxID_EXIT, EdEditorFrame::OnExit)
     EVT_MENU(wxID_ABOUT, EdEditorFrame::OnAbout)
-    EVT_MENU(ID_New, EdEditorFrame::EVT_New)
-    EVT_MENU(ID_Open, EdEditorFrame::EVT_Open)
-    EVT_MENU(ID_Save, EdEditorFrame::EVT_Save)
-    EVT_MENU(ID_Import, EdEditorFrame::EVT_Import)
-    EVT_MENU(ID_Export, EdEditorFrame::EVT_Export)
-    EVT_MENU(ID_Preferences, EdEditorFrame::EVT_Preferences)
-    EVT_MENU(ID_BrowserPackage, EdEditorFrame::EVT_BrowserPackage)
-    EVT_BUTTON(ID_BrowserPackage, EdEditorFrame::EVT_BrowserPackage)
-    EVT_MENU(ID_BrowserClass, EdEditorFrame::EVT_BrowserClass)
-    EVT_BUTTON(ID_BrowserClass, EdEditorFrame::EVT_BrowserClass)
-    EVT_MENU(ID_BrowserSound, EdEditorFrame::EVT_BrowserSound)
-    EVT_BUTTON(ID_BrowserSound, EdEditorFrame::EVT_BrowserSound)
-    EVT_MENU(ID_BrowserMusic, EdEditorFrame::EVT_BrowserMusic)
-    EVT_BUTTON(ID_BrowserMusic, EdEditorFrame::EVT_BrowserMusic)
-    EVT_MENU(ID_BrowserTexture, EdEditorFrame::EVT_BrowserTexture)
-    EVT_BUTTON(ID_BrowserTexture, EdEditorFrame::EVT_BrowserTexture)
-    EVT_MENU(ID_BrowserMesh, EdEditorFrame::EVT_BrowserMesh)
-    EVT_BUTTON(ID_BrowserMesh, EdEditorFrame::EVT_BrowserMesh)
-    EVT_MENU(ID_ViewLog, EdEditorFrame::EVT_ViewLog)
-    EVT_MENU(ID_ActiveTools, EdEditorFrame::EVT_ActiveTools)
-    EVT_MENU(ID_MapEditor, EdEditorFrame::EVT_MapEditor)
-    EVT_MENU(ID_MeshEditor, EdEditorFrame::EVT_MeshEditor)
-    EVT_MENU(ID_Manual, EdEditorFrame::EVT_Manual)
+    EVT_MENU(ID_New, EdEditorFrame::EventNew)
+    EVT_MENU(ID_Open, EdEditorFrame::EventOpen)
+    EVT_MENU(ID_Save, EdEditorFrame::EventSave)
+    EVT_MENU(ID_Import, EdEditorFrame::EventImport)
+    EVT_MENU(ID_Export, EdEditorFrame::EventExport)
+    EVT_MENU(ID_Preferences, EdEditorFrame::EventPreferences)
+    EVT_MENU(ID_BrowserPackage, EdEditorFrame::EventBrowserPackage)
+    EVT_BUTTON(ID_BrowserPackage, EdEditorFrame::EventBrowserPackage)
+    EVT_MENU(ID_BrowserClass, EdEditorFrame::EventBrowserClass)
+    EVT_BUTTON(ID_BrowserClass, EdEditorFrame::EventBrowserClass)
+    EVT_MENU(ID_BrowserSound, EdEditorFrame::EventBrowserSound)
+    EVT_BUTTON(ID_BrowserSound, EdEditorFrame::EventBrowserSound)
+    EVT_MENU(ID_BrowserMusic, EdEditorFrame::EventBrowserMusic)
+    EVT_BUTTON(ID_BrowserMusic, EdEditorFrame::EventBrowserMusic)
+    EVT_MENU(ID_BrowserTexture, EdEditorFrame::EventBrowserTexture)
+    EVT_BUTTON(ID_BrowserTexture, EdEditorFrame::EventBrowserTexture)
+    EVT_MENU(ID_BrowserMesh, EdEditorFrame::EventBrowserMesh)
+    EVT_BUTTON(ID_BrowserMesh, EdEditorFrame::EventBrowserMesh)
+    EVT_MENU(ID_ViewLog, EdEditorFrame::EventViewLog)
+    EVT_MENU(ID_ActiveTools, EdEditorFrame::EventActiveTools)
+    EVT_MENU(ID_MapEditor, EdEditorFrame::EventMapEditor)
+    EVT_MENU(ID_MeshEditor, EdEditorFrame::EventMeshEditor)
+    EVT_MENU(ID_Manual, EdEditorFrame::EventManual)
 wxEND_EVENT_TABLE()
 
 wxIMPLEMENT_APP(EditorApp);

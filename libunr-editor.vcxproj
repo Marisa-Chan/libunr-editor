@@ -159,6 +159,7 @@
     <ClInclude Include="include\EdGamePrompt.h" />
     <ClInclude Include="include\EdEditor.h" />
     <ClInclude Include="include\EdMain.h" />
+    <ClInclude Include="include\EdStrings.h" />
     <ClInclude Include="include\EdToolFrame.h" />
   </ItemGroup>
   <ItemGroup>

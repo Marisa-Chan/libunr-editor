@@ -187,29 +187,29 @@ void EdConfigFrame::RecurseEntry( wxTreeListItem ParentItem, FConfig::FConfigEnt
   }
 }
 
-void EdConfigFrame::EVT_Apply( wxCommandEvent& event )
+void EdConfigFrame::EventApply( wxCommandEvent& event )
 {
   Apply();
   event.Skip();
 }
 
-void EdConfigFrame::EVT_Refresh( wxCommandEvent& event )
+void EdConfigFrame::EventRefresh( wxCommandEvent& event )
 {
   ConfigRefresh();
   event.Skip();
 }
 
-void EdConfigFrame::EVT_ObjectMenu( wxCommandEvent& event )
+void EdConfigFrame::EventObjectMenu( wxCommandEvent& event )
 {
   event.Skip();
 }
 
-void EdConfigFrame::EVT_ObjectPlay( wxCommandEvent& event )
+void EdConfigFrame::EventObjectPlay( wxCommandEvent& event )
 {
   event.Skip();
 }
 
-void EdConfigFrame::EVT_ObjectOpen( wxCommandEvent& event )
+void EdConfigFrame::EventObjectOpen( wxCommandEvent& event )
 {
   event.Skip();
 }
@@ -316,7 +316,7 @@ EdConfigFrame::EdConfigConfirm::EdConfigConfirm( EdConfigFrame* Parent,  TArray<
   SetSizer( vsizer );
 }
 
-void EdConfigFrame::EdConfigConfirm::EVT_Confirm( wxCommandEvent& event )
+void EdConfigFrame::EdConfigConfirm::EventConfirm( wxCommandEvent& event )
 {
   for( size_t i = 0; i < m_Ctrl->GetCount(); i++ )
   {
@@ -331,6 +331,6 @@ void EdConfigFrame::EdConfigConfirm::EVT_Confirm( wxCommandEvent& event )
 }
 
 wxBEGIN_EVENT_TABLE(EdConfigFrame, wxFrame)
-    EVT_BUTTON(ID_Apply, EdConfigFrame::EVT_Apply)
-    EVT_BUTTON(ID_Refresh, EdConfigFrame::EVT_Refresh)
+    EVT_BUTTON(ID_Apply, EdConfigFrame::EventApply)
+    EVT_BUTTON(ID_Refresh, EdConfigFrame::EventRefresh)
 wxEND_EVENT_TABLE()

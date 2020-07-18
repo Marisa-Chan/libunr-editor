@@ -38,6 +38,9 @@
     <ClInclude Include="include\EdEditor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\EdStrings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\EdConfigFrame.cpp">

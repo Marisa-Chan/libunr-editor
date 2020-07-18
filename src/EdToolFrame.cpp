@@ -75,7 +75,7 @@ void EdToolFrame::OnExit( wxCommandEvent& event )
     Close( true );
 }
 
-void EdToolFrame::EVT_Exit( wxCommandEvent& event )
+void EdToolFrame::EventExit( wxCommandEvent& event )
 {
   OnExit( event );
 }
@@ -100,6 +100,6 @@ bool EdToolFrame::StaticRemoveTool( size_t Id )
 }
 
 wxBEGIN_EVENT_TABLE(EdToolFrame, wxFrame)
-  EVT_BUTTON(ID_Exit, EdToolFrame::EVT_Exit)
-  EVT_MENU(ID_Exit, EdToolFrame::EVT_Exit)
+  EVT_BUTTON(ID_Exit, EdToolFrame::EventExit)
+  EVT_MENU(ID_Exit, EdToolFrame::EventExit)
 wxEND_EVENT_TABLE()

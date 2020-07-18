@@ -51,7 +51,7 @@ EdBrowser::~EdBrowser()
 {
 }
 
-void EdBrowser::EVT_FilterPackage( wxCommandEvent& event )
+void EdBrowser::EventFilterPackage( wxCommandEvent& event )
 {
 	if( m_PackageCtrl == NULL )
 		return;
@@ -62,7 +62,7 @@ void EdBrowser::EVT_FilterPackage( wxCommandEvent& event )
 	ObjectUpdate( false );
 }
 
-void EdBrowser::EVT_FilterPackageCheck( wxCommandEvent& event )
+void EdBrowser::EventFilterPackageCheck( wxCommandEvent& event )
 {
 	if( m_PackageCtrl == NULL || m_CheckFilterPackage == NULL )
 		return;
@@ -71,6 +71,6 @@ void EdBrowser::EVT_FilterPackageCheck( wxCommandEvent& event )
 }
 
 wxBEGIN_EVENT_TABLE(EdBrowser, wxWindow)
-	EVT_COMBOBOX( EdToolFrame::ID_PackageCtrl, EdBrowser::EVT_FilterPackage )
-	EVT_CHECKBOX( EdToolFrame::ID_bFilterPackageCheck, EdBrowser::EVT_FilterPackageCheck )
+	EVT_COMBOBOX( EdToolFrame::ID_PackageCtrl, EdBrowser::EventFilterPackage )
+	EVT_CHECKBOX( EdToolFrame::ID_bFilterPackageCheck, EdBrowser::EventFilterPackageCheck )
 wxEND_EVENT_TABLE()

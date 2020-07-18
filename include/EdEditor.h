@@ -41,6 +41,7 @@ extern wxFrame* sm_MainFrame;
 // Engine-Interaction - Game Config
 
 	void LoadPackages( const wxArrayString& Paths );
+	void ImportAssets( const wxArrayString& Paths );
 	int GamePromptHandler( TArray<char*>* Names );
 	extern int sm_SelectedGame;
 
@@ -79,7 +80,7 @@ extern wxFrame* sm_MainFrame;
 
 	void g_IcoInit(); //Init resources
 
-//subdir suffix for different package types.
+// subdir suffix for different package types.
 static const wxString gc_SubDir_U = "/System";
 static const wxString gc_SubDir_UAX = "/Sounds";
 static const wxString gc_SubDir_UMX = "/Music";
@@ -128,10 +129,10 @@ static const wxString gc_SubDir_USA = "/Save";
 	public:
 		UObjectContextMenu( wxWindow* Wnd, TArray<UObject*> Objects );
 
-		void EVT_ObjectActivate( wxCommandEvent& event );
-		void EVT_ObjectEdit( wxCommandEvent& event );
-		void EVT_ObjectExport( wxCommandEvent& event );
-		void EVT_ObjectProperties( wxCommandEvent& event );
+		void EventObjectActivate( wxCommandEvent& event );
+		void EventObjectEdit( wxCommandEvent& event );
+		void EventObjectExport( wxCommandEvent& event );
+		void EventObjectProperties( wxCommandEvent& event );
 
 	protected:
 		TArray<UObject*> m_Objects;

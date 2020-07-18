@@ -89,6 +89,12 @@ void EdEditor::LoadPackages( const wxArrayString& Paths )
     
 }
 
+void EdEditor::ImportAssets( const wxArrayString& Paths )
+{
+  // Go through each asset and send it to the appropriate factory
+
+}
+
 int EdEditor::GamePromptHandler( TArray<char*>* Names )
 {
     int selected = -1;
@@ -210,22 +216,22 @@ EdEditor::UObjectContextMenu::UObjectContextMenu( wxWindow* Wnd, TArray<UObject*
   Wnd->PopupMenu( this );
 }
 
-void EdEditor::UObjectContextMenu::EVT_ObjectActivate( wxCommandEvent& event )
+void EdEditor::UObjectContextMenu::EventObjectActivate( wxCommandEvent& event )
 {
   EdEditor::PlayObject( m_Objects );
 }
 
-void EdEditor::UObjectContextMenu::EVT_ObjectEdit( wxCommandEvent& event )
+void EdEditor::UObjectContextMenu::EventObjectEdit( wxCommandEvent& event )
 {
   EdEditor::EditObject( m_Objects );
 }
 
-void EdEditor::UObjectContextMenu::EVT_ObjectExport( wxCommandEvent& event )
+void EdEditor::UObjectContextMenu::EventObjectExport( wxCommandEvent& event )
 {
   EdEditor::ObjectExport( m_Objects );
 }
 
-void EdEditor::UObjectContextMenu::EVT_ObjectProperties( wxCommandEvent& event )
+void EdEditor::UObjectContextMenu::EventObjectProperties( wxCommandEvent& event )
 {
   EdEditor::ObjectProperties( m_Objects );
 }
@@ -299,8 +305,8 @@ UPackage* EdEditor::EdUPackageCtrl::GetSelectedPackage()
 }
 
 wxBEGIN_EVENT_TABLE( EdEditor::UObjectContextMenu, wxMenu )
-  EVT_MENU( ID_ObjectActivate, EdEditor::UObjectContextMenu::EVT_ObjectActivate )
-  EVT_MENU( ID_ObjectEdit, EdEditor::UObjectContextMenu::EVT_ObjectEdit )
-  EVT_MENU( ID_ObjectExport, EdEditor::UObjectContextMenu::EVT_ObjectExport )
-  EVT_MENU( ID_ObjectProperties, EdEditor::UObjectContextMenu::EVT_ObjectProperties )
+  EVT_MENU( ID_ObjectActivate, EdEditor::UObjectContextMenu::EventObjectActivate )
+  EVT_MENU( ID_ObjectEdit, EdEditor::UObjectContextMenu::EventObjectEdit )
+  EVT_MENU( ID_ObjectExport, EdEditor::UObjectContextMenu::EventObjectExport )
+  EVT_MENU( ID_ObjectProperties, EdEditor::UObjectContextMenu::EventObjectProperties )
 wxEND_EVENT_TABLE()

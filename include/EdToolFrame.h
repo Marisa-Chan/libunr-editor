@@ -57,7 +57,7 @@ public:
 
     static wxSize DefaultFrameSize( wxWindow* Parent );
 
-    void EVT_Exit( wxCommandEvent& event );
+    void EventExit( wxCommandEvent& event );
     virtual void OnExit( wxCommandEvent& event );
 
     static TArray<EdToolFrame*>* GetTools();
