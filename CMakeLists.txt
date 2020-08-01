@@ -3,7 +3,7 @@ project(UNRED CXX)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(CMAKE_MODULE_PATH cmake/Modules ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules" ${CMAKE_MODULE_PATH})
 
 set(UNR_VER_MAJOR 0)
 set(UNR_VER_MINOR 2)
@@ -13,10 +13,6 @@ set(UNR_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 set(UNR_INC ${UNR_ROOT}/include)
 set(UNR_SRC ${UNR_ROOT}/src)
 
-option(BUILD_CYGWIN "Build_Cygwin" OFF )
-option(BUILD_DEUXEX "DeusEx support" OFF)
-option(BUILD_RUNE "Rune support" OFF)
-
 add_definitions("-DINSTALL_PREFIX=\"${CMAKE_INSTALL_PREFIX}\"")
 message(STATUS "Install prefix: " ${CMAKE_INSTALL_PREFIX})
 
@@ -24,14 +20,12 @@ if (WIN32)
 	add_definitions("-Wno-invalid-offsetof")
 endif()
 
-find_package(Dumb REQUIRED)
-find_package(Gme REQUIRED)
-find_package(Mpg123 REQUIRED)
-find_package(Vorbisfile REQUIRED)
-find_package(X11)
 find_package(wxWidgets REQUIRED base core adv)
 
-find_package(Libunr REQUIRED)
+# When doing a top level build we don't want to do find_package
+if (NOT TARGET Unr::Unr)
+	find_package(Unr REQUIRED)
+endif()
 
 include(${wxWidgets_USE_FILE})
 
@@ -65,14 +59,8 @@ add_executable(libunr-editor
 
 target_link_libraries(libunr-editor
 	dl
-	${LIBUNR_LIBRARIES}
-	${OPENGL_LIBRARIES}
-	${X11_LIBRARIES}
-	${LIBGME_LIBRARIES}
-	${LIBDUMB_LIBRARIES}
+	Unr::Unr
 	${wxWidgets_LIBRARIES}
-	${LIBMPG123_LIBRARIES}
-	${LIBVORBISFILE_LIBRARIES}
 )
 
 install(TARGETS libunr-editor RUNTIME

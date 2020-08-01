@@ -1,0 +1,18 @@
+find_package(PkgConfig)
+pkg_check_modules(PC_UUID QUIET uuid)
+set(UUID_DEFINITIONS ${PC_UUID_CFLAGS_OTHER})
+
+find_path(LIBUUID_INCLUDE_DIR uuid.h
+          HINTS ${PC_UUID_INCLUDEDIR} ${PC_UUID_INCLUDE_DIRS})
+
+find_library(LIBUUID_LIBRARY NAMES uuid
+             HINTS ${PC_UUID_LIBDIR} ${PC_UUID_LIBRARY_DIRS})
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(Uuid DEFAULT_MSG
+		LIBUUID_LIBRARY LIBUUID_INCLUDE_DIR)
+
+mark_as_advanced(LIBUUID_LIBRARY LIBUUID_INCLUDE_DIR)
+
+set(LIBUUID_LIBRARIES ${LIBUUID_LIBRARY})
+set(LIBUUID_INCLUDE_DIRS ${LIBUUID_INCLUDE_DIR})
