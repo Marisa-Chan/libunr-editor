@@ -280,7 +280,7 @@ bool EditorApp::OnInit()
         return false;
     }
 
-    UClass* EditorEngineClass = (UClass*)UObject::StaticLoadObject(EditorPkg, "EditorEngine", UClass::StaticClass(), NULL, true);
+    UClass* EditorEngineClass = (UClass*)UObject::StaticLoadObject(EditorPkg, "EditorEngine", UClass::StaticClass(), NULL);
     if (!EditorEngineClass)
     {
         GLogf(LOG_CRIT, "Failed to load EditorEngine class");
