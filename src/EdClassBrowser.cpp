@@ -26,7 +26,7 @@
 #include "EdEditor.h"
 #include "EdBrowsers.h"
 
-#define CTRLFONT() SetFont( wxFont(8, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false ) )
+#define CTRLFONT() SetFont( wxFont(8, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false ) )
 
 EdClassBrowser::EdClassBrowser( wxWindow* Parent, UClass* Root, bool bStartDocked ) 
   : EdBrowser( Parent ), m_Root( Root )
