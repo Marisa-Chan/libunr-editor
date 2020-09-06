@@ -251,8 +251,6 @@ void EdNameTable::Update( UPackage* Pkg )
 
   if( Pkg->GetStream() == NULL )
   {
-    m_NameTable->DeleteAllColumns();
-    m_NameTable->AppendColumn( " ", wxLIST_FORMAT_LEFT, 256 );
     m_NameTable->InsertItem( 0, "NATIVE PACKAGE" );
 
     return;
@@ -310,8 +308,6 @@ void EdExportTable::Update( UPackage* Pkg )
 
   if( Pkg->GetStream() == NULL )
   {
-    m_ExportTable->DeleteAllColumns();
-    m_ExportTable->AppendColumn( " ", wxLIST_FORMAT_LEFT );
     m_ExportTable->InsertItem( 0, "NATIVE PACKAGE" );
 
     return;
@@ -410,8 +406,6 @@ void EdImportTable::Update( UPackage* Pkg )
 
   if( Pkg->GetStream() == NULL )
   {
-    m_ImportTable->DeleteAllColumns();
-    m_ImportTable->AppendColumn( " ", wxLIST_FORMAT_LEFT );
     m_ImportTable->InsertItem( 0, "NATIVE PACKAGE" );
 
     return;
