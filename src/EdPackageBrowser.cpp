@@ -103,7 +103,7 @@ EdPackageHeader::EdPackageHeader( wxWindow* Parent )
   wxStaticText* text = new wxStaticText( this, wxID_ANY, "Pkg Flags" );
   m_PackageInfo = new wxListCtrl( this, wxID_ANY, wxDefaultPosition, wxSize( -1, 232), wxLC_REPORT | wxLC_HRULES | wxLC_VRULES | wxLC_NO_HEADER , wxDefaultValidator, wxString( "Pkg Info" ) );
   m_PackageInfo->AppendColumn( "Flag", wxLIST_FORMAT_LEFT, 256 );
-  m_PackageInfo->AppendColumn( "Value", wxLIST_FORMAT_LEFT, 256 );
+  m_PackageInfo->AppendColumn( "Value", wxLIST_FORMAT_LEFT, 1024 );
 
   m_VSizer->Add( text, 0 );
   m_VSizer->Add( m_PackageInfo, 1, wxEXPAND );
@@ -112,8 +112,8 @@ EdPackageHeader::EdPackageHeader( wxWindow* Parent )
   m_VSizer->Add( text, 0 );
 
   m_PackageFlags = new wxListCtrl( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT | wxLC_HRULES | wxLC_VRULES | wxLC_NO_HEADER , wxDefaultValidator, wxString( "Pkg Flags" ) );
-  m_PackageFlags->AppendColumn( "Flag", wxLIST_FORMAT_LEFT, 256 );
-  m_PackageFlags->AppendColumn( "Value", wxLIST_FORMAT_LEFT, 256 );
+  m_PackageFlags->AppendColumn( "Flag", wxLIST_FORMAT_LEFT, 128 );
+  m_PackageFlags->AppendColumn( "Value", wxLIST_FORMAT_LEFT, 1024 );
 
   m_VSizer->Add( m_PackageFlags, 1, wxEXPAND );
 
@@ -200,39 +200,13 @@ void EdPackageHeader::Update( UPackage* Pkg )
   m_PackageInfo->SetItem( 11, 1, GUID );
 
   //Flags
-  m_PackageFlags->InsertItem( 0, "Flags" );
-  m_PackageFlags->InsertItem( 1, "PKG_AllowDownload");
-  m_PackageFlags->InsertItem( 2, "PKG_ClientOptional");
-  m_PackageFlags->InsertItem( 3, "PKG_ServerSideOnly");
-  m_PackageFlags->InsertItem( 4, "PKG_BrokenLinks");
-  m_PackageFlags->InsertItem( 5, "PKG_Unsecure");
-  m_PackageFlags->InsertItem( 6, "PKG_Need");
+  m_PackageFlags->InsertItem( 0, "Flags (Hex)" );
+  m_PackageFlags->InsertItem( 1, "Flags");
 
   u32 flags = Pkg->GetHeader()->PackageFlags;
 
-  wxString flagHex;
-
-  flagHex += hex_chars[ ( flags & 0xF0000000 ) >> 28 ];
-  flagHex += hex_chars[ ( flags & 0x0F000000 ) >> 24 ];
-  flagHex += hex_chars[ ( flags & 0x00F00000 ) >> 20 ];
-  flagHex += hex_chars[ ( flags & 0x000F0000 ) >> 16 ];
-  flagHex += hex_chars[ ( flags & 0x0000F000 ) >> 12 ];
-  flagHex += hex_chars[ ( flags & 0x00000F00 ) >> 8 ];
-  flagHex += hex_chars[ ( flags & 0x000000F0 ) >> 4 ];
-  flagHex += hex_chars[ ( flags & 0x0000000F ) ];
-
-  m_PackageFlags->SetItem( 0, 1, wxString( "0x" ) + flagHex );
- 
-  wxString flagValues[2];
-  flagValues[0] = "false";
-  flagValues[1] = "true";
-
-  m_PackageFlags->SetItem( 1, 1, flagValues[ (bool)( flags & 0x00000001 ) ] );
-  m_PackageFlags->SetItem( 2, 1, flagValues[ (bool)( flags & 0x00000002 ) ] );
-  m_PackageFlags->SetItem( 3, 1, flagValues[ (bool)( flags & 0x00000004 ) ] );
-  m_PackageFlags->SetItem( 4, 1, flagValues[ (bool)( flags & 0x00000008 ) ] );
-  m_PackageFlags->SetItem( 5, 1, flagValues[ (bool)( flags & 0x00000010 ) ] );
-  m_PackageFlags->SetItem( 6, 1, flagValues[ (bool)( flags & 0x00008000 ) ] );
+  m_PackageFlags->SetItem( 0, 1, wxString::Format( "0x%08x", flags ) );
+  m_PackageFlags->SetItem( 1, 1, UObject::PackageFlagsString( flags ).Data() );
 }
 
 EdGenerationsTable::EdGenerationsTable( wxWindow* Parent )
@@ -247,19 +221,141 @@ void EdGenerationsTable::Update( UPackage* Pkg )
 EdNameTable::EdNameTable( wxWindow* Parent )
   : wxListCtrl( Parent, wxID_ANY )
 {
+  m_VSizer = new wxBoxSizer( wxVERTICAL );
+
+  m_NameTable = new wxListCtrl( this, wxID_ANY, wxDefaultPosition, wxSize( -1, -1), wxLC_REPORT | wxLC_HRULES | wxLC_VRULES, wxDefaultValidator, wxString( "Pkg Info" ) );
+  m_NameTable->AppendColumn( "Num.", wxLIST_FORMAT_LEFT, 96 );
+  m_NameTable->AppendColumn( "Name", wxLIST_FORMAT_LEFT, 256 );
+  m_NameTable->AppendColumn( "Flags", wxLIST_FORMAT_LEFT, 1024 );
+
+  m_VSizer->Add( m_NameTable, 1, wxEXPAND );
+
+  SetSizer( m_VSizer );
+
+  Show();
 }
 
 void EdNameTable::Update( UPackage* Pkg )
 {
+  m_NameTable->DeleteAllItems();
+
+  if( Pkg == NULL )
+    return;
+
+  if( Pkg->GetStream() == NULL )
+  {
+    m_NameTable->DeleteAllColumns();
+    m_NameTable->AppendColumn( " ", wxLIST_FORMAT_LEFT, 256 );
+    m_NameTable->InsertItem( 0, "NATIVE PACKAGE" );
+
+    return;
+  }
+
+  TArray<FNameEntry>& names = Pkg->GetNameTable();
+
+  for( int i = 0; i<names.Size(); i++ )
+  {
+    //Num
+    wxString str = wxString::Format( wxT("%i"), i ) + wxString( " ( " ) + wxString::Format( "0x%x", i ) + wxString( " )" );
+    m_NameTable->InsertItem( i, str );
+
+    //Name
+    str = names[i].Data;
+    m_NameTable->SetItem( i, 1, str );
+
+    //Flags
+    str = UObject::ObjectFlagsString( names[i].Flags ).Data();
+    m_NameTable->SetItem( i, 2, str );
+  }
 }
 
 EdExportTable::EdExportTable( wxWindow* Parent )
   : wxListCtrl( Parent, wxID_ANY )
 {
+  m_VSizer = new wxBoxSizer( wxVERTICAL );
+
+  m_ExportTable = new wxListCtrl( this, wxID_ANY, wxDefaultPosition, wxSize( -1, -1), wxLC_REPORT | wxLC_HRULES | wxLC_VRULES, wxDefaultValidator, wxString( "Pkg Info" ) );
+
+  m_ExportTable->AppendColumn( "Num.", wxLIST_FORMAT_LEFT, 96 );
+  m_ExportTable->AppendColumn( "Group", wxLIST_FORMAT_LEFT, 256 );
+  m_ExportTable->AppendColumn( "Name", wxLIST_FORMAT_LEFT, 256 );
+  m_ExportTable->AppendColumn( "Class", wxLIST_FORMAT_LEFT, 128 );
+  m_ExportTable->AppendColumn( "Super", wxLIST_FORMAT_LEFT, 128 );
+  m_ExportTable->AppendColumn( "Size", wxLIST_FORMAT_LEFT, 128 );
+  m_ExportTable->AppendColumn( "Offset", wxLIST_FORMAT_LEFT, 128 );
+  m_ExportTable->AppendColumn( "Flags", wxLIST_FORMAT_LEFT, 1024 );
+
+  m_VSizer->Add( m_ExportTable, 1, wxEXPAND );
+
+  SetSizer( m_VSizer );
+
+  Show();
 }
 
 void EdExportTable::Update( UPackage* Pkg )
 {
+  m_ExportTable->DeleteAllItems();
+
+  if( Pkg == NULL )
+    return;
+
+  if( Pkg->GetStream() == NULL )
+  {
+    m_ExportTable->DeleteAllColumns();
+    m_ExportTable->AppendColumn( " ", wxLIST_FORMAT_LEFT );
+    m_ExportTable->InsertItem( 0, "NATIVE PACKAGE" );
+
+    return;
+  }
+
+  TArray<FExport>& exports = Pkg->GetExportTable();
+
+  for( int i = 0; i<exports.Size(); i++ )
+  {
+    //Num
+    wxString str = wxString::Format( "%i", exports[i].Index ) + wxString( " ( " ) + wxString::Format( "0x%x", i ) + wxString( " )" );
+    m_ExportTable->InsertItem( i, str );
+
+    //Group
+    u32 grp = exports[i].Group;
+
+    str = "";
+
+    while( grp != 0 )
+    {
+      str += Pkg->ResolveNameFromObjRef( grp );
+      str += ".";
+      grp = exports[ CalcObjRefValue(grp) ].Group;
+    }
+    str += Pkg->ResolveNameFromObjRef( exports[i].Group );
+
+    m_ExportTable->SetItem( i, 1, str );
+
+    //Name
+    str = Pkg->ResolveNameFromIdx( exports[i].ObjectName );
+    m_ExportTable->SetItem( i, 2, str );
+
+    //Class
+    str = Pkg->ResolveNameFromObjRef( exports[i].Class );
+    m_ExportTable->SetItem( i, 3, str );
+
+    //Super
+    str = Pkg->ResolveNameFromObjRef( exports[i].Super );
+    m_ExportTable->SetItem( i, 4, str );
+
+    //Size
+    str = wxString::Format( "%i", exports[i].SerialSize );
+    m_ExportTable->SetItem( i, 5, str );
+
+    //Offset
+    str = wxString::Format( "0x%08x", exports[i].SerialOffset );
+    m_ExportTable->SetItem( i, 6, str );
+
+    //Flags
+    str = UObject::PackageFlagsString( exports[i].ObjectFlags ).Data();
+    m_ExportTable->SetItem( i, 7, str );
+
+  }
 }
 
 EdExportTree::EdExportTree( wxWindow* Parent )
@@ -274,10 +370,67 @@ void EdExportTree::Update( UPackage* Pkg )
 EdImportTable::EdImportTable( wxWindow* Parent )
   : wxListCtrl( Parent, wxID_ANY )
 {
+  m_VSizer = new wxBoxSizer( wxVERTICAL );
+
+  m_ImportTable = new wxListCtrl( this, wxID_ANY, wxDefaultPosition, wxSize( -1, -1), wxLC_REPORT | wxLC_HRULES | wxLC_VRULES, wxDefaultValidator, wxString( "Pkg Info" ) );
+
+  m_ImportTable->AppendColumn( "Num.", wxLIST_FORMAT_LEFT, 96 );
+  m_ImportTable->AppendColumn( "Package/Group", wxLIST_FORMAT_LEFT, 256 );
+  m_ImportTable->AppendColumn( "Name", wxLIST_FORMAT_LEFT, 256 );
+  m_ImportTable->AppendColumn( "Class", wxLIST_FORMAT_LEFT, 128 );
+  m_ImportTable->AppendColumn( "Class Package", wxLIST_FORMAT_LEFT, 128);
+
+  m_VSizer->Add( m_ImportTable, 1, wxEXPAND );
+
+  SetSizer( m_VSizer );
+
+  Show();
 }
 
 void EdImportTable::Update( UPackage* Pkg )
 {
+  m_ImportTable->DeleteAllItems();
+
+  if( Pkg == NULL )
+    return;
+
+  if( Pkg->GetStream() == NULL )
+  {
+    m_ImportTable->DeleteAllColumns();
+    m_ImportTable->AppendColumn( " ", wxLIST_FORMAT_LEFT );
+    m_ImportTable->InsertItem( 0, "NATIVE PACKAGE" );
+
+    return;
+  }
+
+  TArray<FImport>& imports = Pkg->GetImportTable();
+
+  for( int i = 0; i<imports.Size(); i++ )
+  {
+    //Num
+    wxString str = wxString::Format( "%i", imports[i].Index ) + wxString( " ( " ) + wxString::Format( "0x%x", i ) + wxString( " )" );
+    m_ImportTable->InsertItem( i, str );
+
+    FImport ass1 = imports[i];
+    int ass = imports[i].Package;
+
+    //Package/Group
+    str = Pkg->ResolveNameFromIdx( imports[ CalcObjRefValue(imports[i].Package) ].ObjectName );
+    m_ImportTable->SetItem( i, 1, str );
+
+    //Name
+    str = Pkg->ResolveNameFromIdx( imports[i].ObjectName );
+    m_ImportTable->SetItem( i, 2, str );
+
+    //Class
+    str = Pkg->ResolveNameFromIdx( imports[i].ClassName );
+    m_ImportTable->SetItem( i, 3, str );
+
+    //Class Package
+    str = Pkg->ResolveNameFromIdx( imports[i].ClassPackage );
+    m_ImportTable->SetItem( i, 4, str );
+
+  }
 }
 
 EdImportTree::EdImportTree( wxWindow* Parent )

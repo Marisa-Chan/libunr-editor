@@ -140,7 +140,8 @@ void EdObjectBrowser::ObjectUpdate( bool bUpdatePackageList )
 
     if( m_CheckFilterPackage->GetValue() ) //If we are only doing one package, break.
     {
-      m_Ctrl->Expand( currentPackageItem );
+      if( currentPackageItem.IsOk() ) //Should return false if package has no qualifying items.
+        m_Ctrl->Expand( currentPackageItem );
       break;
     }
   } //End Package

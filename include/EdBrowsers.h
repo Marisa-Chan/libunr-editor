@@ -111,6 +111,7 @@ public:
   void Update( UPackage* Package = NULL );
 
 protected:
+  wxBoxSizer* m_VSizer;
   wxListCtrl* m_NameTable;
 };
 
@@ -123,6 +124,10 @@ public:
   EdExportTable( wxWindow* Parent );
 
   void Update( UPackage* Package = NULL );
+
+protected:
+  wxBoxSizer* m_VSizer;
+  wxListCtrl* m_ExportTable;
 };
 
 /*-----------------------------------------------------------------------------
@@ -145,6 +150,10 @@ public:
   EdImportTable( wxWindow* Parent );
 
   void Update( UPackage* Package = NULL );
+
+protected:
+  wxBoxSizer* m_VSizer;
+  wxListCtrl* m_ImportTable;
 };
 
 /*-----------------------------------------------------------------------------
