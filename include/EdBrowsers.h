@@ -89,7 +89,7 @@ protected:
 /*-----------------------------------------------------------------------------
  * EdGenerationsTable
 -----------------------------------------------------------------------------*/
-class EdGenerationsTable : public wxListCtrl
+class EdGenerationsTable : public wxWindow
 {
 public:
   EdGenerationsTable( wxWindow* Parent );
@@ -103,7 +103,7 @@ protected:
 /*-----------------------------------------------------------------------------
  * EdNameTable
 -----------------------------------------------------------------------------*/
-class EdNameTable : public wxListCtrl
+class EdNameTable : public wxWindow
 {
 public:
   EdNameTable( wxWindow* Parent );
@@ -118,7 +118,7 @@ protected:
 /*-----------------------------------------------------------------------------
  * EdExportTable
 -----------------------------------------------------------------------------*/
-class EdExportTable : public wxListCtrl
+class EdExportTable : public wxWindow
 {
 public:
   EdExportTable( wxWindow* Parent );
@@ -133,18 +133,24 @@ protected:
 /*-----------------------------------------------------------------------------
  * EdExportTree
 -----------------------------------------------------------------------------*/
-class EdExportTree : public wxTreeListCtrl
+class EdExportTree : public wxWindow
 {
 public:
   EdExportTree( wxWindow* Parent );
 
   void Update( UPackage* Package = NULL );
+
+protected:
+  void recurseTree( u32 TargetExport, wxTreeListItem TargetNode, TArray<FExport>& Exports, UPackage* Pkg );
+
+  wxBoxSizer* m_VSizer;
+  wxTreeListCtrl* m_ExportTree;
 };
 
 /*-----------------------------------------------------------------------------
  * EdImportTable
 -----------------------------------------------------------------------------*/
-class EdImportTable : public wxListCtrl
+class EdImportTable : public wxWindow
 {
 public:
   EdImportTable( wxWindow* Parent );
@@ -159,12 +165,18 @@ protected:
 /*-----------------------------------------------------------------------------
  * EdImportTree
 -----------------------------------------------------------------------------*/
-class EdImportTree : public wxTreeListCtrl
+class EdImportTree : public wxWindow
 {
 public:
   EdImportTree( wxWindow* Parent );
 
   void Update( UPackage* Package = NULL );
+
+protected:
+  void recurseTree( int TargetImport, wxTreeListItem TargetNode, TArray<FImport>& Imports, UPackage* Pkg );
+
+  wxBoxSizer* m_VSizer;
+  wxTreeListCtrl* m_ImportTree;
 };
 
 

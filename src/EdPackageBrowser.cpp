@@ -26,7 +26,7 @@
 #include "EdEditor.h"
 #include "EdBrowsers.h"
 
-#define CTRLFONT() SetFont( wxFont(8, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false ) )
+#define CTRLFONT() SetFont( wxFont(8, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_MEDIUM, false ) )
 
 //------------------------------------------------------------------------
 // PackageBrowser
@@ -171,13 +171,13 @@ void EdPackageHeader::Update( UPackage* Pkg )
 
   m_PackageInfo->SetItem( 2, 1, wxString( "" ) << Pkg->GetHeader()->LicenseMode );
   m_PackageInfo->SetItem( 3, 1, wxString( "" ) << Pkg->GetHeader()->NameCount );
-  m_PackageInfo->SetItem( 4, 1, wxString::Format( "0x%08x", Pkg->GetHeader()->NameOffset ) );
+  m_PackageInfo->SetItem( 4, 1, wxString::Format( "0x%08X", Pkg->GetHeader()->NameOffset ) );
   m_PackageInfo->SetItem( 5, 1, wxString( "" ) << Pkg->GetHeader()->ExportCount );
-  m_PackageInfo->SetItem( 6, 1, wxString::Format( "0x%08x", Pkg->GetHeader()->ExportOffset ) );
+  m_PackageInfo->SetItem( 6, 1, wxString::Format( "0x%08X", Pkg->GetHeader()->ExportOffset ) );
   m_PackageInfo->SetItem( 7, 1, wxString( "" ) << Pkg->GetHeader()->ImportCount );
-  m_PackageInfo->SetItem( 8, 1, wxString::Format( "0x%08x", Pkg->GetHeader()->ImportOffset ) );
+  m_PackageInfo->SetItem( 8, 1, wxString::Format( "0x%08X", Pkg->GetHeader()->ImportOffset ) );
   m_PackageInfo->SetItem( 9, 1, wxString( "" ) << Pkg->GetHeader()->HeritageCount );
-  m_PackageInfo->SetItem( 10, 1, wxString::Format( "0x%08x", Pkg->GetHeader()->HeritageOffset ) );
+  m_PackageInfo->SetItem( 10, 1, wxString::Format( "0x%08X", Pkg->GetHeader()->HeritageOffset ) );
 
   //Convert GUID byte array to hex characters, with hyphens, like utpt does.
   wxString GUID;
@@ -210,12 +210,12 @@ void EdPackageHeader::Update( UPackage* Pkg )
 
   u32 flags = Pkg->GetHeader()->PackageFlags;
 
-  m_PackageFlags->SetItem( 0, 1, wxString::Format( "0x%08x", flags ) );
+  m_PackageFlags->SetItem( 0, 1, wxString::Format( "0x%08X", flags ) );
   m_PackageFlags->SetItem( 1, 1, UObject::PackageFlagsString( flags ).Data() );
 }
 
 EdGenerationsTable::EdGenerationsTable( wxWindow* Parent )
-  : wxListCtrl( Parent, wxID_ANY )
+  : wxWindow( Parent, wxID_ANY )
 {
 }
 
@@ -224,7 +224,7 @@ void EdGenerationsTable::Update( UPackage* Pkg )
 }
 
 EdNameTable::EdNameTable( wxWindow* Parent )
-  : wxListCtrl( Parent, wxID_ANY )
+  : wxWindow( Parent, wxID_ANY )
 {
   m_VSizer = new wxBoxSizer( wxVERTICAL );
 
@@ -261,7 +261,7 @@ void EdNameTable::Update( UPackage* Pkg )
   for( int i = 0; i<names.Size(); i++ )
   {
     //Num
-    wxString str = wxString::Format( wxT("%i"), i ) + wxString( " ( " ) + wxString::Format( "0x%x", i ) + wxString( " )" );
+    wxString str = wxString::Format( wxT("%i"), i ) + wxString( " ( " ) + wxString::Format( "0x%X", i ) + wxString( " )" );
     m_NameTable->InsertItem( i, str );
 
     //Name
@@ -275,7 +275,7 @@ void EdNameTable::Update( UPackage* Pkg )
 }
 
 EdExportTable::EdExportTable( wxWindow* Parent )
-  : wxListCtrl( Parent, wxID_ANY )
+  : wxWindow( Parent, wxID_ANY )
 {
   m_VSizer = new wxBoxSizer( wxVERTICAL );
 
@@ -318,7 +318,7 @@ void EdExportTable::Update( UPackage* Pkg )
   for( int i = 0; i<exports.Size(); i++ )
   {
     //Num
-    wxString str = wxString::Format( "%i", exports[i].Index ) + wxString( " ( " ) + wxString::Format( "0x%x", i ) + wxString( " )" );
+    wxString str = wxString::Format( "%i", exports[i].Index ) + wxString( " ( " ) + wxString::Format( "0x%X", exports[i].Index ) + wxString( " )" );
     m_ExportTable->InsertItem( i, str );
 
     //Group
@@ -356,27 +356,105 @@ void EdExportTable::Update( UPackage* Pkg )
     m_ExportTable->SetItem( i, 5, str );
 
     //Offset
-    str = wxString::Format( "0x%08x", exports[i].SerialOffset );
+    str = wxString::Format( "0x%08X", exports[i].SerialOffset );
     m_ExportTable->SetItem( i, 6, str );
 
     //Flags
     str = UObject::PackageFlagsString( exports[i].ObjectFlags ).Data();
     m_ExportTable->SetItem( i, 7, str );
-
   }
 }
 
 EdExportTree::EdExportTree( wxWindow* Parent )
-  : wxTreeListCtrl( Parent, wxID_ANY )
+  : wxWindow( Parent, wxID_ANY )
 {
+  m_ExportTree = new wxTreeListCtrl( this, EdToolFrame::ID_Ctrl, wxDefaultPosition, wxDefaultSize, wxTL_MULTIPLE );
+
+  m_VSizer = new wxBoxSizer( wxVERTICAL );
+
+  m_ExportTree->AppendColumn( wxString("Name"), wxCOL_WIDTH_AUTOSIZE, wxALIGN_LEFT, wxCOL_RESIZABLE | wxCOL_SORTABLE  );
+  m_ExportTree->AppendColumn( wxString("Num."), wxCOL_WIDTH_AUTOSIZE, wxALIGN_LEFT, wxCOL_RESIZABLE | wxCOL_SORTABLE  );
+  m_ExportTree->AppendColumn( wxString("Class"), wxCOL_WIDTH_AUTOSIZE, wxALIGN_LEFT, wxCOL_RESIZABLE | wxCOL_SORTABLE  );
+  m_ExportTree->AppendColumn( wxString("Super"), wxCOL_WIDTH_AUTOSIZE, wxALIGN_LEFT, wxCOL_RESIZABLE | wxCOL_SORTABLE  );
+  m_ExportTree->AppendColumn( wxString("Size"), wxCOL_WIDTH_AUTOSIZE, wxALIGN_LEFT, wxCOL_RESIZABLE | wxCOL_SORTABLE  );
+  m_ExportTree->AppendColumn( wxString("Offset"), wxCOL_WIDTH_AUTOSIZE, wxALIGN_LEFT, wxCOL_RESIZABLE | wxCOL_SORTABLE  );
+  m_ExportTree->AppendColumn( wxString("Flags"), wxCOL_WIDTH_AUTOSIZE, wxALIGN_LEFT, wxCOL_RESIZABLE | wxCOL_SORTABLE  );
+
+  m_ExportTree->CTRLFONT();
+
+  m_VSizer->Add( m_ExportTree, 1, wxEXPAND );
+
+  SetSizer( m_VSizer );
+
+  Show();
 }
 
 void EdExportTree::Update( UPackage* Pkg )
 {
+  m_ExportTree->DeleteAllItems();
+
+  u32 targetExport = 0; //Target non-parented first.
+  TArray<FExport>& exports = Pkg->GetExportTable();
+
+  wxTreeListItem root = m_ExportTree->GetRootItem();
+  recurseTree( targetExport, root, exports, Pkg );
+
+  //Sort
+  m_ExportTree->SetSortColumn( 0, true );
+
+  //Expand Root Item
+  m_ExportTree->Expand( root );
+}
+
+void EdExportTree::recurseTree( u32 TargetExport, wxTreeListItem TargetNode, TArray<FExport>& Exports, UPackage* Pkg )
+{
+  wxTreeListItem NewTargetNode;
+
+  for( size_t i = 0; i<Exports.Size(); i++ )
+  {
+    if( Exports[i].Group == TargetExport )
+    {
+      NewTargetNode = m_ExportTree->AppendItem( TargetNode, Pkg->ResolveNameFromIdx( Exports[i].ObjectName ), NULL, NULL, new EdEditor::UObjectClientData( Exports[i].Obj, Exports[i].Group ) );
+
+      wxString str = "";
+
+      //Num
+      str = wxString::Format( "%i", Exports[i].Index ) + wxString( " ( " ) + wxString::Format( "0x%X", Exports[i].Index ) + wxString( " )" );
+
+      m_ExportTree->SetItemText( NewTargetNode, 1, str );
+
+      //Class
+      str = Pkg->ResolveNameFromObjRef( Exports[i].Class );
+
+      m_ExportTree->SetItemText( NewTargetNode, 2, str );
+
+      //Super
+      str = Pkg->ResolveNameFromObjRef( Exports[i].Super );
+
+      m_ExportTree->SetItemText( NewTargetNode, 3, str );
+
+      //Size
+      str = wxString::Format( "%i", Exports[i].SerialSize );
+
+      m_ExportTree->SetItemText( NewTargetNode, 4, str );
+
+      //Offset
+      str = wxString::Format( "0x%08X", Exports[i].SerialOffset );
+
+      m_ExportTree->SetItemText( NewTargetNode, 5, str );
+
+      //Flags
+      str = UObject::PackageFlagsString( Exports[i].ObjectFlags ).Data();
+
+      m_ExportTree->SetItemText( NewTargetNode, 6, str );
+
+      recurseTree( Exports[i].Index+1, NewTargetNode, Exports, Pkg );
+    }
+  }
 }
 
 EdImportTable::EdImportTable( wxWindow* Parent )
-  : wxListCtrl( Parent, wxID_ANY )
+  : wxWindow( Parent, wxID_ANY )
 {
   m_VSizer = new wxBoxSizer( wxVERTICAL );
 
@@ -416,7 +494,7 @@ void EdImportTable::Update( UPackage* Pkg )
   for( int i = 0; i<imports.Size(); i++ )
   {
     //Num
-    wxString str = wxString::Format( "%i", imports[i].Index ) + wxString( " ( " ) + wxString::Format( "0x%x", i ) + wxString( " )" );
+    wxString str = wxString::Format( "%i", imports[i].Index ) + wxString( " ( " ) + wxString::Format( "0x%X", i ) + wxString( " )" );
     m_ImportTable->InsertItem( i, str );
 
     str = "";
@@ -454,10 +532,71 @@ void EdImportTable::Update( UPackage* Pkg )
 }
 
 EdImportTree::EdImportTree( wxWindow* Parent )
-  : wxTreeListCtrl( Parent, wxID_ANY )
+  : wxWindow( Parent, wxID_ANY )
 {
+  m_ImportTree = new wxTreeListCtrl( this, EdToolFrame::ID_Ctrl, wxDefaultPosition, wxDefaultSize, wxTL_MULTIPLE );
+
+  m_VSizer = new wxBoxSizer( wxVERTICAL );
+
+  m_ImportTree->AppendColumn( wxString("Name"), wxCOL_WIDTH_AUTOSIZE, wxALIGN_LEFT, wxCOL_RESIZABLE | wxCOL_SORTABLE  );
+  m_ImportTree->AppendColumn( wxString("Num."), wxCOL_WIDTH_AUTOSIZE, wxALIGN_LEFT, wxCOL_RESIZABLE | wxCOL_SORTABLE  );
+  m_ImportTree->AppendColumn( wxString("Class"), wxCOL_WIDTH_AUTOSIZE, wxALIGN_LEFT, wxCOL_RESIZABLE | wxCOL_SORTABLE  );
+  m_ImportTree->AppendColumn( wxString("Class Package"), wxCOL_WIDTH_AUTOSIZE, wxALIGN_LEFT, wxCOL_RESIZABLE | wxCOL_SORTABLE  );
+
+  m_ImportTree->CTRLFONT();
+
+  m_VSizer->Add( m_ImportTree, 1, wxEXPAND );
+
+  SetSizer( m_VSizer );
+
+  Show();
 }
 
 void EdImportTree::Update( UPackage* Pkg )
 {
+  m_ImportTree->DeleteAllItems();
+
+  int targetImport = 0; //Target non-parented first.
+  TArray<FImport>& Imports = Pkg->GetImportTable();
+
+  wxTreeListItem root = m_ImportTree->GetRootItem();
+  recurseTree( targetImport, root, Imports, Pkg );
+
+  //Sort
+  m_ImportTree->SetSortColumn( 0, true );
+
+  //Expand Root Item
+  m_ImportTree->Expand( root );
+}
+
+void EdImportTree::recurseTree( int TargetImport, wxTreeListItem TargetNode, TArray<FImport>& Imports, UPackage* Pkg )
+{
+  wxTreeListItem NewTargetNode;
+
+  for( size_t i = 0; i<Imports.Size(); i++ )
+  {
+    if( -1*Imports[i].Package == TargetImport )
+    {
+      NewTargetNode = m_ImportTree->AppendItem( TargetNode, Pkg->ResolveNameFromIdx( Imports[i].ObjectName ), NULL, NULL );
+
+      wxString str = "";
+
+      //Num
+      str = wxString::Format( "%i", Imports[i].Index ) + wxString( " ( " ) + wxString::Format( "0x%X", Imports[i].Index ) + wxString( " )" );
+
+      m_ImportTree->SetItemText( NewTargetNode, 1, str );
+
+      //Class
+      str = Pkg->ResolveNameFromIdx( Imports[i].ClassName );
+
+      m_ImportTree->SetItemText( NewTargetNode, 2, str );
+
+      //Class Package
+      str = Pkg->ResolveNameFromIdx( Imports[i].ClassPackage );
+
+      m_ImportTree->SetItemText( NewTargetNode, 3, str );
+
+      recurseTree( Imports[i].Index+1, NewTargetNode, Imports, Pkg );
+    }
+  }
 }
