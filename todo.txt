@@ -1,0 +1,30 @@
+Browsers: 
+- Full implementation of Context menus for UObjects and UI Controls, such as collapsing/expanding trees, copying and editing data, etc.
+
+- Custom wx Classes nessecary to render theming (for dark themes, and alternating row colors ), column/row adjustments for a better fit, and other readability improvements.
+
+- Rendering previews/thumbnails of Textures/Materials, Models, Levels.
+
+- Editor Window for text.
+
+- Browser controls for manipulting UObjects, saving and loading packages. New Objects and Packages, etc.
+
+- Browser control for stopping audio after being played.
+
+- Properties Browser.
+
+- Mesh Browser.
+
+- Config Browser write support.
+
+Editor Tools:
+
+- Map Editor
+
+- Brush/Mesh Editor (Replaces the 2d shape editor and non-trivial brush building methods)
+
+- Script viewer
+
+- Editor console
+
+

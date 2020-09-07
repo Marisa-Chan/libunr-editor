@@ -102,7 +102,7 @@ EdPackageHeader::EdPackageHeader( wxWindow* Parent )
 {
   m_VSizer = new wxBoxSizer( wxVERTICAL );
 
-  wxStaticText* text = new wxStaticText( this, wxID_ANY, "Pkg Flags" );
+  wxStaticText* text = new wxStaticText( this, wxID_ANY, "Pkg Info" );
   m_PackageInfo = new wxListCtrl( this, wxID_ANY, wxDefaultPosition, wxSize( -1, 232), wxLC_REPORT | wxLC_HRULES | wxLC_VRULES | wxLC_NO_HEADER , wxDefaultValidator, wxString( "Pkg Info" ) );
   m_PackageInfo->AppendColumn( "Flag", wxLIST_FORMAT_LEFT, 256 );
   m_PackageInfo->AppendColumn( "Value", wxLIST_FORMAT_LEFT, 1024 );
@@ -360,7 +360,7 @@ void EdExportTable::Update( UPackage* Pkg )
     m_ExportTable->SetItem( i, 6, str );
 
     //Flags
-    str = UObject::PackageFlagsString( exports[i].ObjectFlags ).Data();
+    str = UObject::ObjectFlagsString( exports[i].ObjectFlags ).Data();
     m_ExportTable->SetItem( i, 7, str );
   }
 }
@@ -444,11 +444,13 @@ void EdExportTree::recurseTree( u32 TargetExport, wxTreeListItem TargetNode, TAr
       m_ExportTree->SetItemText( NewTargetNode, 5, str );
 
       //Flags
-      str = UObject::PackageFlagsString( Exports[i].ObjectFlags ).Data();
+      str = UObject::ObjectFlagsString( Exports[i].ObjectFlags ).Data();
 
       m_ExportTree->SetItemText( NewTargetNode, 6, str );
 
       recurseTree( Exports[i].Index+1, NewTargetNode, Exports, Pkg );
+
+      m_ExportTree->Expand( NewTargetNode );
     }
   }
 }
